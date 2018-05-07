@@ -13,6 +13,7 @@ router.route("/compare/:query")
 		youtubeCtrl.splitActors,
 		youtubeCtrl.loadAccount,
 		youtubeCtrl.getDataset,
+		youtubeCtrl.getChartLimits,
 		youtubeCtrl.drawLineChart,
 	);
 // Importa os dados da tabela para o banco de dados -> youtube/import
@@ -38,6 +39,7 @@ router.route("/latest/:id")
 router.route("/:id/:query")
 	.get(
 		youtubeCtrl.getDataset,
+		youtubeCtrl.getChartLimits,
 		youtubeCtrl.drawLineChart,
 	);
 

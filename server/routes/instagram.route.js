@@ -12,6 +12,7 @@ router.route("/compare/:query")
 		instagramControl.splitActors,
 		instagramControl.loadAccount,
 		instagramControl.getDataset,
+		instagramControl.getChartLimits,
 		instagramControl.getConfigLineChart,
 		instagramControl.plotLineChart,
 	);
@@ -33,6 +34,7 @@ router.route("/latest/:username")
 router.route("/:username/:query")
 	.get(
 		instagramControl.getDataset,
+		instagramControl.getChartLimits,
 		instagramControl.getConfigLineChart,
 		instagramControl.plotLineChart,
 	);

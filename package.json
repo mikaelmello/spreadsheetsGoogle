@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest 'server/tests'",
+    "test": "jest 'server/tests' --coverage",
     "lint": "esw *.js config server --color",
     "start": "nodemon index.js",
     "precommit": "npm run lint && npm run test"

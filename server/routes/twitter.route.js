@@ -19,6 +19,7 @@ router.route("/compare/:query")
 		twitterCtrl.splitActors,
 		twitterCtrl.loadAccount,
 		twitterCtrl.createDataset,
+		twitterCtrl.getChartLimits,
 		twitterCtrl.drawLineChart,
 	);
 
@@ -39,6 +40,7 @@ router.route("/latest/:username")
 router.route("/:username/:query")
 	.get(
 		twitterCtrl.createDataset,
+		twitterCtrl.getChartLimits,
 		twitterCtrl.drawLineChart,
 	);
 

@@ -251,6 +251,11 @@ const drawLineChart = async (req, res) => {
 						display: true,
 						labelString: labelYAxes,
 					},
+					ticks: {
+						min: req.chart.yMin,
+						max: req.chart.yMax,
+						stepSize: req.chart.yStep,
+					},
 				}],
 			},
 		},
@@ -369,11 +374,9 @@ const createDataset = (req, res, next) => {
 		req.chart.dataSets = [];
 	}
 
-	/*
 	if (req.chart.data === undefined) {
 		req.chart.data = [];
 	}
-	// */
 
 	accounts.forEach((account) => {
 		const dataUser = [];
@@ -411,8 +414,67 @@ const createDataset = (req, res, next) => {
 		};
 
 		req.chart.dataSets.push(dataSet);
-		// req.chart.data.push(dataUser);
+		req.chart.data.push(dataUser);
 	});
+
+	next();
+};
+
+/**
+ * Definition of the mathematical configurations for the Y-axis of the chart
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @param {object} next - standard next function
+ * @returns Execution of the next feature, over the Y-axis limits of the chart
+ */
+const getChartLimits = (req, res, next) => {
+	let minValue = Number.MAX_VALUE;
+	let maxValue = Number.MIN_VALUE;
+	const percent = 0.05;
+	// let averageValue = 0;
+	// let desvPadValue = 0;
+	let value = 0;
+
+	const historiesValid = req.chart.data;
+	let length = 0;
+
+	historiesValid.forEach((history) => {
+		history.forEach((point) => {
+			length += 1;
+			value = point.y;
+
+			if (value < minValue)		minValue = value;
+			if (value > maxValue)		maxValue = value;
+
+			// averageValue += value;
+		});
+	});
+
+	/*
+	averageValue /= length;
+
+	historiesValid.forEach((history) => {
+		history.forEach((point) => {
+			value = point.y;
+			desvPadValue += (value - averageValue) ** 2;
+		});
+	});
+
+	desvPadValue /= length;
+	desvPadValue = Math.ceil(Math.sqrt(desvPadValue));
+
+	maxValue = Math.ceil(maxValue) + desvPadValue;
+	minValue = Math.floor(minValue) - desvPadValue;
+	*/
+
+	const margin = (maxValue - minValue) * percent;
+	maxValue = Math.ceil(maxValue + margin);
+	minValue = Math.floor(minValue - margin);
+	if (minValue <= 0) minValue = 0;
+
+	req.chart.yMin = minValue;
+	req.chart.yMax = maxValue;
+	req.chart.yStep = (maxValue - minValue) / (2 * length);
 
 	next();
 };
@@ -575,6 +637,7 @@ module.exports = {
 	setSampleKey,
 	splitActors,
 	createDataset,
+	getChartLimits,
 	evolutionMsg,
 	capitalize,
 	matchTwitterUsername,
