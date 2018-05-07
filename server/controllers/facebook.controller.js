@@ -310,6 +310,7 @@ const setHistoryKey = (req, res, next) => {
 const splitActors = (req, res, next) => {
 	try {
 		const actors = req.query.actors.split(",");
+		if (actors.length <= 1) throw new TypeError("Insufficient amount of actors for a comparison");
 
 		req.actors = actors;
 
