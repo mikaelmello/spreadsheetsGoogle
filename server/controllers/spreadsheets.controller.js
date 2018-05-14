@@ -3,7 +3,7 @@ const ChartjsNode = require("chartjs-node");
 const httpStatus = require("http-status");
 const logger = require("../../config/logger");
 const { client, authorizeUrl } = require("../../config/google-auth");
-const resocieSheet = require("../../config/resocie.json").spreadsheets[0];
+const resocieSheet = require("../../config/resocie.json").spreadsheets;
 
 const fileName = "frentePopularInstagram.png";
 const pathOfFile = `${__dirname}/${fileName}`;
