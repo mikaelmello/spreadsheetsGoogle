@@ -258,7 +258,7 @@ const setHistoryKey = (req, res, next) => {
 	let chartTitle;
 
 	if (historyKeyPT !== undefined) {
-		chartTitle = evolutionMsg(historyKeyPT);
+		chartTitle = evolutionMsg(historyKeyPT, SOCIAL_MIDIA);
 	} else {
 		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
 		return res.status(httpStatus.ERROR_QUERY_KEY).json({

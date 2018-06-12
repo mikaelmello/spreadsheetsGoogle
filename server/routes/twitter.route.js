@@ -2,7 +2,11 @@ const express = require("express");
 const twitterCtrl = require("../controllers/twitter.controller");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
 
+const viewCtrl = require("../controllers/view.controller");
+const geralCtrl = require("../controllers/geral.controller");
+
 const router = express.Router(); // eslint-disable-line new-cap
+
 
 // / listar todas as contas na db
 // /compare-all/likes ou outras paradas pra gerar um grafico comparando todos os atores
@@ -16,11 +20,12 @@ router.route("/")
 
 router.route("/compare/:query")
 	.get(
-		twitterCtrl.splitActors,
+		geralCtrl.splitActors,
 		twitterCtrl.loadAccount,
-		twitterCtrl.createDataset,
-		twitterCtrl.getChartLimits,
-		twitterCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
 router.route("/import")
@@ -39,9 +44,10 @@ router.route("/latest/:username")
 
 router.route("/:username/:query")
 	.get(
-		twitterCtrl.createDataset,
-		twitterCtrl.getChartLimits,
-		twitterCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
 router.param("username", twitterCtrl.loadAccount);

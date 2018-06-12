@@ -7,6 +7,9 @@ const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
+const viewCtrl = require("./view.controller");
+const geralCtrl = require("./geral.controller");
+
 //const twitterChart = require("../../../frontend/controllers/twitterChart.controller");
 
 /*	Global constants */
@@ -34,7 +37,7 @@ const listAccounts = async (req, res) => {
 			accounts,
 		});
 	} catch (error) {
-		const errorMsg = `Erro ao carregar usuários do ${capitalize(SOCIAL_MIDIA)} nos registros`;
+		const errorMsg = `Erro ao carregar usuários do ${geralCtrl.capitalize(SOCIAL_MIDIA)} nos registros`;
 
 		stdErrorHand(res, httpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
 	}
@@ -197,75 +200,10 @@ const userLastSample = (req, res) => {
 			latest,
 		});
 	} catch (error) {
-		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
 
 		stdErrorHand(res, httpStatus.ERROR_LATEST, errorMsg, error);
 	}
-};
-
-/**
- * Draws the chart into a buffer and send it as a response to the request.
- * @param {object} req - standard req object from the Express library
- * @param {object} res - standard res object from the Express library
- * @param {object} next - standard next object from the Express libary
- */
-const drawLineChart = async (req, res) => {
-	const mainLabel = req.chart.mainLabel;
-	const datasets = req.chart.dataSets;
-	const chartNode = new Chart(CHART_SIZE, CHART_SIZE);
-	const labelXAxes = "Data";
-	const labelYAxes = `Nº de ${req.chart.sampleKeyPT}`;
-
-	const config = {
-		type: "line",
-		data: {
-			datasets: datasets,
-		},
-		options: {
-			title: {
-				display: true,
-				text: mainLabel,
-			},
-			legend: {
-				display: true,
-				position: "top",
-				labels: {
-					padding: 15,
-				},
-			},
-			scales: {
-				xAxes: [{
-					type: "time",
-					time: {
-						tooltipFormat: "ll",
-						unit: "month",
-						displayFormats: { month: "MM/YYYY" },
-					},
-					scaleLabel: {
-						display: true,
-						labelString: labelXAxes,
-					},
-				}],
-				yAxes: [{
-					scaleLabel: {
-						display: true,
-						labelString: labelYAxes,
-					},
-					ticks: {
-						min: req.chart.yMin,
-						max: req.chart.yMax,
-						stepSize: req.chart.yStep,
-					},
-				}],
-			},
-		},
-	};
-
-	await chartNode.drawChart(config);
-	const buffer = await chartNode.getImageBuffer("image/png");
-	res.writeHead(httpStatus.OK, { "Content-Type": "image/png" });
-	res.write(buffer);
-	res.end();
 };
 
 /*	Route middlewares */
@@ -294,7 +232,7 @@ const loadAccount = async (req, res, next) => {
 		} else {
 			username = req.params.username;
 		}
-		const errorMsg = `Error ao carregar usuário(s) [${username}] dos registros do ${capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error ao carregar usuário(s) [${username}] dos registros do ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
 
 		return stdErrorHand(res, httpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
 	}
@@ -313,7 +251,7 @@ const setSampleKey = (req, res, next) => {
 	const queriesPT = ResocieObs.queriesPT.twitterQueriesPT;
 	const sampleKey = req.params.query;
 	const sampleKeyPT = queriesPT[sampleKey];
-	const errorMsg = `Não existe a caracteristica [${sampleKey}] para o ${capitalize(SOCIAL_MIDIA)}`;
+	const errorMsg = `Não existe a caracteristica [${sampleKey}] para o ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
 
 	// Título do gráfico gerado
 	let mainLabel;
@@ -321,7 +259,7 @@ const setSampleKey = (req, res, next) => {
 	// Analisa o caminho da rota que chegou nesta função para
 	// ter um título com o parâmetro correto.
 	if (sampleKeyPT !== undefined) {
-		mainLabel = evolutionMsg(sampleKeyPT);
+		mainLabel = viewCtrl.evolutionMsg(sampleKeyPT);
 	} else {
 		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
 		return res.status(httpStatus.ERROR_QUERY_KEY).json({
@@ -336,162 +274,6 @@ const setSampleKey = (req, res, next) => {
 		mainLabel: mainLabel,
 	};
 	return next();
-};
-
-/**
- * Split of actors to be compared
- * @param {object} req - standard request object from the Express library
- * @param {object} res - standard response object from the Express library
- * @param {object} next - standard next function
- */
-const splitActors = (req, res, next) => {
-	try {
-		const actors = req.query.actors.split(",");
-
-		if (actors.length <= 1) {
-			throw new TypeError("Insufficient amount of actors for a comparison");
-		}
-
-		req.actors = actors;
-
-		next();
-	} catch (error) {
-		const errorMsg = "Erro ao criar o ambiente para a comparação";
-
-		stdErrorHand(res, httpStatus.ERROR_SPLIT_ACTORS, errorMsg, error);
-	}
-};
-
-/**
- * Creates a dataset to be used on the creation of a Chart object later on, this
- * dataset is based in the req.chart.sampleKey string
- * @param {object} req - standard req object from the Express library
- * @param {object} res - standard res object from the Express library
- * @param {object} next - standard next object from the Express libary
- */
-const createDataset = (req, res, next) => {
-	// Carrega as samples da conta do usuário
-	const sampleKey = req.chart.sampleKey;
-	const accounts = req.account;
-
-	if (req.chart.dataSets === undefined) {
-		req.chart.dataSets = [];
-	}
-
-	if (req.chart.data === undefined) {
-		req.chart.data = [];
-	}
-
-	accounts.forEach((account) => {
-		const dataUser = [];
-		const samples = account.samples;
-		const length = samples.length;
-		// const labels = [];
-
-		for (let ind = 0; ind < length; ind += 1) {
-			if (samples[ind][sampleKey] !== undefined
-				&& samples[ind][sampleKey] !== null) {
-				const date = new Date(samples[ind].date);
-
-				dataUser.push({
-					x: date,
-					y: samples[ind][sampleKey],
-				});
-				// labels.push(date);
-			}
-		}
-
-		let label;
-		if ((account.name.length + account.username.length) > MAX_LEN_LABEL) {
-			label = `${account.name}\n(${account.username})`;
-		} else {
-			label = `${account.name} (${account.username})`;
-		}
-
-		const color = Color.getColor();
-		const dataSet = {
-			data: dataUser,
-			backgroundColor: color,
-			borderColor: color,
-			fill: false,
-			label: label,
-		};
-
-		req.chart.dataSets.push(dataSet);
-		req.chart.data.push(dataUser);
-	});
-
-	next();
-};
-
-/**
- * Definition of the mathematical configurations for the Y-axis of the chart
- * @param {object} req - standard request object from the Express library
- * @param {object} res - standard response object from the Express library
- * @param {object} next - standard next function
- * @returns Execution of the next feature, over the Y-axis limits of the chart
- */
-const getChartLimits = (req, res, next) => {
-	let minValue = Number.MAX_VALUE;
-	let maxValue = Number.MIN_VALUE;
-	const percent = 0.05;
-	let roundStep = 10;
-	let averageValue = 0;
-	let desvPadValue = 0;
-	let value = 0;
-	let stpValue;
-
-	const historiesValid = req.chart.data;
-	let length = 0;
-
-	historiesValid.forEach((history) => {
-		history.forEach((point) => {
-			length += 1;
-			value = point.y;
-
-			if (value < minValue)		minValue = value;
-			if (value > maxValue)		maxValue = value;
-
-			averageValue += value;
-		});
-	});
-
-	averageValue /= length;
-
-	historiesValid.forEach((history) => {
-		history.forEach((point) => {
-			value = point.y;
-			desvPadValue += (value - averageValue) ** 2;
-		});
-	});
-
-	desvPadValue /= length;
-	desvPadValue = Math.ceil(Math.sqrt(desvPadValue));
-
-	const margin = (maxValue - minValue) * percent;
-	const maxRaw = maxValue;
-	const minRaw = minValue;
-
-	maxValue += margin;
-	minValue -= margin;
-
-	stpValue = Math.round((maxValue - minValue) / ((length / historiesValid.length) * 2));
-
-	roundStep **= (Math.round(Math.log10(desvPadValue - stpValue)) - 1);
-
-	maxValue += roundStep - (maxValue % roundStep);
-	minValue -= (minValue % roundStep);
-	stpValue += roundStep - (stpValue % roundStep);
-
-	if (Math.abs(maxRaw - maxValue) > stpValue) maxValue = maxRaw;
-	if (Math.abs(minRaw - minRaw) < stpValue) minValue = minRaw - (minRaw % roundStep);
-	if (minValue <= 0) minValue = 0;
-
-	req.chart.yMin = Math.floor(minValue);
-	req.chart.yMax = Math.ceil(maxValue);
-	req.chart.yStep = stpValue;
-
-	next();
 };
 
 /*	Methods of abstraction upon request */
@@ -614,25 +396,6 @@ const stdErrorHand = (res, errorCode, errorMsg, error) => {
 	});
 };
 
-/*	Methods of abstraction */
-/**
- * Standard message for the analysis of the evolution of a characteristic
- * of a given account
- * @param {String} param - characteristic under analysis
- * @returns standard message generated
- */
-const evolutionMsg = (param) => {
-	return `Evolução de ${param}, no ${capitalize(SOCIAL_MIDIA)}`;
-};
-
-/**
- * Capitalization of a given string
- * @param {string} str - string for modification
- */
-const capitalize = (str) => {
-	return str.replace(/\b\w/g, l => l.toUpperCase()); // eslint-disable-line
-};
-
 /**
  * Acquire the account username from the import base
  * @param {string} usernameRaw - supposed account username
@@ -703,14 +466,8 @@ module.exports = {
 	importData,
 	getUser,
 	userLastSample,
-	drawLineChart,
 	loadAccount,
 	setSampleKey,
-	splitActors,
-	createDataset,
-	getChartLimits,
-	evolutionMsg,
-	capitalize,
 	getImportUsername,
 	isCellValid,
 	getImportDate,

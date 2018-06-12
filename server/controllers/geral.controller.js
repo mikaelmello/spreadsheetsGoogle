@@ -32,6 +32,6 @@ const capitalize = (str) => {
 };
 
 module.exports = {
-    capitalize,
     splitActors,
+	capitalize,
 };

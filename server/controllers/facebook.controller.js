@@ -6,6 +6,9 @@ const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
+const geralCtrl = require("./geral.controller");
+const viewCtrl = require("./view.controller");
+
 /*	Global constants */
 const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
 
@@ -29,7 +32,7 @@ const listAccounts = async (req, res) => {
 			accounts,
 		});
 	} catch (error) {
-		const errorMsg = `Erro ao carregar usuários do ${capitalize(SOCIAL_MIDIA)} nos registros`;
+		const errorMsg = `Erro ao carregar usuários do ${geralCtrl.capitalize(SOCIAL_MIDIA)} nos registros`;
 
 		stdErrorHand(res, httpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
 	}
@@ -196,7 +199,7 @@ const getLatest = (req, res) => {
 			latest,
 		});
 	} catch (error) {
-		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
 
 		stdErrorHand(res, httpStatus.ERROR_LATEST, errorMsg, error);
 	}
@@ -231,7 +234,7 @@ const loadAccount = async (req, res, next) => {
 			id = req.params.id;
 		}
 
-		const errorMsg = `Error ao carregar usuário(s) [${id}] dos registros do ${capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error ao carregar usuário(s) [${id}] dos registros do ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
 
 		return stdErrorHand(res, httpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
 	}
@@ -248,12 +251,12 @@ const setHistoryKey = (req, res, next) => {
 	const queriesPT = ResocieObs.queriesPT.facebookQueriesPT;
 	const historyKey = req.params.query;
 	const historyKeyPT = queriesPT[historyKey];
-	const errorMsg = `Não existe a caracteristica [${historyKey}] para o ${capitalize(SOCIAL_MIDIA)}`;
+	const errorMsg = `Não existe a caracteristica [${historyKey}] para o ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
 
 	let chartTitle;
 
 	if (historyKeyPT !== undefined) {
-		chartTitle = evolutionMsg(historyKeyPT);
+		chartTitle = viewCtrl.evolutionMsg(historyKeyPT, SOCIAL_MIDIA);
 	} else {
 		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
 		return res.status(httpStatus.ERROR_QUERY_KEY).json({

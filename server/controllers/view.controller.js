@@ -10,15 +10,13 @@ const geralCtrl = require("./geral.controller");
 /*	Global constants */
 const CHART_SIZE = 700;
 const MAX_LEN_LABEL = 80;
-const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
-
 
 /**
  * Generating and plotting the generated chart on the page
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  */
-const plotLineChart = async (req, res) => {
+const plotLineChart = async (req, res, social_media) => {
 	const chart = new ChartNode(CHART_SIZE, CHART_SIZE);
 
 	await chart.drawChart(req.chart.config);
@@ -225,16 +223,17 @@ const getConfigLineChart = (req, res, next) => {
  * Standard message for the analysis of the evolution of a characteristic
  * of a given account
  * @param {String} param - characteristic under analysis
+ * 
  * @returns standard message generated
  */
-const evolutionMsg = (param) => {
-	return `Evolução de ${param}, no ${capitalize(SOCIAL_MIDIA)}`;
+const evolutionMsg = (param, mediaName) => {
+	return `Evolução de ${param}, no ${geralCtrl.capitalize(mediaName)}`;
 };
 
 module.exports = {
-	plotLineChart,
 	getDataset,
 	getChartLimits,
 	getConfigLineChart,
+	plotLineChart,
 	evolutionMsg,
 };

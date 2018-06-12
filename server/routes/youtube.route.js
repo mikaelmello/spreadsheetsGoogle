@@ -1,6 +1,8 @@
 const express = require("express");
 const youtubeCtrl = require("../controllers/youtube.controller");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
+const viewCtrl = require("../controllers/view.controller");
+const geralCtrl = require("../controllers/geral.controller");
 
 const router = express.Router(); // eslint-disable-line new-cap
 
@@ -10,11 +12,12 @@ router.route("/")
 
 router.route("/compare/:query")
 	.get(
-		youtubeCtrl.splitActors,
+		geralCtrl.splitActors,
 		youtubeCtrl.loadAccount,
-		youtubeCtrl.getDataset,
-		youtubeCtrl.getChartLimits,
-		youtubeCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 // Importa os dados da tabela para o banco de dados -> youtube/import
 router.route("/import")
@@ -41,9 +44,9 @@ router.route("/latest/:id")
 // Mostra o gráfico de um atributo especifico de um usuario Ex. /youtube/Joao/videos
 router.route("/:id/:query")
 	.get(
-		youtubeCtrl.getDataset,
-		youtubeCtrl.getChartLimits,
-		youtubeCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.plotLineChart,
 	);
 
 router.param("id", youtubeCtrl.loadAccount);
