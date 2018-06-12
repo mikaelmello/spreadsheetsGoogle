@@ -47,18 +47,22 @@ Renomeie o arquivo de configurações `.env.example` para `.env`, executando `mv
 
 ```
 # Ambiente de desenvolvimento
-NODE_ENV=development 
+# Aconselhado: development
+NODE_ENV=<env>
 
 # Porta do servidor
-PORT=3000
+# Aconselhado: port={0, 65536}
+PORT=port
 
 # Host do servidor de MongoDB
-# data-viz é o nome do banco de dados
+# 'data-viz' é o nome do banco de dados
 MONGO_HOST=mongodb://localhost/data-viz
 
 # Porta aberta pelo servidor Mongo
-# Normalmente 27017
-MONGO_PORT=27017
+# Default pelo MongoDB: 27017
+# Verificar a porta utilizada
+MONGO_PORT=portMDB
+
 ```
 
 Após a instalação das dependências, a escrita do arquivo de credenciais e o de configurações execute o projeto com:
@@ -67,13 +71,73 @@ Após a instalação das dependências, a escrita do arquivo de credenciais e o 
 npm start
 ```
 
-O projeto estará rodando em 
+O projeto estará rodando em
 
 ```shell
 http://localhost:3000
 ```
 
-Ou na porta definida em `.env`.
+Ou na porta definida em `.env`: `PORT=port`.
+
+### Ubuntu
+Caso esteja usando o Ubuntu, há alguns detalhes que devem ser chamados à atenção:
+
+#### Biblioteca Cairo
+Para instalar a biblioteca Cairo é preciso instalar as suas dependências. Por isso, deve-se executar este comando:
+
+```
+sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
+```
+
+#### NodeJS
+Para instalar o NodeJS a partir do NVM (Node Version Manager), método aconselhado, basta seguir os passos listados a seguir. Para mais detalhes, pode-se acessar o [Digital Ocean](https://www.digitalocean.com/community/tutorials/como-instalar-o-node-js-no-ubuntu-16-04-pt).
+
+```
+$ sudo apt-get update
+$ sudo apt-get install build-essential libssl-dev
+$ curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh -o install_nvm.sh
+$ bash install_nvm.sh
+```
+
+Reinicie a seção de usuário e continue, sabendo que `<versão>` corresponde à sua versão de escolha de instalação (exatamente na forma que aparecer):
+
+```
+$ nvm ls-remote
+$ nvm install <versão>
+$ nvm use <versão>
+```
+
+#### MongoDB
+Para instalar o MongoDB, por este método aconselhado, basta seguir os passos listados a seguir. Para mais detalhes, pode-se acessar o [Digital Ocean](https://www.digitalocean.com/community/tutorials/como-instalar-o-mongodb-no-ubuntu-16-04-pt)
+
+```
+$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+$ echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+$ sudo apt-get update
+$ sudo apt-get install -y mongodb-org
+$ sudo nano /etc/systemd/system/mongodb.service
+```
+
+Cole este conteúdo no documento:
+
+```
+[Unit]
+Description=High-performance, schema-free document-oriented database
+After=network.target
+
+[Service]
+User=mongodb
+ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Com esta instalação é possível solicitar alguns serviços:
+* Iniciar o serviço: `sudo service mongod start`;
+* Reiniciar o serviço: `sudo service mongod restart`;
+* Pausar o serviço: `sudo service mongod stop`;
+* Verificar o status do serviço: `sudo service mongod status`.
 
 ## Desenvolvimento
 
