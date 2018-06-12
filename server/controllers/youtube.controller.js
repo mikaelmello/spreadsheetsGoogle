@@ -1,11 +1,11 @@
 /*	Required modules */
 const ChartNode = require("chartjs-node");
-const httpStatus = require("http-status");
-const mongoose = require("mongoose");
+const request = require("request-promise");
 const Color = require("./color.controller");
 const youtubeAccount = require("../models/youtube.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
+const httpStatus = require("../../config/resocie.json").httpStatus;
 
 //const youtubeChart = require("../../../frontend/controllers/youtubeChart.controller");
 
@@ -23,7 +23,7 @@ const SOCIAL_MIDIA = ResocieObs.socialMidia.youtubeMidia;
  */
 const listAccounts = async (req, res) => {
 	try {
-		const accounts = await youtubeAccount.find({}, "name channelUrl");
+		const accounts = await youtubeAccount.find({}, "name channel -_id");
 
 		const importLink = await getInitialLink(req, accounts);
 
@@ -35,7 +35,7 @@ const listAccounts = async (req, res) => {
 	} catch (error) {
 		const errorMsg = `Erro ao carregar usuários do ${capitalize(SOCIAL_MIDIA)} nos registros`;
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
 	}
 };
 
@@ -47,6 +47,7 @@ const listAccounts = async (req, res) => {
  */
 
 const importData = async (req, res) => {
+	const actorsArray = await youtubeAccount.find({});
 	const actors = {};
 	const tabs = req.collectives;
 	const length = tabs.length;
@@ -61,7 +62,11 @@ const importData = async (req, res) => {
 	let cCategory;
 	let lastDate;
 
-	mongoose.connection.collections.youtubeAccount.drop();
+	const lengthActors = actorsArray.length;
+	for (let i = 0; i < lengthActors; i += 1) {
+		actors[actorsArray[i].name] = actorsArray[i];
+	}
+
 	for (let i = 0; i < length; i += 1) {
 		const cTab = tabs[i];
 		const rowsCount = cTab.length;
@@ -82,39 +87,34 @@ const importData = async (req, res) => {
 				continue; // eslint-disable-line no-continue
 			}
 			// Se o canal é válido, cria um novo schema para o canal
-			let channel;
-			if (isCellValid(cRow[channelRow])) {
-				channel = cRow[channelRow];
-			} else {
-				channel = null;
-			}
+			const channelUrl = getImportChannelURL(cRow[channelRow]);
+			const channel = getImportUsername(channelUrl);
+			const name = cRow[nameRow].replace(/\n/g, " ");
 
 			// Caso não exista o usuario atual, cria um novo schema para o usuario
 			if (actors[cRow[nameRow]] === undefined) {
 				const newAccount = youtubeAccount({
-					name: cRow[nameRow].replace(/\n/g, " "),
+					name: name,
 					category: categories[cCategory],
-					channelUrl: channel,
+					channelUrl: channelUrl,
+					channel: getImportUsername(channelUrl),
 				});
 				actors[cRow[nameRow]] = newAccount;
+			} else if (!actors[cRow[nameRow]].channelUrl) {
+				actors[cRow[nameRow]].channelUrl = channelUrl;
+				actors[cRow[nameRow]].channel = channel;
 			}
 
 			// Se o canal não for null verifica se os inscritos,
 			// videos e vizualizações são válidos
-			if (channel) {
+			if (channelUrl) {
 				for (let k = subscribsRow; k <= viewsRow; k += 1) {
-					if (!isCellValid(cRow[k])) {
-						cRow[k] = null;
-					} else {
-						cRow[k] = parseInt(cRow[k].replace(/\.|,/g, ""), 10);
-						if (Number.isNaN(cRow[k])) cRow[k] = null;
-					}
+					if (!isCellValid(cRow[k])) cRow[k] = null;
+					else cRow[k] = getImportNumber(cRow[k]);
 				}
 
 				// Insere a data no schema e caso ocorra erros insera a ultima data
-				let newDate = cRow[dateRow];
-				if (newDate) newDate = newDate.split("/");
-				if (!(newDate) || newDate.length !== 3) newDate = lastDate;
+				const newDate = getImportDate(cRow[dateRow], lastDate);
 				lastDate = newDate;
 
 				// Define os schemas e adicioana os dados dos atores
@@ -124,7 +124,17 @@ const importData = async (req, res) => {
 					views: cRow[viewsRow],
 					date: new Date(`${newDate[1]}/${newDate[0]}/${newDate[2]}`),
 				};
-				actors[cRow[nameRow]].history.push(newHistory);
+				let histFound = false;
+				for (let k = 0; k < actors[cRow[nameRow]].history.length; k += 1) {
+					const sample = actors[cRow[nameRow]].history[k];
+					if (sample.date.getTime() === newHistory.date.getTime()) {
+						histFound = true;
+						break;
+					}
+				}
+				if (histFound === false) {
+					actors[cRow[nameRow]].history.push(newHistory);
+				}
 			}
 		}
 	}
@@ -138,6 +148,113 @@ const importData = async (req, res) => {
 	return res.redirect("/youtube");
 };
 
+const updateData = async (req, res) => {
+	const actorsArray = await youtubeAccount.find({});
+	const actors = {};
+	let newActors;
+	let dates;
+
+	try {
+		const response = await request({	uri: "https://youtube-data-monitor.herokuapp.com/actors", json: true });
+		newActors = response.actors;
+	} catch (e) {
+		return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+			error: true,
+			description: `Houve um erro ao fazer o pedido de atores no servidor do Monitor de Dados do Youtube: ${e}`,
+		});
+	}
+
+	const lengthActors = actorsArray.length;
+	for (let i = 0; i < lengthActors; i += 1) {
+		actors[actorsArray[i].name] = actorsArray[i];
+	}
+
+	const lenActorsNew = newActors.length;
+
+	try {
+		const response = await request({	uri: "https://youtube-data-monitor.herokuapp.com/dates", json: true });
+		dates = response.dates;
+		dates.sort();
+	} catch (e) {
+		return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+			error: true,
+			description: `Houve um erro ao fazer o pedido de datas no servidor do Monitor de Dados do Youtube: ${e}`,
+		});
+	}
+
+	let ans = "";
+
+	for (let i = 0; i < lenActorsNew; i += 1) {
+		if (actors[newActors[i]] === undefined) {
+			const newActor = youtubeAccount({
+				name: newActors[i],
+				channelUrl: `https://youtube.com/channel/${newActors[i]}`,
+				history: [],
+			});
+			actors[newActors[i]] = newActor;
+			console.log("ops");
+		}
+		const name = actors[newActors[i]].name;
+		if (actors[name].channelUrl !== null) {
+			const dateMap = {};
+			const history = actors[name].history;
+			if (history !== undefined) {
+				const length = history.length;
+				for (let j = 0; j < length; j += 1) {
+					dateMap[history[j].date] = 1;
+				}
+			}
+			const lenDates = dates.length;
+			for (let j = 0; j < lenDates; j += 1) {
+				const newHistory = {};
+				let rawHistory = {};
+				const date = dates[j].substring(0, 10);
+				const dateArray = date.split("-");
+				const dateDate = new Date(`${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`);
+				if (dateMap[dateDate] === 1) continue; // eslint-disable-line
+
+				const linkName = name.replace(/ /g, "_");
+				const adr = `https://youtube-data-monitor.herokuapp.com/${date}/canal/${linkName}`;
+
+				try {
+					// melhorar esse await depois para agilizar o processo
+					rawHistory = await getHistory(adr); // eslint-disable-line
+					newHistory.date = dateDate;
+					newHistory.subscribers = rawHistory.subscribers;
+					newHistory.videos = rawHistory.video_count;
+					newHistory.views = rawHistory.view_count;
+					console.log(name);
+					console.log(date);
+					console.log(newHistory);
+					actors[newActors[i]].history.push(newHistory);
+				} catch (e) {
+					ans += `Houve um erro ao fazer o pedido de dados no link ${adr} no Monitor de Dados do Youtube: ${e}\n\n`;
+				}
+			}
+		}
+	}
+
+	console.log("terminou");
+
+	const savePromises = [];
+	Object.entries(actors).forEach(([cActor]) => {
+		savePromises.push(actors[cActor].save());
+	});
+	await Promise.all(savePromises);
+	if (ans) {
+		return res.status(400).json({
+			error: true,
+			description: ans,
+		});
+	}
+	return res.redirect("/youtube");
+};
+
+const getHistory = async (adr) => {
+	const history = await request({	uri: adr, json: true });
+	return history;
+};
+
 /**
  * Data recovery about a given user
  * @param {object} req - standard request object from the Express library
@@ -147,7 +264,7 @@ const getUser = async (req, res) => {
 	try {
 		const account = req.account[0].toObject();
 
-		account.links = await getQueriesLink(req, account._id); // eslint-disable-line
+		account.links = await getQueriesLink(req, account.channel); // eslint-disable-line
 
 		res.status(httpStatus.OK).json({
 			error: false,
@@ -156,7 +273,7 @@ const getUser = async (req, res) => {
 	} catch (error) {
 		const errorMsg = "Erro enquanto configura-se o usuário";
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_GET_USER, errorMsg, error);
 	}
 };
 
@@ -174,7 +291,7 @@ const getLatest = (req, res) => {
 		const queries = ResocieObs.queries.youtubeQueries;
 		let count = 0;
 
-		for (let ind = length; ind >= 0; ind -= 1) {
+		for (let ind = length; ind >= 0 || count <= limit; ind -= 1) {
 			for (query of queries) {						// eslint-disable-line
 				if (latest[query] === undefined				// eslint-disable-line
 					&& history[ind][query] !== undefined) {	// eslint-disable-line
@@ -182,8 +299,6 @@ const getLatest = (req, res) => {
 					count += 1;
 				}
 			}
-
-			if (count <= limit) break;
 		}
 
 		req.account[0].history.latest = latest;
@@ -193,9 +308,9 @@ const getLatest = (req, res) => {
 			latest,
 		});
 	} catch (error) {
-		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário ${req.account.name}, no ${capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${capitalize(SOCIAL_MIDIA)}`;
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_LATEST, errorMsg, error);
 	}
 };
 
@@ -294,7 +409,7 @@ const loadAccount = async (req, res, next) => {
 		}
 		const errorMsg = `Error ao carregar usuário(s) [${id}] dos registros do ${capitalize(SOCIAL_MIDIA)}`;
 
-		return stdErrorHand(res, errorMsg, error);
+		return stdErrorHand(res, httpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
 	}
 };
 
@@ -317,7 +432,7 @@ const setHistoryKey = (req, res, next) => {
 		mainLabel = evolutionMsg(historyKeyPT);
 	} else {
 		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
-		return res.status(httpStatus.NOT_FOUND).json({
+		return res.status(httpStatus.ERROR_QUERY_KEY).json({
 			error: true,
 			description: errorMsg,
 		});
@@ -342,13 +457,17 @@ const splitActors = (req, res, next) => {
 	try {
 		const actors = req.query.actors.split(",");
 
+		if (actors.length <= 1) {
+			throw new TypeError("Insufficient amount of actors for a comparison");
+		}
+
 		req.actors = actors;
 
 		next();
 	} catch (error) {
 		const errorMsg = "Erro ao criar o ambiente para a comparação";
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_SPLIT_ACTORS, errorMsg, error);
 	}
 };
 
@@ -490,7 +609,9 @@ const getChartLimits = (req, res, next) => {
  * @param {object} id - standard identifier of a YouTune account
  */
 const findAccount = async (req, id) => {
-	const account = await youtubeAccount.findOne({ _id: id }, " -_v");
+	const account = await youtubeAccount.findOne({ channel: id }, "-_id -__v");
+
+	if (!account) throw TypeError(`There is no user [${id}]`);
 
 	if (req.account === undefined) req.account = [];
 
@@ -518,9 +639,9 @@ const getAccountLink = (req, accounts) => {
 	for (let i = 0; i < length; i += 1) {
 		accounts[i] = accounts[i].toObject();
 		accounts[i].links = [];
-		const id = accounts[i]._id; // eslint-disable-line
+		const id = accounts[i].channel;
 
-		if (accounts[i].channelUrl) {
+		if (id) {
 			const link = {
 				rel: `${SOCIAL_MIDIA}.account`,
 				href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/${id}`,
@@ -594,10 +715,10 @@ const getQueryLink = (req, id, query) => {
  * @param {String} errorMsg - error message for the situation
  * @param {object} error - error that actually happened
  */
-const stdErrorHand = (res, errorMsg, error) => {
+const stdErrorHand = (res, errorCode, errorMsg, error) => {
 	logger.error(`${errorMsg} - Detalhes: ${error}`);
 
-	res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+	res.status(errorCode).json({
 		error: true,
 		description: errorMsg,
 	});
@@ -641,6 +762,62 @@ const isCellValid = (value) => {
 	return true;
 };
 
+/**
+ * Acquire the channel link from the import base
+ * @param {string} channelLink - supposed account link
+ */
+const getImportChannelURL = (channelLink) => {
+	if (isCellValid(channelLink)) return channelLink;
+
+	return null;
+};
+
+/**
+ * Acquire the account username from the import base
+ * @param {string} usernameRaw - supposed account username
+ */
+const getImportUsername = (usernameRaw) => {
+	if (!(usernameRaw) || !(usernameRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
+
+	let username = usernameRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
+	username = username.replace(`https://${SOCIAL_MIDIA}.com/`, "");
+	username = username.split("/");
+
+	if (username[0] === "channel"
+		|| username[0] === "user") {
+		username = username[1];
+	} else username = username[0];
+
+	return username;
+};
+
+/**
+ * Acquire a number from the import base
+ * @param {string} number - supposed valid number
+ */
+const getImportNumber = (number) => {
+	number = parseInt(number.replace(/\.|,/g, ""), 10);
+
+	if (Number.isNaN(number)) number = null;
+
+	return number;
+};
+
+/**
+ * Acquire a date from the import base
+ * @param {string} date - supposed valid date
+ * @param {array} lastDate - last valid date
+ */
+const getImportDate = (date, lastDate) => {
+	if (!date) return lastDate;
+
+	date = date.split("/");
+
+	if (!(date) || date.length !== 3) date = lastDate;
+
+	return date;
+};
+
 module.exports = {
 	listAccounts,
 	importData,
@@ -655,4 +832,9 @@ module.exports = {
 	evolutionMsg,
 	capitalize,
 	isCellValid,
+	updateData,
+	getImportChannelURL,
+	getImportUsername,
+	getImportNumber,
+	getImportDate,
 };

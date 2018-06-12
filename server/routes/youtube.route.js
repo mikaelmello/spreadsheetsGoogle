@@ -25,6 +25,9 @@ router.route("/import")
 		youtubeCtrl.importData,
 	);
 
+router.route("/update")
+	.get(youtubeCtrl.updateData);
+
 // Lista os dados de um usuario especifico
 router.route("/:id")
 	.get(youtubeCtrl.getUser);

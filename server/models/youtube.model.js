@@ -30,6 +30,10 @@ const youtubeAccountSchema = new mongoose.Schema({
 		type: String,
 		default: null,
 	},
+	channel: {
+		type: String,
+		default: null,
+	},
 	history: {
 		type: [youtubeChannel],
 		default: [],

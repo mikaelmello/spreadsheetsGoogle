@@ -1,11 +1,11 @@
 /*	Required modules */
 const ChartNode = require("chartjs-node");
-const httpStatus = require("http-status");
 const mongoose = require("mongoose");
 const Color = require("./color.controller");
 const instagramAccount = require("../models/instagram.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
+const httpStatus = require("../../config/resocie.json").httpStatus;
 
 //const instagramChart = require("../../../frontend/controllers/instagramChart.controller");
 
@@ -16,7 +16,7 @@ const SOCIAL_MIDIA = ResocieObs.socialMidia.instagramMidia;
 
 /*	Route final methods */
 /**
- * Search for all registered Facebook accounts.
+ * Search for all registered Instagram accounts.
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  * @return {object} result - list with all registered accounts, displaying the link and the name
@@ -36,12 +36,12 @@ const listAccounts = async (req, res) => {
 	} catch (error) {
 		const errorMsg = `Erro ao carregar usuários do ${capitalize(SOCIAL_MIDIA)} nos registros`;
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
 	}
 };
 
 /**
- * Parses the data of a spreadsheet to retrieve twitter accounts and add them into the database
+ * Parses the data of a spreadsheet to retrieve instagram accounts and add them into the database
  * @param {object} req - standard req object from the Express library
  * @param {object} res - standard res object from the Express library
  * @returns {json} - { error: false } if successful
@@ -49,17 +49,18 @@ const listAccounts = async (req, res) => {
 const importData = async (req, res) => {
 	// <TODO>: Add error handling to avoid crashes and return 500 instead
 	// Different types of actors indicated in the spreadsheet
-	let cType = 1; // current type index
+	let cType; // current type index
 	let lastDate; // date of last inserted sample
 	const actors = {}; // map of actor objects to avoid creating duplicates
 	const tabs = req.collectives;
 	const length = tabs.length;
 	const iRange = req.sheet.instagramRange;
 
-	mongoose.connection.collections.instagramAccount.drop();
+	mongoose.connection.collections.instagramAccount.deleteMany();
 
 	for (let i = 0; i < length; i += 1) {
 		const cTab = tabs[i];
+		cType = 0;
 
 		const rowsCount = cTab.length;
 		for (let j = 0; j < rowsCount; j += 1) {
@@ -68,7 +69,7 @@ const importData = async (req, res) => {
 
 			// Se estivermos na row que indicao o novo tipo, atualiza
 			// a string do tipo atual e continua para a próxima row
-			if (name === req.sheet.categories[cType] && cType < req.sheet.categories.length) {
+			if (name === req.sheet.categories[cType + 1]) {
 				cType += 1;
 				continue; // eslint-disable-line no-continue
 			}
@@ -81,19 +82,21 @@ const importData = async (req, res) => {
 
 			// validation of username field with regex to capture only the username
 			// and not the whole profile url
-			const username = matchInstagramUsername(row[iRange.profileRow]);
+			const username = getImportUsername(row[iRange.profileRow]);
 
 			// if current actor hasnt been defined yet, create a new schema
 			if (actors[name] === undefined) {
 				const newAccount = instagramAccount({
 					name: name,
 					username: username,
-					type: req.sheet.categories[cType - 1],
+					type: req.sheet.categories[cType],
 				});
 				actors[name] = newAccount;
+			} else if (!actors[name].username) {
+				actors[name].username = username;
 			}
 
-			// if current actor does not have a twitter username, continue
+			// if current actor does not have a instagram username, continue
 			if (username === null) continue; // eslint-disable-line no-continue
 
 			// Defines sample and adds it to the actor document
@@ -108,17 +111,15 @@ const importData = async (req, res) => {
 			Object.entries(sample).forEach(([key, value]) => { // eslint-disable-line no-loop-func
 				if (key === "date") {
 					// Parses the date of the sample and use the last one if something wrong happens
-					let newDate = value;
-					if (newDate) newDate = newDate.split("/");
-					if (!(newDate) || newDate.length !== 3) newDate = lastDate;
+					const newDate = getImportDate(value, lastDate);
 					lastDate = newDate;
 					sample[key] = new Date(`${newDate[1]}/${newDate[0]}/${newDate[2]}`);
-				} else if (!(value) || value === "s/" || value === "s") {
+				} else if (!isCellValid(value)) {
 					sample[key] = null;
 				} else if (key !== "campaigns") {
 					// if string is not empty, remove all dots and commas to avoid
 					// real numbers
-					sample[key] = value.replace(/\.|,/g, "");
+					sample[key] = getImportNumber(value);
 				}
 			});
 
@@ -152,7 +153,7 @@ const getUser = (req, res) => {
 	} catch (error) {
 		const errorMsg = "Erro enquanto configura-se o usuário";
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_GET_USER, errorMsg, error);
 	}
 };
 
@@ -187,9 +188,9 @@ const getLatest = (req, res) => {
 			latest,
 		});
 	} catch (error) {
-		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário ${req.account.name}, no ${capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${capitalize(SOCIAL_MIDIA)}`;
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_LATEST, errorMsg, error);
 	}
 };
 
@@ -237,7 +238,7 @@ const loadAccount = async (req, res, next) => {
 		}
 		const errorMsg = `Error ao carregar usuário(s) [${username}] dos registros do ${capitalize(SOCIAL_MIDIA)}`;
 
-		return stdErrorHand(res, errorMsg, error);
+		return stdErrorHand(res, httpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
 	}
 };
 
@@ -260,7 +261,7 @@ const setHistoryKey = (req, res, next) => {
 		chartTitle = evolutionMsg(historyKeyPT);
 	} else {
 		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
-		return res.status(httpStatus.NOT_FOUND).json({
+		return res.status(httpStatus.ERROR_QUERY_KEY).json({
 			error: true,
 			description: errorMsg,
 		});
@@ -285,13 +286,17 @@ const splitActors = (req, res, next) => {
 	try {
 		const actors = req.query.actors.split(",");
 
+		if (actors.length <= 1) {
+			throw new TypeError("Insufficient amount of actors for a comparison");
+		}
+
 		req.actors = actors;
 
 		next();
 	} catch (error) {
 		const errorMsg = "Erro ao criar o ambiente para a comparação";
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, httpStatus.ERROR_SPLIT_ACTORS, errorMsg, error);
 	}
 };
 
@@ -492,8 +497,10 @@ const getConfigLineChart = (req, res, next) => {
  * @param {object} req - standard request object from the Express library
  * @param {object} username - standard identifier of a Instagram account
  */
-const findAccount = async (req, username) => {
-	const account = await instagramAccount.findOne({ username });
+const findAccount = async (req, id) => {
+	const account = await instagramAccount.findOne({ username: id }, "-_id -__v");
+
+	if (!account) throw TypeError(`There is no user [${id}]`);
 
 	if (req.account === undefined) req.account = [];
 
@@ -596,10 +603,10 @@ const getQueryLink = (req, id, query) => {
  * @param {String} errorMsg - error message for the situation
  * @param {object} error - error that actually happened
  */
-const stdErrorHand = (res, errorMsg, error) => {
+const stdErrorHand = (res, errorCode, errorMsg, error) => {
 	logger.error(`${errorMsg} - Detalhes: ${error}`);
 
-	res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+	res.status(errorCode).json({
 		error: true,
 		description: errorMsg,
 	});
@@ -624,15 +631,69 @@ const capitalize = (str) => {
 	return str.replace(/\b\w/g, l => l.toUpperCase()); // eslint-disable-line
 };
 
-const matchInstagramUsername = (profileUrl) => {
-	try {
-		if (!(profileUrl) || !(profileUrl.includes("instagram.com"))) return null;
-		const igRegex = /(https?:\/\/)?(www\.)?instagram\.com\/([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)/;
-		const splitUsername = profileUrl.match(igRegex);
-		return splitUsername[3];
-	} catch (err) {
-		return null;
+/**
+ * Acquire the account username from the import base
+ * @param {string} usernameRaw - supposed account username
+ */
+const getImportUsername = (usernameRaw) => {
+	if (!(usernameRaw) || !(usernameRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
+
+	let username = usernameRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
+	username = username.replace(`https://${SOCIAL_MIDIA}.com/`, "");
+	username = username.split("/");
+
+	if (username[0] !== "pg")	username = username[0];
+	else username = username[1];
+
+	username = username.split("?");
+
+	return username[0];
+};
+
+/**
+ * Data validation by recurrent criteria
+ * @param {String} value - data to be validated
+ * @returns true if it is not valid, false if it is valid
+ */
+const isCellValid = (value) => {
+	if (!value) return false;
+
+	value = value.toUpperCase();
+
+	if (value === "-"
+		|| value === "S"
+		|| value === "S/") {
+		return false;
 	}
+
+	return true;
+};
+
+/**
+ * Acquire a number from the import base
+ * @param {string} number - supposed valid number
+ */
+const getImportNumber = (number) => {
+	number = parseInt(number.replace(/\.|,/g, ""), 10);
+
+	if (Number.isNaN(number)) number = null;
+
+	return number;
+};
+
+/**
+ * Acquire a date from the import base
+ * @param {string} date - supposed valid date
+ * @param {array} lastDate - last valid date
+ */
+const getImportDate = (date, lastDate) => {
+	if (!date) return lastDate;
+
+	date = date.split("/");
+
+	if (!(date) || date.length !== 3) date = lastDate;
+
+	return date;
 };
 
 module.exports = {
@@ -649,5 +710,8 @@ module.exports = {
 	getConfigLineChart,
 	evolutionMsg,
 	capitalize,
-	matchInstagramUsername,
+	getImportUsername,
+	isCellValid,
+	getImportNumber,
+	getImportDate,
 };
