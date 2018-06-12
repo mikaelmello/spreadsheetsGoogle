@@ -4,6 +4,7 @@ const app = require("../../index");
 const facebookAccount = require("../models/facebook.model");
 const facebookStub = require("./facebook.stub.json").facebook;
 const facebookCtrl = require("../controllers/facebook.controller");
+const facebookChartCtrl = require("../../../frontend/controllers/facebookChart.controller");
 
 beforeAll(async (done) => {
 	await facebookAccount.insertMany(facebookStub);
@@ -189,7 +190,7 @@ describe("Facebook methods", () => {
 
 	it("Recovery of evolution message", async (done) => {
 		const result = "Evolução de qualquer coisa, no Facebook";
-		const delivery = facebookCtrl.evolutionMsg(param);
+		const delivery = facebookChartCtrl.evolutionMsg(param);
 
 		expect(delivery).toEqual(result);
 

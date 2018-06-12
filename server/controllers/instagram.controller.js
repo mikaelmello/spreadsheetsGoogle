@@ -7,6 +7,8 @@ const instagramAccount = require("../models/instagram.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 
+//const instagramChart = require("../../../frontend/controllers/instagramChart.controller");
+
 /*	Global constants */
 const CHART_SIZE = 650;
 const MAX_LEN_LABEL = 80;

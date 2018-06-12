@@ -7,6 +7,8 @@ const twitterAccount = require("../models/twitter.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 
+//const twitterChart = require("../../../frontend/controllers/twitterChart.controller");
+
 /*	Global constants */
 const CHART_SIZE = 700;
 const MAX_LEN_LABEL = 80;

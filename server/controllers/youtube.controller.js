@@ -7,6 +7,8 @@ const youtubeAccount = require("../models/youtube.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 
+//const youtubeChart = require("../../../frontend/controllers/youtubeChart.controller");
+
 /*	Global constants */
 const CHART_SIZE = 700;
 const MAX_LEN_LABEL = 80;

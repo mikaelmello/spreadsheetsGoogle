@@ -2,6 +2,8 @@
 const express = require("express");
 const facebookCtrl = require("../controllers/facebook.controller");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
+const geralCtrl = require("../controllers/geral.controller");
+const viewCtrl = require("../controllers/view.controller");
 
 /*	Global constants */
 const router = express.Router(); // eslint-disable-line new-cap
@@ -23,12 +25,12 @@ router.route("/help")
  */
 router.route("/compare/:query")
 	.get(
-		facebookCtrl.splitActors,
+		geralCtrl.splitActors,
 		facebookCtrl.loadAccount,
-		facebookCtrl.getDataset,
-		facebookCtrl.getChartLimits,
-		facebookCtrl.getConfigLineChart,
-		facebookCtrl.plotLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 /**
  *  Inserting all records, redirecting to Facebook main page
@@ -59,10 +61,10 @@ router.route("/latest/:id")
  */
 router.route("/:id/:query")
 	.get(
-		facebookCtrl.getDataset,
-		facebookCtrl.getChartLimits,
-		facebookCtrl.getConfigLineChart,
-		facebookCtrl.plotLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
 /**
