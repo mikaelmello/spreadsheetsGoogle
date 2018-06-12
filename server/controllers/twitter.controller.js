@@ -259,7 +259,7 @@ const setSampleKey = (req, res, next) => {
 	// Analisa o caminho da rota que chegou nesta função para
 	// ter um título com o parâmetro correto.
 	if (sampleKeyPT !== undefined) {
-		mainLabel = viewCtrl.evolutionMsg(sampleKeyPT);
+		mainLabel = viewCtrl.evolutionMsg(sampleKeyPT, SOCIAL_MIDIA);
 	} else {
 		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
 		return res.status(httpStatus.ERROR_QUERY_KEY).json({
