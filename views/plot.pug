@@ -1,0 +1,66 @@
+extends layout
+
+block content
+	.py-4.text-center
+		h2 Espaço Exploratório
+		p.lead
+			| Aqui você tem a liberdade para fazer a sua pesquisa exploratória
+			| sobre a projeção do cenário eleitoral nas mídias digitais
+
+	block plotArea
+		.row.justify-content-around
+			.col-8.order-md-2.order-2.bg-light
+				img(src="/imagens/Gráfico_exemplo.png", alt="Gráfico requisitado", width="100%")
+			.py-2.col-md-3.order-md-1.order-1.bg-light
+				.py-2.h4.mb-3.text-center Controle
+				form.needs-validation(novalidate="")
+					.row
+						.py-2.col-md-12
+							+digitalMedia
+						.py-2.col-md-12
+							+queries
+						.py-2.col-md-12
+							+categories
+						.py-2.col-md-12
+							label(for="actors") Atores:
+					.py-2.mb-4
+						+actors
+					.d-block.my-3
+						.custom-control.custom-checkbox
+							input#clearActors.form-check-input(type="checkbox")
+							label.form-check-label(for="clearActors") Limpar atores
+
+mixin digitalMedia
+	label(for="digitalMedia") Mídia digital:
+		select#digitalMedia.custom-select.d-block.w-100(required="")
+			option(value="") Rede...
+			option(value="facebook") Facebook
+			option(value="twitter") Twitter
+			option(value="instagram") Instagram
+			option(value="youtube") Youtube
+		.invalid-feedback
+			| Por favor selecione uma mídia válida.
+
+mixin queries
+	label(for="queries") Aspecto de análise:
+		select#queries.custom-select.d-block.w-100(required="")
+			option(value="") Escolha...
+		.invalid-feedback
+			| Por favor selecione um aspecto válido.
+
+mixin categories
+	label(for="categories") Categorias:
+		select#categories.custom-select.d-block.w-100(required="")
+			option(value = "") Escolha...
+			option(value = "F/C") Frentes/Coletivos
+			option(value = "OSC") Organizações da Sociedade Civil
+			option(value = "CP") Candidatos à presidência
+		.invalid-feedback
+			| Por favor selecione um aspecto válido.
+
+mixin actors
+	#actors.form-check
+		input#defaultCheck.form-check-input(type='checkbox', value='')
+		label.form-check-label(for='defaultCheck')
+			| Atores
+

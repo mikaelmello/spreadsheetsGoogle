@@ -5,6 +5,7 @@ const compress = require("compression");
 const methodOverride = require("method-override");
 const cors = require("cors");
 const helmet = require("helmet");
+const path = require("path");
 
 const routes = require("../server/routes/index.route");
 
@@ -31,5 +32,12 @@ app.use(cors());
 
 // mount all routes on / path
 app.use("/", routes);
+
+// Load View Engine
+app.set("views", path.join(__dirname, "../views"));
+app.set("view engine", "pug");
+
+// Set Public Folder
+app.use(express.static(path.join(__dirname, "../public")));
 
 module.exports = app;

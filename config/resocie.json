@@ -96,13 +96,13 @@
 			},
 			"instagramQueriesPT": {
 				"followers": "seguidores",
-				"following": "contas que segue",
+				"following": "seguindo",
 				"num_of_posts": "postagens"
 			},
 			"twitterQueriesPT": {
 				"tweets": "tweets",
 				"followers": "seguidores",
-				"following": "contas que segue",
+				"following": "seguindo",
 				"likes": "curtidas",
 				"moments": "momentos"
 			},

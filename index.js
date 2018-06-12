@@ -23,6 +23,7 @@ mongoose.connection.once("open", () => {
 	logger.info(`Connected to database on host ${mongoUri}`);
 });
 
+// Start Server
 if (config.env !== "test") {
 	app.listen(config.port, () => {
 		logger.info(`[SERVER] Listening on port ${config.port}`);

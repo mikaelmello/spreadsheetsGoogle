@@ -1,0 +1,36 @@
+extends plot
+
+block plotArea
+	.py-3.row.justify-content-around.bg-light
+		.col-md-12
+			.py-2.h4.mb-3.text-center Controle
+		form.needs-validation(novalidate='')
+			.row.justify-content-around
+				+itens("digitalMedia")
+				+itens("queries")
+				+itens("categories")
+				+itens("actors2")
+	.py-3.row.justify-content-around.bg-light
+		img(src="/imagens/Gráfico_exemplo.png", alt="Gráfico requisitado", width="70%")
+
+mixin itens(axn)
+	.py-2.col-md-3
+		.row
+			case axn
+				when "actors2"
+					+actors2
+				when "digitalMedia"
+					+digitalMedia
+				when "queries"
+					+queries
+				when "categories"
+					+categories
+
+mixin actors2
+	label(for="digitalMedia") Atores:
+		.py-2.mb-4
+				+actors
+		.d-block.my-3
+			.custom-control.custom-checkbox
+				input#clearActors.custom-control-input(type="checkbox")
+				label.custom-control-label(for="clearActors") Limpar atores
