@@ -124,9 +124,9 @@ const getImportLink = (req, socialMedia) => {
  */
 const getQueriesLink = (req, id, socialMedia) => {
 	const links = [];
-	const midiaQueries = ResocieObs.queries.facebookQueries;
+	const midiaQueries = ResocieObs.queries[socialMedia.queries];
 
-	links.push(getCommomLink(req, id, socialMedia));
+	links.push(getCommomLink(req, id, socialMedia.name));
 
 	for (query of midiaQueries) {								// eslint-disable-line
 		links.push(getQueryLink(req, id, socialMedia, query));	// eslint-disable-line
@@ -158,7 +158,7 @@ const getCommomLink = (req, id, socialMedia) => {
 const getQueryLink = (req, id, socialMedia, query) => {
 	return {
 		rel: `${socialMedia}.account.${query}`,
-		href: `${req.protocol}://${req.get("host")}/${socialMedia}/${id}/${query}`,
+		href: `${req.protocol}://${req.get("host")}/${socialMedia.name}/${id}/${query}`,
 	};
 };
 

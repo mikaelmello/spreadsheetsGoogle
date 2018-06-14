@@ -123,7 +123,12 @@ const importAccounts = async (req, res) => {
  * @param {object} res - standard response object from the Express library
  */
 const getUser = (req, res) => {
-	geralCtrl.getUser(req, res, SOCIAL_MIDIA);
+	const facebookInfo = {
+		name: SOCIAL_MIDIA,
+		queries: "facebookQueries",
+	};
+
+	geralCtrl.getUser(req, res, facebookInfo);
 };
 
 /**
