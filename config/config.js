@@ -8,6 +8,10 @@ const config = {
 		host: `${process.env.MONGO_HOST}-${process.env.NODE_ENV}`,
 		port: process.env.MONGO_PORT,
 	},
+	web: (process.env.NODE_ENV !== "production") ? undefined : {
+		client_id: process.env.CLIENT_ID,
+		client_secret: process.env.CLIENT_SECRET
+	}
 };
 
 module.exports = config;
