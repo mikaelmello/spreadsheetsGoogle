@@ -246,7 +246,7 @@ describe("Facebook methods", () => {
 
 	it("Recovery of evolution message", async (done) => {
 		const result = "Evolução de qualquer coisa, no Facebook";
-		const delivery = facebookChartCtrl.evolutionMsg(param);
+		const delivery = facebookCtrl.evolutionMsg(param);
 
 		expect(delivery).toEqual(result);
 

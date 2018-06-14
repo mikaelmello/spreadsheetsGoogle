@@ -1,10 +1,11 @@
 /*	Required modules */
-const ChartNode = require("chartjs-node");
 const mongoose = require("mongoose");
 const Facebook = require("../models/facebook.model");
+const FacebookDB = require("../models/facebook.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 const httpStatus = require("../../config/resocie.json").httpStatus;
+
 
 const geralCtrl = require("./geral.controller");
 const viewCtrl = require("./view.controller");
@@ -21,21 +22,13 @@ const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
  * @return {String} description - error warning
  */
 const listAccounts = async (req, res) => {
-	try {
-		const accounts = await Facebook.find({}, "name username link");
+	const facebookParams = {
+		model: FacebookDB,
+		projection: "name username link -_id",
+		socialMedia: SOCIAL_MIDIA,
+	};
 
-		const importLink = await getInitialLink(req, accounts);
-
-		res.status(httpStatus.OK).json({
-			error: false,
-			import: importLink,
-			accounts,
-		});
-	} catch (error) {
-		const errorMsg = `Erro ao carregar usuários do ${geralCtrl.capitalize(SOCIAL_MIDIA)} nos registros`;
-
-		stdErrorHand(res, httpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
-	}
+	await geralCtrl.listAccounts(req, res, facebookParams);
 };
 
 /**
@@ -288,50 +281,6 @@ const findAccount = async (req, id) => {
 	if (req.account === undefined) req.account = [];
 
 	req.account.push(account);
-};
-
-/**
- * Acquiring the links to the home page
- * @param {object} req - standard request object from the Express library
- * @param {object} accounts - Accounts registered for Facebook
- */
-const getInitialLink = (req, accounts) => {
-	getAccountLink(req, accounts);
-	return getImportLink(req, SOCIAL_MIDIA);
-};
-
-/**
- * Acquire links to all registered Facebook accounts
- * @param {object} req - standard request object from the Express library
- * @param {object} accounts - Accounts registered for Facebook
- */
-const getAccountLink = (req, accounts) => {
-	const length = accounts.length;
-
-	for (let i = 0; i < length; i += 1) {
-		accounts[i] = accounts[i].toObject();
-		accounts[i].links = [];
-		const id = accounts[i].username;
-
-		if (id) {
-			const link = {
-				rel: `${SOCIAL_MIDIA}.account`,
-				href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/${id}`,
-			};
-			accounts[i].links.push(link);
-		}
-	}
-};
-
-/**
- * Acquiring link to import from Facebook accounts
- * @param {object} req - standard request object from the Express library
- */
-const getImportLink = (req) => {
-	return {
-		rel: `${SOCIAL_MIDIA}.import`,
-		href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/import`,
-	};
 };
 
 /**

@@ -122,5 +122,8 @@
 		"ERROR_LOAD_ACCOUNT": 515,
 		"ERROR_QUERY_KEY": 400,
 		"ERROR_SPLIT_ACTORS": 517
+	},
+	"errorMessages": {
+		"ERROR_LIST_ACCOUNTS": "Erro ao carregar usuários nos registros do "
 	}
 }

@@ -1,7 +1,5 @@
 /*	Required modules */
-const ChartNode = require("chartjs-node");
 const request = require("request-promise");
-const Color = require("./color.controller");
 const youtubeAccount = require("../models/youtube.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
@@ -11,8 +9,6 @@ const viewCtrl = require("./view.controller");
 const geralCtrl = require("./geral.controller");
 
 /*	Global constants */
-const CHART_SIZE = 700;
-const MAX_LEN_LABEL = 80;
 const SOCIAL_MIDIA = ResocieObs.socialMidia.youtubeMidia;
 
 /*	Route final methods */

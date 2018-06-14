@@ -1,7 +1,5 @@
 /*	Required modules */
-const Chart = require("chartjs-node");
 const mongoose = require("mongoose");
-const Color = require("./color.controller");
 const twitterAccount = require("../models/twitter.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
@@ -10,11 +8,7 @@ const httpStatus = require("../../config/resocie.json").httpStatus;
 const viewCtrl = require("./view.controller");
 const geralCtrl = require("./geral.controller");
 
-//const twitterChart = require("../../../frontend/controllers/twitterChart.controller");
-
 /*	Global constants */
-const CHART_SIZE = 700;
-const MAX_LEN_LABEL = 80;
 const SOCIAL_MIDIA = ResocieObs.socialMidia.twitterMidia;
 
 /*	Route final methods */

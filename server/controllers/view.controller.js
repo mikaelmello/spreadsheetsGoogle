@@ -2,8 +2,8 @@
 const ChartNode = require("chartjs-node");
 const httpStatus = require("http-status");
 const Color = require("./color.controller");
-const logger = require("../../config/logger");
-const ResocieObs = require("../../config/resocie.json").observatory;
+// const logger = require("../../config/logger");
+// const ResocieObs = require("../../config/resocie.json").observatory;
 
 const geralCtrl = require("./geral.controller");
 
@@ -16,7 +16,7 @@ const MAX_LEN_LABEL = 80;
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  */
-const plotLineChart = async (req, res, social_media) => {
+const plotLineChart = async (req, res) => {
 	const chart = new ChartNode(CHART_SIZE, CHART_SIZE);
 
 	await chart.drawChart(req.chart.config);
@@ -223,11 +223,10 @@ const getConfigLineChart = (req, res, next) => {
  * Standard message for the analysis of the evolution of a characteristic
  * of a given account
  * @param {String} param - characteristic under analysis
- * 
  * @returns standard message generated
  */
-const evolutionMsg = (param, mediaName) => {
-	return `Evolução de ${param}, no ${geralCtrl.capitalize(mediaName)}`;
+const evolutionMsg = (param, socialMedia) => {
+	return `Evolução de ${param}, no ${geralCtrl.capitalize(socialMedia)}`;
 };
 
 module.exports = {
