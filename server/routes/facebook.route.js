@@ -16,11 +16,6 @@ router.route("/")
 	.get(facebookCtrl.listAccounts);
 
 /**
- * Access to the Facebook help page
- */
-router.route("/help")
-	.get(facebookCtrl.help);
-/**
  * Comparison between actors for data on Facebook
  */
 router.route("/compare/:query")

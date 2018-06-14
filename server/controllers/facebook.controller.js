@@ -6,7 +6,6 @@ const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
-
 const geralCtrl = require("./geral.controller");
 const viewCtrl = require("./view.controller");
 
@@ -29,28 +28,6 @@ const listAccounts = async (req, res) => {
 	};
 
 	await geralCtrl.listAccounts(req, res, facebookParams);
-};
-
-/**
- * Route Guide Page
- * @param {object} req - standard request object from the Express library
- * @param {object} res - standard response object from the Express library
- */
-const help = (req, res) => {
-	const routes = [{
-		root: "/ - Lista com todos os usuários registrados no banco de dados;",
-		help: "/help - Exibição desta lista guia das rotas;",
-		import: "/import - Aquisição dos dados, referente ao Facebook, armazenados nas planilhas do Google;",
-		user: "/:name - Exibição de todos os dados registrados sobre um dado usuário;",
-		latest: "/latest/:name - Exibição do último histórico válido para um dado usuário;",
-		likes: "/:name/likes - Exibição da evolução de curtidas para um dado usuário;",
-		followers: "/:name/followers - Exibição da evolução de seguidores para um dado usuários.",
-	}];
-
-	res.status(httpStatus.OK).json({
-		error: false,
-		results: routes,
-	});
 };
 
 /**
@@ -146,19 +123,7 @@ const importAccounts = async (req, res) => {
  * @param {object} res - standard response object from the Express library
  */
 const getUser = (req, res) => {
-	try {
-		const account = req.account[0].toObject();
-		account.links = getQueriesLink(req, account.username);
-
-		res.status(httpStatus.OK).json({
-			error: false,
-			account,
-		});
-	} catch (error) {
-		const errorMsg = "Erro enquanto configura-se o usuário";
-
-		stdErrorHand(res, httpStatus.ERROR_GET_USER, errorMsg, error);
-	}
+	geralCtrl.getUser(req, res, SOCIAL_MIDIA);
 };
 
 /**
@@ -197,7 +162,6 @@ const getLatest = (req, res) => {
 		stdErrorHand(res, httpStatus.ERROR_LATEST, errorMsg, error);
 	}
 };
-
 
 /*	Route middlewares */
 /**
@@ -281,51 +245,6 @@ const findAccount = async (req, id) => {
 	if (req.account === undefined) req.account = [];
 
 	req.account.push(account);
-};
-
-/**
- * Acquiring the links to the possible queries for Facebook
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a Facebook account
- */
-const getQueriesLink = (req, id) => {
-	const links = [];
-	const midiaQueries = ResocieObs.queries.facebookQueries;
-
-	links.push(getCommomLink(req, id));
-
-	for (query of midiaQueries) {								// eslint-disable-line
-		links.push(getQueryLink(req, id, query));	// eslint-disable-line
-	}
-
-	return links;
-};
-
-/**
- * Acquisition of the link to the common query among all social media
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a Facebook account
- */
-const getCommomLink = (req, id) => {
-	const commom = ResocieObs.queries.commonQuery;
-
-	return {
-		rel: `${SOCIAL_MIDIA}.account.${commom}`,
-		href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/${commom}/${id}`,
-	};
-};
-
-/**
- * Acquire the link to a given query for Facebook
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a Facebook account
- * @param {object} query - query requested
- */
-const getQueryLink = (req, id, query) => {
-	return {
-		rel: `${SOCIAL_MIDIA}.account.${query}`,
-		href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/${id}/${query}`,
-	};
 };
 
 /*	Methods of abstraction upon response */
@@ -423,7 +342,6 @@ const getImportDate = (date, lastDate) => {
 
 module.exports = {
 	listAccounts,
-	help,
 	importAccounts,
 	getUser,
 	getLatest,
