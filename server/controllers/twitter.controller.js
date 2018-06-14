@@ -175,7 +175,7 @@ const updateData = async (req, res) => {
 
 	let ans = "";
 
-	for (let i = 0; i < 10; i += 1) {
+	for (let i = 0; i < newActors.length; i += 1) {
 		if (actors[newActors[i]] === undefined) {
 			const newActor = twitterAccount({
 				name: newActors[i],
