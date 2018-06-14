@@ -10,8 +10,8 @@ const config = {
 	},
 	web: (process.env.NODE_ENV !== "production") ? undefined : {
 		client_id: process.env.CLIENT_ID,
-		client_secret: process.env.CLIENT_SECRET
-	}
+		client_secret: process.env.CLIENT_SECRET,
+	},
 };
 
 module.exports = config;

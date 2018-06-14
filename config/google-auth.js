@@ -16,8 +16,8 @@ if (config.env !== "production") {
 	keys = JSON.parse(fs.readFileSync(keyfile));
 } else {
 	keys = {
-		web: config.web
-	}
+		web: config.web,
+	};
 }
 const scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
 const client = (redirectUri) => {
