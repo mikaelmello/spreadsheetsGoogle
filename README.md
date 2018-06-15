@@ -80,64 +80,11 @@ http://localhost:3000
 Ou na porta definida em `.env`: `PORT=port`.
 
 ### Ubuntu
-Caso esteja usando o Ubuntu, há alguns detalhes que devem ser chamados à atenção:
-
-#### Biblioteca Cairo
-Para instalar a biblioteca Cairo é preciso instalar as suas dependências. Por isso, deve-se executar este comando:
+Caso esteja usando o Ubuntu, há um detalhe que deve ser chamado à atenção: instalação da biblioteca Cairo. É preciso instalar as suas dependências. Por isso, deve-se executar este comando:
 
 ```
 sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
 ```
-
-#### NodeJS
-Para instalar o NodeJS a partir do NVM (Node Version Manager), método aconselhado, basta seguir os passos listados a seguir. Para mais detalhes, pode-se acessar o [Digital Ocean](https://www.digitalocean.com/community/tutorials/como-instalar-o-node-js-no-ubuntu-16-04-pt).
-
-```
-$ sudo apt-get update
-$ sudo apt-get install build-essential libssl-dev
-$ curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh -o install_nvm.sh
-$ bash install_nvm.sh
-```
-
-Reinicie a seção de usuário e continue, sabendo que `<versão>` corresponde à sua versão de escolha de instalação (exatamente na forma que aparecer):
-
-```
-$ nvm ls-remote
-$ nvm install <versão>
-$ nvm use <versão>
-```
-
-#### MongoDB
-Para instalar o MongoDB, por este método aconselhado, basta seguir os passos listados a seguir. Para mais detalhes, pode-se acessar o [Digital Ocean](https://www.digitalocean.com/community/tutorials/como-instalar-o-mongodb-no-ubuntu-16-04-pt)
-
-```
-$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-$ echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
-$ sudo apt-get update
-$ sudo apt-get install -y mongodb-org
-$ sudo nano /etc/systemd/system/mongodb.service
-```
-
-Cole este conteúdo no documento:
-
-```
-[Unit]
-Description=High-performance, schema-free document-oriented database
-After=network.target
-
-[Service]
-User=mongodb
-ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Com esta instalação é possível solicitar alguns serviços:
-* Iniciar o serviço: `sudo service mongod start`;
-* Reiniciar o serviço: `sudo service mongod restart`;
-* Pausar o serviço: `sudo service mongod stop`;
-* Verificar o status do serviço: `sudo service mongod status`.
 
 ## Desenvolvimento
 
