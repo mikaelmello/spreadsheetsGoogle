@@ -33,11 +33,9 @@ describe("Facebook endpoint", () => {
 			done();
 		});
 
-		it("should return a JSON with import link", async (done) => {
+		it("should return a import link", async (done) => {
 			const res = await request(app).get("/facebook").expect(httpStatus.OK);
 			const importRel = "facebook.import";
-
-			expect(res).toHaveProperty("text");
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("import");
@@ -49,10 +47,8 @@ describe("Facebook endpoint", () => {
 			done();
 		});
 
-		it("should return a JSON with all the users", async (done) => {
+		it("should return all the registered users", async (done) => {
 			const res = await request(app).get("/facebook").expect(httpStatus.OK);
-
-			expect(res).toHaveProperty("text");
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("accounts");
@@ -75,11 +71,64 @@ describe("Facebook endpoint", () => {
 		});
 	});
 
-	/*
 	describe("Get /facebook/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId1}`)
+				.expect(httpStatus.OK);
 
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid user", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("name");
+			expect(jsonReturn).toHaveProperty("username");
+			expect(jsonReturn).toHaveProperty("class");
+			expect(jsonReturn).toHaveProperty("link");
+			expect(jsonReturn).toHaveProperty("history");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.name).toEqual("José Maria");
+			expect(jsonReturn.username).toEqual("jose");
+			expect(jsonReturn.class).toEqual("joseClass");
+			expect(jsonReturn.link).toEqual("joseLink/jose/");
+
+			expect(jsonReturn.history).toBeInstanceOf(Array);
+
+			done();
+		});
+
+		it("should return the correct history", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.history.length).toEqual(3);
+
+			expect(jsonReturn.history[0].likes).toEqual(42);
+			expect(jsonReturn.history[0].followers).toEqual(420);
+			expect(jsonReturn.history[0].date).toEqual("1994-12-24T02:00:00.000Z");
+
+			expect(jsonReturn.history[1].likes).toEqual(40);
+			expect(jsonReturn.history[1].followers).toEqual(840);
+			expect(jsonReturn.history[1].date).toEqual("1995-01-24T02:00:00.000Z");
+
+			expect(jsonReturn.history[2].likes).toEqual(45);
+			expect(jsonReturn.history[2].followers).toEqual(1000);
+			expect(jsonReturn.history[2].date).toEqual("1995-02-24T02:00:00.000Z");
+
+			done();
+		});
 	});
-	*/
 
 	/*
 	it("GET /facebook/:name should return all data from a certain user", async (done) => {
