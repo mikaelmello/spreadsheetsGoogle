@@ -1,0 +1,16 @@
+{
+	"vitrine":{
+		"midia": {
+			"img": "",
+			"description": "Pode-se selecionar uma ou mais das nossas mídias disponíveis"
+		},
+		"atores": {
+			"img": "",
+			"description": "Pode-se selecionar um ou mais das nossos atores disponíveis"
+		},
+		"queries": {
+			"img": "",
+			"description": "Pode-se selecionar uma ou mais das características numa mídia digital"
+		}
+	}
+}

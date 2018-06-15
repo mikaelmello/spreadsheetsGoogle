@@ -20,7 +20,7 @@
     "Pedro Egler <pedroh.egler@hotmail.com>",
     "Pedro Ivo Machado <pedroivomachado@hotmail.com>",
     "Rodrigo Guimarães <rodrigofegui@gmail.com>",
-    "Samuel Couto <samuelcoouto@hotmail.com",
+    "Samuel Couto <samuelcoouto@hotmail.com>",
     "Teógenes Moura <mourateogenes@gmail.com> (http://www.teogenesmoura.com)"
   ],
   "repository": {
@@ -32,6 +32,7 @@
   "dependencies": {
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
+    "bower": "^1.8.4",
     "chart.js": "^2.7.2",
     "chartjs-node": "^1.6.1",
     "color": "^3.0.0",
@@ -48,6 +49,7 @@
     "mongoose": "^5.0.12",
     "nodemon": "^1.17.5",
     "path": "^0.12.7",
+    "pug": "^2.0.3",
     "request-promise": "^4.2.2",
     "supertest": "^3.0.0",
     "winston": "^3.0.0-rc3"
