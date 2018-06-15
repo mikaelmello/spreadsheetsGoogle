@@ -26,7 +26,8 @@ describe("Facebook endpoint", () => {
 
 	describe("Get /facebook", () => {
 		it("should return a JSON", async (done) => {
-			const res = await request(app).get("/facebook").expect(httpStatus.OK);
+			const res = await request(app).get("/facebook")
+				.expect(httpStatus.OK);
 
 			expect(res).toHaveProperty("text");
 
@@ -34,7 +35,7 @@ describe("Facebook endpoint", () => {
 		});
 
 		it("should return a import link", async (done) => {
-			const res = await request(app).get("/facebook").expect(httpStatus.OK);
+			const res = await request(app).get("/facebook");
 			const importRel = "facebook.import";
 			const jsonReturn = JSON.parse(res.text);
 
@@ -48,7 +49,7 @@ describe("Facebook endpoint", () => {
 		});
 
 		it("should return all the registered users", async (done) => {
-			const res = await request(app).get("/facebook").expect(httpStatus.OK);
+			const res = await request(app).get("/facebook");
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("accounts");
@@ -130,38 +131,43 @@ describe("Facebook endpoint", () => {
 		});
 	});
 
-	/*
-	it("GET /facebook/:name should return all data from a certain user", async (done) => {
-		expect(accountId1).toBeDefined();
+	describe("Get /facebook/import", () => {
+		it("should redirect to Google authentication", async (done) => {
+			const res = await request(app).get("/facebook/import")
+				.expect(httpStatus.FOUND);
 
-		const res = await request(app).get(`/facebook/${accountId1}`).expect(httpStatus.OK);
+			expect(res).toHaveProperty("redirect");
+			expect(res.redirect).toBe(true);
 
-		expect(res.body).toHaveProperty("error");
-		expect(res.body.error).toBe(false);
+			done();
+		});
 
-		expect(res.body).toHaveProperty("account");
-		expect(res.body.account).toBeInstanceOf(Object);
-		expect(res.body.account).toHaveProperty("links");
-		expect(res.body.account.links.length).toEqual(3);
-		expect(res.body.account.name).toEqual("José Maria");
-		expect(res.body.account.class).toEqual("joseClass");
-		expect(res.body.account.link).toEqual("joseLink/jose/");
-		expect(res.body.account.history.length).toEqual(3);
+		it("should identify the request", async (done) => {
+			const res = await request(app).get("/facebook/import");
 
-		expect(res.body.account.history[0].likes).toEqual(42);
-		expect(res.body.account.history[0].followers).toEqual(420);
-		expect(res.body.account.history[0].date).toEqual("1994-12-24T02:00:00.000Z");
+			expect(res).toHaveProperty("request");
+			expect(res.request).toHaveProperty("host");
 
-		expect(res.body.account.history[1].likes).toEqual(40);
-		expect(res.body.account.history[1].followers).toEqual(840);
-		expect(res.body.account.history[1].date).toEqual("1995-01-24T02:00:00.000Z");
+			done();
+		});
 
-		expect(res.body.account.history[2].likes).toEqual(45);
-		expect(res.body.account.history[2].followers).toEqual(1000);
-		expect(res.body.account.history[2].date).toEqual("1995-02-24T02:00:00.000Z");
-		done();
+		it("should generate the correct location", async (done) => {
+			const res = await request(app).get("/facebook/import");
+			const host = res.request.host.replace(/:/g, "%3A");
+
+			let msg = "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline";
+			msg += "&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fspreadsheets.readonly";
+			msg += "&response_type=code&client_id=irrelevant&redirect_uri=http%3A%2F%2F";
+			msg += host;
+			msg += "%2Ffacebook%2Fimport";
+
+			expect(res).toHaveProperty("header");
+			expect(res.header).toHaveProperty("location");
+			expect(res.header.location).toEqual(msg);
+
+			done();
+		});
 	});
-	// */
 
 	/*
 	it("GET /facebook/import shoul found this endpoint", async (done) => {
