@@ -2,8 +2,8 @@ const express = require("express");
 const twitterCtrl = require("../controllers/twitter.controller");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
 
-const viewCtrl = require("../controllers/view.controller");
-const geralCtrl = require("../controllers/geral.controller");
+const viewCtrl = require("../controllers/view.ctrl");
+const geralCtrl = require("../controllers/digitalMedia.ctrl");
 
 const router = express.Router(); // eslint-disable-line new-cap
 

@@ -5,7 +5,7 @@ const Color = require("./color.controller");
 // const logger = require("../../config/logger");
 // const ResocieObs = require("../../config/resocie.json").observatory;
 
-const geralCtrl = require("./geral.controller");
+const geralCtrl = require("./digitalMedia.ctrl");
 
 /*	Global constants */
 const CHART_SIZE = 700;

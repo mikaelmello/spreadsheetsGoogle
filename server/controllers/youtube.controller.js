@@ -5,8 +5,8 @@ const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
-const viewCtrl = require("./view.controller");
-const geralCtrl = require("./geral.controller");
+const viewCtrl = require("./view.ctrl");
+const geralCtrl = require("./digitalMedia.ctrl");
 
 /*	Global constants */
 const SOCIAL_MIDIA = ResocieObs.socialMidia.youtubeMidia;

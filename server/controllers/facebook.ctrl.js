@@ -4,10 +4,10 @@ const Facebook = require("../models/facebook.model");
 const FacebookDB = require("../models/facebook.model");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
-const httpStatus = require("../../config/resocie.json").httpStatus;
+const HttpStatus = require("../../config/resocie.json").httpStatus;
 
-const geralCtrl = require("./geral.controller");
-const viewCtrl = require("./view.controller");
+const digitalMediaCtrl = require("./digitalMedia.ctrl");
+const viewCtrl = require("./view.ctrl");
 
 /*	Global constants */
 const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
@@ -27,7 +27,7 @@ const listAccounts = async (req, res) => {
 		socialMedia: SOCIAL_MIDIA,
 	};
 
-	await geralCtrl.listAccounts(req, res, facebookParams);
+	await digitalMediaCtrl.listAccounts(req, res, facebookParams);
 };
 
 /**
@@ -128,7 +128,7 @@ const getUser = (req, res) => {
 		queries: "facebookQueries",
 	};
 
-	geralCtrl.getUser(req, res, facebookInfo);
+	digitalMediaCtrl.getUser(req, res, facebookInfo);
 };
 
 /**
@@ -157,14 +157,14 @@ const getLatest = (req, res) => {
 
 		req.account[0].history.latest = latest;
 
-		res.status(httpStatus.OK).json({
+		res.status(HttpStatus.OK).json({
 			error: false,
 			latest,
 		});
 	} catch (error) {
-		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${digitalMediaCtrl.capitalize(SOCIAL_MIDIA)}`;
 
-		stdErrorHand(res, httpStatus.ERROR_LATEST, errorMsg, error);
+		stdErrorHand(res, HttpStatus.ERROR_LATEST, errorMsg, error);
 	}
 };
 
@@ -196,9 +196,9 @@ const loadAccount = async (req, res, next) => {
 			id = req.params.id;
 		}
 
-		const errorMsg = `Error ao carregar usuário(s) [${id}] dos registros do ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
+		const errorMsg = `Error ao carregar usuário(s) [${id}] dos registros do ${digitalMediaCtrl.capitalize(SOCIAL_MIDIA)}`;
 
-		return stdErrorHand(res, httpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
+		return stdErrorHand(res, HttpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
 	}
 };
 
@@ -213,7 +213,7 @@ const setHistoryKey = (req, res, next) => {
 	const queriesPT = ResocieObs.queriesPT.facebookQueriesPT;
 	const historyKey = req.params.query;
 	const historyKeyPT = queriesPT[historyKey];
-	const errorMsg = `Não existe a caracteristica [${historyKey}] para o ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
+	const errorMsg = `Não existe a caracteristica [${historyKey}] para o ${digitalMediaCtrl.capitalize(SOCIAL_MIDIA)}`;
 
 	let chartTitle;
 
@@ -221,7 +221,7 @@ const setHistoryKey = (req, res, next) => {
 		chartTitle = viewCtrl.evolutionMsg(historyKeyPT, SOCIAL_MIDIA);
 	} else {
 		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
-		return res.status(httpStatus.ERROR_QUERY_KEY).json({
+		return res.status(HttpStatus.ERROR_QUERY_KEY).json({
 			error: true,
 			description: errorMsg,
 		});

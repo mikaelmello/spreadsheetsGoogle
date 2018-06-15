@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../../index");
 const facebookAccount = require("../models/facebook.model");
 const facebookStub = require("./facebook.stub.json").facebook;
-const facebookCtrl = require("../controllers/facebook.controller");
+const facebookCtrl = require("../controllers/facebook.ctrl");
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 beforeAll(async (done) => {

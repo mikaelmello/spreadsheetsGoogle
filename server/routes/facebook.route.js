@@ -1,9 +1,9 @@
 /*	Required modules */
 const express = require("express");
-const facebookCtrl = require("../controllers/facebook.controller");
+const facebookCtrl = require("../controllers/facebook.ctrl");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
-const geralCtrl = require("../controllers/geral.controller");
-const viewCtrl = require("../controllers/view.controller");
+const geralCtrl = require("../controllers/digitalMedia.ctrl");
+const viewCtrl = require("../controllers/view.ctrl");
 
 /*	Global constants */
 const router = express.Router(); // eslint-disable-line new-cap
