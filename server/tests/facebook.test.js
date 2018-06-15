@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../../index");
 const facebookAccount = require("../models/facebook.model");
 const facebookStub = require("./facebook.stub.json").facebook;
-const facebookCtrl = require("../controllers/facebook.ctrl");
+// const facebookCtrl = require("../controllers/facebook.ctrl");
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 beforeAll(async (done) => {
@@ -24,42 +24,64 @@ describe("Facebook endpoint", () => {
 	let accountId2;
 	let accountId3;
 
-	it("GET /facebook should return a JSON with all the users in the db", async (done) => {
-		const res = await request(app).get("/facebook").expect(httpStatus.OK);
-		const importRel = "facebook.import";
+	describe("Get /facebook", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get("/facebook").expect(httpStatus.OK);
 
-		expect(res.body).toHaveProperty("error");
-		expect(res.body.error).toBe(false);
+			expect(res).toHaveProperty("text");
 
-		expect(res.body).toHaveProperty("import");
-		expect(res.body.import).toHaveProperty("rel");
-		expect(res.body.import.rel).toEqual(importRel);
-		expect(res.body.import).toHaveProperty("href");
-		expect(typeof res.body.import.href).toEqual("string");
+			done();
+		});
 
-		expect(res.body).toHaveProperty("accounts");
-		expect(res.body.accounts).toBeInstanceOf(Array);
-		expect(res.body.accounts.length).toEqual(facebookStub.length);
+		it("should return a JSON with import link", async (done) => {
+			const res = await request(app).get("/facebook").expect(httpStatus.OK);
+			const importRel = "facebook.import";
 
-		accountId1 = res.body.accounts[0].username;
-		accountId2 = res.body.accounts[1].username;
-		accountId3 = res.body.accounts[2].username;
+			expect(res).toHaveProperty("text");
+			const jsonReturn = JSON.parse(res.text);
 
-		done();
+			expect(jsonReturn).toHaveProperty("import");
+			expect(jsonReturn.import).toHaveProperty("rel");
+			expect(jsonReturn.import.rel).toEqual(importRel);
+			expect(jsonReturn.import).toHaveProperty("href");
+			expect(typeof jsonReturn.import.href).toEqual("string");
+
+			done();
+		});
+
+		it("should return a JSON with all the users", async (done) => {
+			const res = await request(app).get("/facebook").expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("accounts");
+			expect(jsonReturn.accounts).toBeInstanceOf(Array);
+			expect(jsonReturn.accounts.length).toEqual(facebookStub.length);
+
+			accountId1 = jsonReturn.accounts[0].username;
+			accountId2 = jsonReturn.accounts[1].username;
+			accountId3 = jsonReturn.accounts[2].username;
+
+			done();
+		});
+
+		it("should save 3 user id", async (done) => {
+			expect(accountId1).toBeDefined();
+			expect(accountId2).toBeDefined();
+			expect(accountId3).toBeDefined();
+
+			done();
+		});
 	});
 
-	it("GET /facebook/help should return the routes' guide", async (done) => {
-		const res = await request(app).get("/facebook/help").expect(httpStatus.OK);
+	/*
+	describe("Get /facebook/:id", () => {
 
-		expect(res.body).toHaveProperty("error");
-		expect(res.body.error).toBe(false);
-
-		expect(res.body).toHaveProperty("results");
-		expect(res.body.results).toBeInstanceOf(Object);
-
-		done();
 	});
+	*/
 
+	/*
 	it("GET /facebook/:name should return all data from a certain user", async (done) => {
 		expect(accountId1).toBeDefined();
 
@@ -90,7 +112,9 @@ describe("Facebook endpoint", () => {
 		expect(res.body.account.history[2].date).toEqual("1995-02-24T02:00:00.000Z");
 		done();
 	});
+	// */
 
+	/*
 	it("GET /facebook/import shoul found this endpoint", async (done) => {
 		const res = await request(app).get("/facebook/import").expect(httpStatus.FOUND);
 		let msg = "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline";
@@ -130,22 +154,26 @@ describe("Facebook endpoint", () => {
 		done();
 	});
 
-	it("GET /facebook/compare/likes?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /facebook/compare/likes?actors={:id} should return an image
+	(the graph)", async (done) => {
 		expect(accountId1).toBeDefined();
 		expect(accountId2).toBeDefined();
 
-		const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},${accountId2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},
+		${accountId2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /facebook/compare/followers?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /facebook/compare/followers?actors={:id} should return an image
+	(the graph)", async (done) => {
 		expect(accountId1).toBeDefined();
 		expect(accountId2).toBeDefined();
 
-		const res = await request(app).get(`/facebook/compare/followers?actors=${accountId1},${accountId2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/facebook/compare/followers?actors=${accountId1},
+		${accountId2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
@@ -195,7 +223,8 @@ describe("Facebook endpoint", () => {
 		done();
 	});
 
-	it("GET /facebook/compare/likes?actors=:id,error shoul return error on loadAccount", async (done) => {
+	it("GET /facebook/compare/likes?actors=:id,error shoul return error on
+	loadAccount", async (done) => {
 		expect(accountId1).toBeDefined();
 
 		const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},error`)
@@ -213,7 +242,8 @@ describe("Facebook endpoint", () => {
 	it("GET /facebook/:username/qualquer should return error on setHistoryKey", async (done) => {
 		expect(accountId1).toBeDefined();
 
-		const res = await request(app).get(`/facebook/${accountId1}/qualquer`).expect(httpStatus.ERROR_QUERY_KEY);
+		const res = await request(app).get(`/facebook/${accountId1}/qualquer`).
+		expect(httpStatus.ERROR_QUERY_KEY);
 		const msgError = "Não existe a caracteristica [qualquer] para o Facebook";
 
 		expect(res.body).toHaveProperty("error");
@@ -225,7 +255,8 @@ describe("Facebook endpoint", () => {
 		done();
 	});
 
-	it("GET /facebook/compare/likes?actors=:id;:username shoul return error on splitActors", async (done) => {
+	it("GET /facebook/compare/likes?actors=:id;:username shoul return error on
+	splitActors", async (done) => {
 		expect(accountId1).toBeDefined();
 
 		const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1};error`)
@@ -239,8 +270,10 @@ describe("Facebook endpoint", () => {
 		expect(res.body.description).toEqual(msgError);
 		done();
 	});
+	// */
 });
 
+/*
 describe("Facebook methods", () => {
 	const param = "qualquer coisa";
 
@@ -365,3 +398,4 @@ describe("Facebook methods", () => {
 		done();
 	});
 });
+// */
