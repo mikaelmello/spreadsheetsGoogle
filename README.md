@@ -47,18 +47,22 @@ Renomeie o arquivo de configurações `.env.example` para `.env`, executando `mv
 
 ```
 # Ambiente de desenvolvimento
-NODE_ENV=development 
+# Aconselhado: development
+NODE_ENV=<env>
 
 # Porta do servidor
-PORT=3000
+# Aconselhado: port={0, 65536}
+PORT=port
 
 # Host do servidor de MongoDB
-# data-viz é o nome do banco de dados
+# 'data-viz' é o nome do banco de dados
 MONGO_HOST=mongodb://localhost/data-viz
 
 # Porta aberta pelo servidor Mongo
-# Normalmente 27017
-MONGO_PORT=27017
+# Default pelo MongoDB: 27017
+# Verificar a porta utilizada
+MONGO_PORT=portMDB
+
 ```
 
 Após a instalação das dependências, a escrita do arquivo de credenciais e o de configurações execute o projeto com:
@@ -67,13 +71,20 @@ Após a instalação das dependências, a escrita do arquivo de credenciais e o 
 npm start
 ```
 
-O projeto estará rodando em 
+O projeto estará rodando em
 
 ```shell
 http://localhost:3000
 ```
 
-Ou na porta definida em `.env`.
+Ou na porta definida em `.env`: `PORT=port`.
+
+### Ubuntu
+Caso esteja usando o Ubuntu, há um detalhe que deve ser chamado à atenção: instalação da biblioteca Cairo. É preciso instalar as suas dependências. Por isso, deve-se executar este comando:
+
+```
+sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
+```
 
 ## Desenvolvimento
 
