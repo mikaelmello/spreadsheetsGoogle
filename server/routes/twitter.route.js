@@ -31,6 +31,9 @@ router.route("/import")
 		twitterCtrl.importData,
 	);
 
+router.route("/update")
+	.get(twitterCtrl.updateData);
+
 router.route("/:username")
 	.get(twitterCtrl.getUser);
 
