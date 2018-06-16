@@ -29,15 +29,15 @@ block content
 						.custom-control.custom-checkbox
 							input#clearActors.form-check-input(type="checkbox")
 							label.form-check-label(for="clearActors") Limpar atores
+				button#search.btn.btn-primary(type='button') Visualizar
+
 
 mixin digitalMedia
 	label(for="digitalMedia") Mídia digital:
 		select#digitalMedia.custom-select.d-block.w-100(required="")
 			option(value="") Rede...
-			option(value="facebook") Facebook
-			option(value="twitter") Twitter
-			option(value="instagram") Instagram
-			option(value="youtube") Youtube
+			each media in medias
+				option(value = media.lower)= media.upper
 		.invalid-feedback
 			| Por favor selecione uma mídia válida.
 

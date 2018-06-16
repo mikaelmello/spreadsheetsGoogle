@@ -4,6 +4,7 @@ const instagramRoute = require("./instagram.route");
 const twitterRoute = require("./twitter.route");
 const facebookRoute = require("./facebook.route");
 const youtubeRoute = require("./youtube.route");
+const ResocieObs = require("../../config/resocie.json").observatory;
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 const router = express.Router();
@@ -66,7 +67,20 @@ router.get("/qualquer", (req, res) => {
 });
 
 router.get("/espacoExploratorio", (req, res) => {
-	res.render("plot");
+	const socialMedia = ResocieObs.socialMidia;
+	const medias = [];
+
+	for (midia in socialMedia) {					// eslint-disable-line
+		const aux = socialMedia[midia];				// eslint-disable-line
+		const list = {
+			lower: aux,
+			upper: capitalize(aux),
+		};
+
+		medias.push(list);
+	}
+
+	res.render("plot", { medias });
 });
 
 router.get("/espacoExploratorio2", (req, res) => {
@@ -83,5 +97,9 @@ router.use("/twitter", twitterRoute);
 router.use("/youtube", youtubeRoute);
 
 router.use("/instagram", instagramRoute);
+
+const capitalize = (str) => {
+	return str.replace(/\b\w/g, l => l.toUpperCase()); // eslint-disable-line
+};
 
 module.exports = router;

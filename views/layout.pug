@@ -16,7 +16,9 @@ html(lang='pt-br')
 		script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js", integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49", crossorigin="anonymous")
 		script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js", integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T", crossorigin="anonymous")
 		script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js")
-		script(src="/bower_components/custom/js/plot.controller.js")
+		
+		script(src="/bower_components/custom/js/queries.ctrl.js")
+		script(src="/bower_components/custom/js/plot.ctrl.js")
 
 	body
 		nav.navbar.sticky-top.navbar-expand-lg.navbar-light.bg-green
@@ -36,15 +38,13 @@ html(lang='pt-br')
 								| Exploratório_2
 						li.nav-item
 							a.nav-link(href="/espacoExploratorio")
-								| Exploratório_1
-								//| Espaço Exploratório
+								| Espaço Exploratório
 
 		.container
 			block content
 			br
 
 		footer.justify-content-center
-			//p Observatório das Eleições é um projeto do #[a(href: "https://resocie.org") Resocie]
 			p Observatório das Eleições é um projeto do
 				a(href="https://resocie.org") Resocie
 			p © 2018 - Todos os direitos reservados
