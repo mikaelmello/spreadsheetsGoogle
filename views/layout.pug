@@ -1,4 +1,7 @@
 doctype html
+
+include ./mixins.pug
+
 html(lang='pt-br')
 	head
 		if title
@@ -30,14 +33,13 @@ html(lang='pt-br')
 				#navbarNav.collapse.navbar-collapse.justify-content-center
 					ul.navbar-nav
 						li.nav-item
-							a.nav-link(href="/") Quem Somos
-							span.sr-only (current)
+							a.nav-link(href="/portal/quemsomos")
+								| Quem Somos
 						li.nav-item
-							a.nav-link(href="/espacoExploratorio2")
-								//| Flexibilidades
-								| Exploratório_2
+							a.nav-link(href="/portal/flexibilidades")
+								| Flexibilidades
 						li.nav-item
-							a.nav-link(href="/espacoExploratorio")
+							a.nav-link(href="/portal/espacoExploratorio")
 								| Espaço Exploratório
 
 		.container
@@ -45,7 +47,9 @@ html(lang='pt-br')
 			br
 
 		footer.justify-content-center
-			p Observatório das Eleições é um projeto do
-				a(href="https://resocie.org") Resocie
+			p Observatório das Eleições é um projeto do 
+				//a(href="https://resocie.org") Resocie
+				+insertLink("https://resocie.org", "Resocie")
 			p © 2018 - Todos os direitos reservados
-			p Design pelo grupo Data-Viz
+			p Design pelo grupo 
+				+insertLink("/portal/quemsomos#dataviz", "Data-Viz")
