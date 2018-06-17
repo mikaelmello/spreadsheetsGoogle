@@ -1,6 +1,6 @@
 /*	Required modules */
 const express = require("express");
-const ResocieObs = require("../../config/resocie.json").observatory;
+const portalCtrl = require("../controllers/portal.ctrl");
 
 /*	Global constants */
 const router = express.Router(); // eslint-disable-line new-cap
@@ -17,25 +17,8 @@ router.get("/qualquer", (req, res) => {
 	res.send(data);
 });
 
-router.get("/espacoExploratorio", (req, res) => {
-	const socialMedia = ResocieObs.socialMidia;
-	const medias = [];
-
-	for (midia in socialMedia) {					// eslint-disable-line
-		const aux = socialMedia[midia];				// eslint-disable-line
-		const list = {
-			lower: aux,
-			upper: capitalize(aux),
-		};
-
-		medias.push(list);
-	}
-
-	res.render("plot", {
-		title: "Espaço Exploratório",
-		medias,
-	});
-});
+router.route("/espacoExploratorio")
+	.get(portalCtrl.getPlotInitial);
 
 router.get("/espacoExploratorio2", (req, res) => {
 	res.render("plot2");
@@ -62,9 +45,5 @@ router.get("/flexibilidades", (req, res) => {
 		title: "Flexibilidades",
 	});
 });
-
-const capitalize = (str) => {
-	return str.replace(/\b\w/g, l => l.toUpperCase()); // eslint-disable-line
-};
 
 module.exports = router;

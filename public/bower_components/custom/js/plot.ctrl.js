@@ -32,50 +32,57 @@ $(document).ready(() => {
 		let category = $("#categories").val();
 
         switch(category){
-        	case "F/C": getActorsFC(); break;
+        	case "FC": getActorsFC(); break;
             case "OSC": getActorsOSC(); break;
-			case "CP": getActorsCP(); break;
-			default: clear("categories");
-        }
+			case "PCP": getActorsCP(); break;
+			default: clear("actors");
+		}
+
+		/*
+		clear("actors");
+		if(category) {
+			$("body").append("Leu: " + category + "<br>");
+			getActors(category);
+		}
+		//*/
     });
 });
 
+/**
+ * Deselect all possible marked actors
+ */
 $(document).ready(() => {
 	$("#clearActors").on("change", () => {
 		$(".form-check-input").prop("checked", false);
-		/*for (i=0;i<document.elements.length;i++) 
-			if(document.elements[i].type == "checkbox") 
-				document.elements[i].checked=0*/
 	});
 });
 
+/**
+ * Request the desired data
+ */
 $(document).ready(() => {
 	$("#search").click(() => {
 		let media = $("#digitalMedia").val();
 		let query = $("#queries").val();
-		const actors = getActors();
+		const actors = getMarkedActors();
 		
 		$("body").append("Media: " + media + "<br>");
 		$("body").append("Query: " + query + "<br>");
 		$("body").append("Actors: " + actors + "<br><br>");
+
 		if(!media || !query || !actors.length)	
 			alert("Deve ter selecionado todos os campos!");
 		else {
 			let URL = getURL (media, query, actors);
 			$("body").append("Requisitando: " + URL + "<br>");
 		}
-		/*
-		$.get("qualquer", (data, status) => {
-			alert("texto: " + data.texto + "\nStatus: " + data.statusCod);
-		});
-		*/
 	});
 });
 
 let getQueries = (media) => {
 	let URL = "/config/" + media + "/queries";
 
-	$("body").append("Indo buscar em: " + URL );
+	$("body").append("Indo buscar em: " + URL + "<br>");
 
 	/*
 	$.get(URL, (queries, status) => {
@@ -88,15 +95,32 @@ let getQueries = (media) => {
 	// */
 };
 
-let getActors = () => {
-	var chkArray = [];
-			
+let getActors = (category) => {
+	let URL = "/config/" + category;
+
+	//$("body").append("Indo buscar em: " + URL + "<br>");
+
+	/*
+	$.get(URL, (actors, status) => {
+		actors.forEach((actor) => {
+			let cmd = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
+			$("#actors").append(cmd);
+			cmd = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
+			$("#actors").append(cmd);
+		});
+	});
+	// */
+};
+
+let getMarkedActors = () => {
+	var actores = [];
+
 	$(".form-check-input:checked").each(function() {
 		if($(this).val())
-			chkArray.push($(this).val());
+		actores.push($(this).val());
 	});
 
-	return chkArray;
+	return actores;
 };
 
 let getURL = (media, query, actors) => {
