@@ -37,7 +37,7 @@ $(document).ready(() => {
         	case "FC": getActorsFC(); break;
             case "OSC": getActorsOSC(); break;
 			case "PCP": getActorsCP(); break;
-			default: restart("actors");
+			default: restart("actors"); $("#actors").append("<p class='text-center'>Não há categoria selecionada</p>");
 		}
 		//*/
 
@@ -46,6 +46,8 @@ $(document).ready(() => {
 		if(category) {
 			$("body").append("Leu: " + category + "<br>");
 			getActors(category);
+		}else{
+			$("#actors").append("<p class='text-center'>Não há categoria selecionada</p>");
 		}
 		//*/
     });
