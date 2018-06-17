@@ -50,7 +50,6 @@ const getUser = (req, res, socialMedia) => {
 };
 
 /*	Route middlewares */
-
 /**
  * Split of actors to be compared
  * @param {object} req - standard request object from the Express library
@@ -163,7 +162,6 @@ const getQueryLink = (req, id, socialMedia, query) => {
 };
 
 /*	Methods of abstraction upon response */
-
 /**
  * Standard Error Handling
  * @param {object} res - standard response object from the Express library
@@ -173,8 +171,8 @@ const getQueryLink = (req, id, socialMedia, query) => {
 const stdErrorHand = (res, errorCode, errorMsg, error) => {
 	logger.error(`${errorMsg} - Detalhes: ${error}`);
 
-	res.status(errorCode).json({
-		error: true,
+	res.render("error", {
+		code: errorCode,
 		description: errorMsg,
 	});
 };
