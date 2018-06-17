@@ -4,17 +4,18 @@
 $(document).ready(() => {
 	$("#digitalMedia").on("change", () => {
 		let media = $("#digitalMedia").val();
-
+		//*
 		switch(media){
         	case "facebook": facebookQueries(); break;
             case "instagram": instagramQueries(); break;
             case "twitter": twitterQueries(); break;
             case "youtube": youtubeQueries(); break;
-            default: clear("queries");
+            default: restart("queries");
 		}
+		//*/
 
 		/*
-		clear("queries");
+		restart("queries");
 
 		if(media) {
 			$("body").append("Leu: " + media + "<br>");
@@ -31,15 +32,17 @@ $(document).ready(() => {
 	$("#categories").on("change", () => {
 		let category = $("#categories").val();
 
+		//*
         switch(category){
         	case "FC": getActorsFC(); break;
             case "OSC": getActorsOSC(); break;
 			case "PCP": getActorsCP(); break;
-			default: clear("actors");
+			default: restart("actors");
 		}
+		//*/
 
 		/*
-		clear("actors");
+		restart("actors");
 		if(category) {
 			$("body").append("Leu: " + category + "<br>");
 			getActors(category);
@@ -66,23 +69,29 @@ $(document).ready(() => {
 		let query = $("#queries").val();
 		const actors = getMarkedActors();
 		
+		/*
 		$("body").append("Media: " + media + "<br>");
 		$("body").append("Query: " + query + "<br>");
 		$("body").append("Actors: " + actors + "<br><br>");
+		//*/
 
 		if(!media || !query || !actors.length)	
 			alert("Deve ter selecionado todos os campos!");
 		else {
 			let URL = getURL (media, query, actors);
-			$("body").append("Requisitando: " + URL + "<br>");
+			//$("body").append("Requisitando: " + URL + "<br>");
 		}
 	});
 });
 
+/**
+ * Acquisition of queries for a given digital media
+ * @param {string} media - Selected digital media
+ */
 let getQueries = (media) => {
-	let URL = "/config/" + media + "/queries";
+	let URL = "/config/qr/" + media + "/queries";
 
-	$("body").append("Indo buscar em: " + URL + "<br>");
+	// $("body").append("Indo buscar em: " + URL + "<br>");
 
 	/*
 	$.get(URL, (queries, status) => {
@@ -95,8 +104,12 @@ let getQueries = (media) => {
 	// */
 };
 
+/**
+ * Acquisition of registered actors in a given category
+ * @param {string} category - Selected actors' category
+ */
 let getActors = (category) => {
-	let URL = "/config/" + category;
+	let URL = "/config/cat/" + category;
 
 	//$("body").append("Indo buscar em: " + URL + "<br>");
 
@@ -112,6 +125,9 @@ let getActors = (category) => {
 	// */
 };
 
+/**
+ * Acquisition of all chosen actors
+ */
 let getMarkedActors = () => {
 	var actores = [];
 
@@ -123,6 +139,12 @@ let getMarkedActors = () => {
 	return actores;
 };
 
+/**
+ * URL construction for the chart data
+ * @param {string} media - Selected digital media
+ * @param {string} query - Selected query
+ * @param {string} actors - One or more selected actors
+ */
 let getURL = (media, query, actors) => {
 	const length = actors.length;
 	let URL = "/" + media + "/";
@@ -143,29 +165,35 @@ let getURL = (media, query, actors) => {
 	return URL;
 };
 
-let clear = (field) => {
+/**
+ * Restart of a given control field
+ * @param {string} field - Field to restart
+ */
+let restart = (field) => {
 	switch(field){
-		case "queries": clearQueries(); break;
-		case "categories": clearCategories(); break;
-		case "actors": clearActors(); break;
+		case "queries": restartQueries(); break;
+		case "actors": restartActors(); break;
 	}
 };
 
-let clearQueries = () => {
+/**
+ * Restart the queries field
+ */
+let restartQueries = () => {
 	$("#queries").empty();
     $("#queries").prepend("<option value=''>Escolha...</option>");
 };
 
-let clearCategories = () => {
-	$("#categories").empty();
-};
-
-let clearActors = () => {
+/**
+ * Restart the actors field
+ */
+let restartActors = () => {
 	$("#actors").empty();
 };
 
+/*	Stub methods */
 let getActorsFC = () => {
-	clear("actors");
+	restart("actors");
 
 	let actors = [
 		{
@@ -182,20 +210,16 @@ let getActorsFC = () => {
 		},
 	];
 
-	// get(atores)
-
 	actors.forEach((actor) => {
 		let check = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
 		$("#actors").append(check);
 		check = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
 		$("#actors").append(check);
-
-
 	});
 };
 
 let getActorsOSC = () => {
-	clear("actors");
+	restart("actors");
 
 	let actors = [
 		{
@@ -212,20 +236,16 @@ let getActorsOSC = () => {
 		},
 	];
 
-	// get(atores)
-
 	actors.forEach((actor) => {
 		let check = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
 		$("#actors").append(check);
 		check = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
 		$("#actors").append(check);
-
-
 	});
 };
 
 let getActorsCP = () => {
-	clear("actors");
+	restart("actors");
 
 	let actors = [
 		{
@@ -242,33 +262,29 @@ let getActorsCP = () => {
 		},
 	];
 
-	// get(atores)
-
 	actors.forEach((actor) => {
 		let check = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
 		$("#actors").append(check);
 		check = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
 		$("#actors").append(check);
-
-
 	});
 };
 
 let facebookQueries = () => {
-	clear("queries");
+	restart("queries");
 	$("#queries").append("<option value='likes'>Curtidas</option>");
     $("#queries").append("<option value='followers'>Seguidores</option>");
 }
 
 let instagramQueries = () => {
-	clear("queries");
+	restart("queries");
 	$("#queries").append("<option value='followers'>Seguidores</option>"); 
     $("#queries").append("<option value='following'>Seguindo</option>");
     $("#queries").append("<option value='num_of_posts'>Postagens</option>");
 }
 
 let twitterQueries = () => {
-	clear("queries");
+	restart("queries");
 	$("#queries").append("<option value='tweets'>Tweets</option>");
     $("#queries").append("<option value='followers'>Seguidores</option>");
     $("#queries").append("<option value='following'>Seguindo</option>");
@@ -277,7 +293,7 @@ let twitterQueries = () => {
 }
 
 let youtubeQueries = () => {
-	clear("queries");
+	restart("queries");
 	$("#queries").append("<option value='videos'>Vídeos</option>");
     $("#queries").append("<option value='views'>Visualizações</option>");
     $("#queries").append("<option value='subscribers'>Inscritos</option>");
