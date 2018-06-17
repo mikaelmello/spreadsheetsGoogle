@@ -4,15 +4,17 @@ mixin insertLink(URL, text)
 
 // mixin for the page "Quem Somos"
 mixin insertDeveloper(developer)
-	.col-md-7.order-md-2.align-self-center
-		h4.featurette-heading #{developer.name}
+	.col-lg-4.text-center
+		img.p-2.rounded-circle(src=developer.img, alt=developer.name, width="180", height="180")
+		h3= developer.name
 		p #{developer.text}
+			br
 			| Possui um portifólio no 
 			+insertLink(developer.github, "GitHub")
-			| . 
-			+insertLink(developer.cv, "Saiba mais")
-	.col-md-5.order-md-1
-		img.featurette-image.img-fluid.mx-auto.rounded(src=developer.img, alt=developer.name)
+			| .
+		if (developer.cv)
+			p
+				a.btn.btn-secondary(href=developer.cv, role="button", target='_blank') Conheça mais »
 
 // mixin for the page "Espaço Exploratório"
 mixin digitalMedia

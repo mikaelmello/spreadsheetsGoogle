@@ -24,21 +24,8 @@ router.get("/espacoExploratorio2", (req, res) => {
 	res.render("plot2");
 });
 
-router.get("/quemsomos", (req, res) => {
-	const developers = [
-		{
-			name: "Rodrigo Ferreira Guimarães",
-			text: "Estudante de Engenharia de Computação pela Universidade de Brasília. Tem interesse pela área educacional. ",
-			github: "https://github.com/rodrigofegui",
-			cv: "http://lattes.cnpq.br/9277938174017919",
-			img: "/imagens/Rodrigo.jpg",
-		},
-	];
-	res.render("quemSomos", {
-		title: "Quem Somos",
-		developers: developers,
-	});
-});
+router.route("/quemsomos")
+	.get(portalCtrl.getDataviz);
 
 router.get("/flexibilidades", (req, res) => {
 	res.render("flexibilidades", {
