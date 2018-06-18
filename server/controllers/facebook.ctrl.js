@@ -1,6 +1,5 @@
 /*	Required modules */
 const mongoose = require("mongoose");
-const Facebook = require("../models/facebook.model");
 const FacebookDB = require("../models/facebook.model");
 const ResocieObs = require("../../config/resocie.json").observatory;
 
@@ -70,7 +69,7 @@ const importAccounts = async (req, res) => {
 			const accountLink = getImportAccountLink(cRow[linkRow]);
 
 			if (actors[cRow[nameRow]] === undefined) {
-				const newAccount = Facebook({
+				const newAccount = FacebookDB({
 					name: cRow[nameRow].replace(/\n/g, " "),
 					class: categories[cCategory],
 					link: accountLink,
