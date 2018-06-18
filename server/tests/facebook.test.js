@@ -2,7 +2,6 @@ const request = require("supertest");
 const app = require("../../index");
 const facebookAccount = require("../models/facebook.model");
 const facebookStub = require("./facebook.stub.json").facebook;
-// const facebookCtrl = require("../controllers/facebook.ctrl");
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 beforeAll(async (done) => {
@@ -169,46 +168,38 @@ describe("Facebook endpoint", () => {
 		});
 	});
 
+	describe("Get /facebook/latest/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/facebook/latest/${accountId1}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid queries' set", async (done) => {
+			const res = await request(app).get(`/facebook/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("likes");
+			expect(jsonReturn).toHaveProperty("followers");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/facebook/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.likes).toEqual(45);
+			expect(jsonReturn.followers).toEqual(1000);
+
+			done();
+		});
+	});
+
 	/*
-	it("GET /facebook/import shoul found this endpoint", async (done) => {
-		const res = await request(app).get("/facebook/import").expect(httpStatus.FOUND);
-		let msg = "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline";
-		msg += "&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fspreadsheets.readonly";
-		msg += "&response_type=code&client_id=irrelevant&redirect_uri=http%3A%2F%2F";
-
-		expect(res).toHaveProperty("redirect");
-		expect(res.redirect).toBe(true);
-
-		expect(res).toHaveProperty("request");
-		expect(res.request).toHaveProperty("host");
-		const host = res.request.host.replace(/:/g, "%3A");
-		msg += host;
-		msg += "%2Ffacebook%2Fimport";
-
-		expect(res).toHaveProperty("header");
-		expect(res.header).toHaveProperty("location");
-		expect(res.header.location).toEqual(msg);
-
-		done();
-	});
-
-	it("GET /facebook/latest/:username should return the latest data from a user", async (done) => {
-		expect(accountId1).toBeDefined();
-
-		const res = await request(app).get(`/facebook/latest/${accountId1}`).expect(httpStatus.OK);
-
-		expect(res.body).toHaveProperty("error");
-		expect(res.body.error).toBe(false);
-
-		expect(res.body).toHaveProperty("latest");
-		expect(res.body.latest).toBeInstanceOf(Object);
-
-		expect(res.body.latest.likes).toEqual(45);
-		expect(res.body.latest.followers).toEqual(1000);
-
-		done();
-	});
-
 	it("GET /facebook/compare/likes?actors={:id} should return an image
 	(the graph)", async (done) => {
 		expect(accountId1).toBeDefined();

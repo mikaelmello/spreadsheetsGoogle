@@ -1,23 +1,22 @@
-const httpStatus = require("http-status");
-// const Color = require("./color.controller");
 const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
+const HttpStatus = require("../../config/resocie.json").httpStatus;
 const ErrorMsgs = require("../../config/resocie.json").errorMessages;
 
 /*	Route final methods */
-
 /**
- * Search for all registered Instagram accounts.
+ * Search for all registered accounts in a given digital media
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
- * @return {object} result - list with all registered accounts, displaying the link and the name
- * @return {String} description - error warning
+ * @param {object} media - selected digital media
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
  */
-const listAccounts = async (req, res, params) => {
+const listAccounts = async (req, res, media) => {
 	try {
-		const accounts = await params.model.find({}, params.projection);
+		const accounts = await media.model.find({}, media.projection);
 
-		const importLink = await getInitialLink(req, accounts, params.socialMedia);
+		const importLink = await getInitialLink(req, accounts, media.name);
 		const sendInfo = {
 			import: importLink,
 			accounts,
@@ -25,9 +24,9 @@ const listAccounts = async (req, res, params) => {
 
 		res.send(sendInfo);
 	} catch (error) {
-		const errorMsg = ErrorMsgs.ERROR_LIST_ACCOUNTS + capitalize(params.socialMedia);
+		const errorMsg = ErrorMsgs.ERROR_LIST_ACCOUNTS + capitalize(media.name);
 
-		stdErrorHand(res, httpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
+		stdErrorHand(res, HttpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
 	}
 };
 
@@ -35,17 +34,53 @@ const listAccounts = async (req, res, params) => {
  * Data recovery about a given user
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
+ * @param {object} media - selected digital media
  */
-const getUser = (req, res, socialMedia) => {
+const getUser = (req, res, media) => {
 	try {
 		const account = req.account[0].toObject();
-		account.links = getQueriesLink(req, account.username, socialMedia);
+		account.links = getQueriesLink(req, account.username, media);
 
 		res.send(account);
 	} catch (error) {
 		const errorMsg = ErrorMsgs.ERROR_GET_USER;
 
-		stdErrorHand(res, httpStatus.ERROR_GET_USER, errorMsg, error);
+		stdErrorHand(res, HttpStatus.ERROR_GET_USER, errorMsg, error);
+	}
+};
+
+/**
+ * Data recovery latest about a given user
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @param {object} media - selected digital media
+ */
+const getLatest = (req, res, media) => {
+	try {
+		const history = req.account[0].toObject().history;
+		const length = history.length - 1;
+		const latest = {};
+		const limit = ResocieObs.queriesRange[media.queries];
+		const queries = ResocieObs.queries[media.queries];
+		let count = 0;
+
+		for (let ind = length; ind >= 0 && count <= limit; ind -= 1) {
+			/* eslint-disable */
+			for (query of queries) {
+				if (latest[query] === undefined
+					&& history[ind][query] !== undefined) {
+					latest[query] = history[ind][query];
+					count += 1;
+				}
+			}
+			/* eslint-enable */
+		}
+
+		res.send(latest);
+	} catch (error) {
+		const errorMsg = ErrorMsgs.ERROR_LATEST + req.account.name;
+
+		stdErrorHand(res, HttpStatus.ERROR_LATEST, errorMsg, error);
 	}
 };
 
@@ -66,12 +101,11 @@ const splitActors = (req, res, next) => {
 	} catch (error) {
 		const errorMsg = "Erro ao criar o ambiente para a comparação";
 
-		stdErrorHand(res, errorMsg, error);
+		stdErrorHand(res, HttpStatus.ERROR_SPLIT_ACTORS, errorMsg, error);
 	}
 };
 
 /*	Methods of abstraction upon request */
-
 /**
  * Acquiring the links to the home page
  * @param {object} req - standard request object from the Express library
@@ -178,18 +212,22 @@ const stdErrorHand = (res, errorCode, errorMsg, error) => {
 };
 
 /*	Methods of abstraction */
-
 /**
  * Capitalization of a given string
  * @param {string} str - string for modification
  */
 const capitalize = (str) => {
-	return str.replace(/\b\w/g, l => l.toUpperCase()); // eslint-disable-line
+	/* eslint-disable */
+	str = str.charAt(0).toUpperCase() + str.slice(1);
+	str = str.replace(/\s\w/g, l => l.toUpperCase());
+	/* eslint-enable */
+
+	return str;
 };
 
 module.exports = {
 	listAccounts,
 	getUser,
+	getLatest,
 	splitActors,
-	capitalize,
 };

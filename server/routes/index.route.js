@@ -84,8 +84,10 @@ router.use("/youtube", youtubeRoute);
 
 router.use("/instagram", instagramRoute);
 
+/*
 router.get("/*", (req, res) => {
 	res.render("error");
 });
+*/
 
 module.exports = router;

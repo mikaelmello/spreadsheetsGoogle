@@ -17,17 +17,17 @@ const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
  * Search for all registered Facebook accounts.
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
- * @return {object} result - list with all registered accounts, displaying the link and the name
- * @return {String} description - error warning
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
  */
 const listAccounts = async (req, res) => {
-	const facebookParams = {
+	const facebookInfo = {
 		model: FacebookDB,
 		projection: "name username link -_id",
-		socialMedia: SOCIAL_MIDIA,
+		name: SOCIAL_MIDIA,
 	};
 
-	await digitalMediaCtrl.listAccounts(req, res, facebookParams);
+	await digitalMediaCtrl.listAccounts(req, res, facebookInfo);
 };
 
 /**
@@ -137,35 +137,12 @@ const getUser = (req, res) => {
  * @param {object} res - standard response object from the Express library
  */
 const getLatest = (req, res) => {
-	try {
-		const history = req.account[0].toObject().history;
-		const length = history.length - 1;
-		const latest = {};
-		const limit = ResocieObs.queriesRange.facebookQueries;
-		const queries = ResocieObs.queries.facebookQueries;
-		let count = 0;
+	const facebookInfo = {
+		name: SOCIAL_MIDIA,
+		queries: "facebookQueries",
+	};
 
-		for (let ind = length; ind >= 0 && count <= limit; ind -= 1) {
-			for (query of queries) {						// eslint-disable-line
-				if (latest[query] === undefined				// eslint-disable-line
-					&& history[ind][query] !== undefined) {	// eslint-disable-line
-					latest[query] = history[ind][query];	// eslint-disable-line
-					count += 1;
-				}
-			}
-		}
-
-		req.account[0].history.latest = latest;
-
-		res.status(HttpStatus.OK).json({
-			error: false,
-			latest,
-		});
-	} catch (error) {
-		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${digitalMediaCtrl.capitalize(SOCIAL_MIDIA)}`;
-
-		stdErrorHand(res, HttpStatus.ERROR_LATEST, errorMsg, error);
-	}
+	digitalMediaCtrl.getLatest(req, res, facebookInfo);
 };
 
 /*	Route middlewares */

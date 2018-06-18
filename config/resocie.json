@@ -124,7 +124,8 @@
 		"ERROR_SPLIT_ACTORS": 517
 	},
 	"errorMessages": {
-		"ERROR_LIST_ACCOUNTS": "Erro ao carregar usuários nos registros do ",
-		"ERROR_GET_USER": "Erro enquanto configura-se o usuário"
+		"ERROR_LIST_ACCOUNTS": "Erro ao carregar usuários nos registros do: ",
+		"ERROR_GET_USER": "Erro enquanto configura-se o usuário",
+		"ERROR_LATEST": "Error enquanto se recuperava os últimos dados válidos para o usuário: "
 	}
 }
