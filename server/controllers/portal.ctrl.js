@@ -3,13 +3,26 @@ const ResocieObs = require("../../config/resocie.json").observatory;
 const getDataviz = (req, res) => {
 	const developers = [
 		{
+			name: "Camila Pontes",
+			text: "Estudante de Ciência da Computação pela Universidade de Brasília. Tem interesse na área de biologia computacional. ",
+			github: "https://github.com/cftpontes",
+			cv: "http://lattes.cnpq.br/2885151883171282",
+			img: "/imagens/Camila.jpg",
+		},
+		{
 			name: "Larissa Bianca",
-			text: "É estudante da  Universidade de Brasília pelo curso de Ciência da Computação. Tem interesse nas áreas de Lógica, Métodos Formais e Matemática da Computação. ",
+			text: "Estudante de Ciência da Computação pela Universidade de Brasília. Tem interesse nas áreas de Lógica, Métodos Formais e Matemática da Computação. ",
 			github: "https://github.com/larissa-tekuan",
 			img: "/imagens/Larissa.jpeg",
 		},
 		{
-			name: "Rodrigo  Guimarães",
+			name: "Pedro Ivo",
+			text: "Estudante de Computação pela Universidade de Brasília. Tem interesse pela área empresarial. ",
+			github: "https://github.com/ivomachadon",
+			img: "/imagens/PedroIvo.jpeg",
+		},
+		{
+			name: "Rodrigo Guimarães",
 			text: "Estudante de Engenharia de Computação pela Universidade de Brasília. Tem interesse pela área educacional. ",
 			github: "https://github.com/rodrigofegui",
 			cv: "http://lattes.cnpq.br/9277938174017919",
@@ -17,7 +30,7 @@ const getDataviz = (req, res) => {
 		},
 		{
 			name: "Samuel Couto",
-			text: "É estudante da Ciência da Computação na Universidade de Brasília. Tem interesse na área de inteligência artificial. ",
+			text: "Estudante de Ciência da Computação pela Universidade de Brasília. Tem interesse na área de inteligência artificial. ",
 			github: "https://github.com/SCouto97/",
 			img: "/imagens/Samuel.jpeg",
 		},
