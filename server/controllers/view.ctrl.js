@@ -2,10 +2,7 @@
 const ChartNode = require("chartjs-node");
 const httpStatus = require("http-status");
 const Color = require("./color.controller");
-// const logger = require("../../config/logger");
-// const ResocieObs = require("../../config/resocie.json").observatory;
-
-const geralCtrl = require("./digitalMedia.ctrl");
+const digitalMedia = require("./digitalMedia.ctrl");
 
 /*	Global constants */
 const CHART_SIZE = 700;
@@ -175,7 +172,7 @@ const getConfigLineChart = (req, res, next) => {
 			response: true,
 			title: {
 				display: true,
-				text: req.chart.chartTitle,
+				text: evolutionMsg(req.chart.historyKeyPT),
 			},
 			legend: {
 				display: true,
@@ -225,8 +222,8 @@ const getConfigLineChart = (req, res, next) => {
  * @param {String} param - characteristic under analysis
  * @returns standard message generated
  */
-const evolutionMsg = (param, socialMedia) => {
-	return `Evolução de ${param}, no ${geralCtrl.capitalize(socialMedia)}`;
+const evolutionMsg = (param) => {
+	return `Evolução temporal de ${param}`;
 };
 
 module.exports = {

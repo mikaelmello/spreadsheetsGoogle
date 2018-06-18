@@ -2,12 +2,9 @@
 const mongoose = require("mongoose");
 const Facebook = require("../models/facebook.model");
 const FacebookDB = require("../models/facebook.model");
-const logger = require("../../config/logger");
 const ResocieObs = require("../../config/resocie.json").observatory;
-const HttpStatus = require("../../config/resocie.json").httpStatus;
 
 const digitalMediaCtrl = require("./digitalMedia.ctrl");
-const viewCtrl = require("./view.ctrl");
 
 /*	Media identification */
 const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
@@ -170,30 +167,11 @@ const loadAccount = async (req, res, next) => {
  * @returns Execution of the next feature, over the history key generated
  */
 const setHistoryKey = (req, res, next) => {
-	const queriesPT = ResocieObs.queriesPT.facebookQueriesPT;
-	const historyKey = req.params.query;
-	const historyKeyPT = queriesPT[historyKey];
-	const errorMsg = `Não existe a caracteristica [${historyKey}] para o ${digitalMediaCtrl.capitalize(SOCIAL_MIDIA)}`;
-
-	let chartTitle;
-
-	if (historyKeyPT !== undefined) {
-		chartTitle = viewCtrl.evolutionMsg(historyKeyPT, SOCIAL_MIDIA);
-	} else {
-		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
-		return res.status(HttpStatus.ERROR_QUERY_KEY).json({
-			error: true,
-			description: errorMsg,
-		});
-	}
-
-	req.chart = {
-		historyKey: historyKey,
-		historyKeyPT: historyKeyPT,
-		chartTitle: chartTitle,
+	const facebookInfo = {
+		queriesPT: "facebookQueriesPT",
 	};
 
-	return next();
+	digitalMediaCtrl.setHistoryKey(req, res, next, facebookInfo);
 };
 
 /*	Methods of abstraction upon response */

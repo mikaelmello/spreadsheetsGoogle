@@ -97,6 +97,29 @@ const loadAccount = async (req, res, next, media) => {
 };
 
 /**
+ * Layer to query requested identification
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @param {object} next - standard next function
+ * @param {object} media - selected digital media
+ * @returns Execution of the next feature, over the history key generated
+ */
+const setHistoryKey = (req, res, next, media) => {
+	const queriesPT = ResocieObs.queriesPT[media.queriesPT];
+	const historyKey = req.params.query;
+	const historyKeyPT = queriesPT[historyKey];
+
+	if (historyKeyPT === undefined)	return errorHistoryKey(req, res, historyKey);
+
+	req.chart = {
+		historyKey: historyKey,
+		historyKeyPT: historyKeyPT,
+	};
+
+	return next();
+};
+
+/**
  * Split of actors to be compared
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
@@ -250,6 +273,19 @@ const getRequestID = (req) => {
 	return req.params.id;
 };
 
+/**
+ * Standard query error handler
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @param {string} query - Query Attempt
+ */
+const errorHistoryKey = (req, res, query) => {
+	const errorMsg = ErrorMsgs.ERROR_QUERY_KEY + query;
+	const error = `Tried to access ${req.originalUrl}`;
+
+	return stdErrorHand(res, HttpStatus.ERROR_QUERY_KEY, errorMsg, error);
+};
+
 /*	Methods of abstraction upon response */
 /**
  * Standard Error Handling
@@ -312,5 +348,7 @@ module.exports = {
 	getUser,
 	getLatest,
 	loadAccount,
+	setHistoryKey,
 	splitActors,
+	capitalize,
 };
