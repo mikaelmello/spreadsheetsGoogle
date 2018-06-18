@@ -125,6 +125,7 @@
 	},
 	"errorMessages": {
 		"ERROR_LIST_ACCOUNTS": "Erro ao carregar usuários nos registros do: ",
+		"ERROR_LOAD_ACCOUNT": "Error ao buscar, nos registros, o(s) usuário(s): ",
 		"ERROR_GET_USER": "Erro enquanto configura-se o usuário",
 		"ERROR_LATEST": "Error enquanto se recuperava os últimos dados válidos para o usuário: "
 	}

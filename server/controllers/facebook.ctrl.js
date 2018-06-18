@@ -9,7 +9,7 @@ const HttpStatus = require("../../config/resocie.json").httpStatus;
 const digitalMediaCtrl = require("./digitalMedia.ctrl");
 const viewCtrl = require("./view.ctrl");
 
-/*	Global constants */
+/*	Media identification */
 const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
 
 /*	Route final methods */
@@ -154,29 +154,12 @@ const getLatest = (req, res) => {
  * @returns Execution of the next feature, over the data found
  */
 const loadAccount = async (req, res, next) => {
-	try {
-		if (req.actors !== undefined) {
-			for (const cActor of req.actors) {	// eslint-disable-line
-				await findAccount(req, cActor);	// eslint-disable-line
-			} 									// eslint-disable-line
-		} else {
-			const id = req.params.id;
-			await findAccount(req, id);
-		}
+	const facebookInfo = {
+		model: FacebookDB,
+		projection: "-_id -__v",
+	};
 
-		return next();
-	} catch (error) {
-		let id;
-		if (req.actors !== undefined) {
-			id = req.actors;
-		} else {
-			id = req.params.id;
-		}
-
-		const errorMsg = `Error ao carregar usuário(s) [${id}] dos registros do ${digitalMediaCtrl.capitalize(SOCIAL_MIDIA)}`;
-
-		return stdErrorHand(res, HttpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
-	}
+	return digitalMediaCtrl.loadAccount(req, res, next, facebookInfo);
 };
 
 /**
@@ -213,40 +196,7 @@ const setHistoryKey = (req, res, next) => {
 	return next();
 };
 
-/*	Methods of abstraction upon request */
-/**
- * Search for an account in the records and making it available
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a Facebook account
- */
-const findAccount = async (req, id) => {
-	const account = await Facebook.findOne({ username: id }, "-_id -__v");
-
-	if (!account) throw TypeError(`There is no user [${id}]`);
-
-	if (req.account === undefined) req.account = [];
-
-	req.account.push(account);
-};
-
 /*	Methods of abstraction upon response */
-/**
- * Standard Error Handling
- * @param {object} res - standard response object from the Express library
- * @param {number} erroCode - error code for the situation
- * @param {String} errorMsg - error message for the situation
- * @param {object} error - error that actually happened
- */
-const stdErrorHand = (res, errorCode, errorMsg, error) => {
-	logger.error(`${errorMsg} - Detalhes: ${error}`);
-
-	res.status(errorCode).json({
-		error: true,
-		description: errorMsg,
-	});
-};
-
-
 /**
  * Data validation by recurrent criteria
  * @param {String} value - data to be validated

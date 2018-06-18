@@ -17,6 +17,7 @@ const listAccounts = async (req, res, media) => {
 		const accounts = await media.model.find({}, media.projection);
 
 		const importLink = await getInitialLink(req, accounts, media.name);
+
 		const sendInfo = {
 			import: importLink,
 			accounts,
@@ -35,6 +36,8 @@ const listAccounts = async (req, res, media) => {
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  * @param {object} media - selected digital media
+ * @return Successfully returns the requested user;
+ * in case of error, inform what happened
  */
 const getUser = (req, res, media) => {
 	try {
@@ -54,27 +57,13 @@ const getUser = (req, res, media) => {
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  * @param {object} media - selected digital media
+ * @return Successfully returns the latest data of the requested user;
+ * in case of error, inform what happened
  */
 const getLatest = (req, res, media) => {
 	try {
 		const history = req.account[0].toObject().history;
-		const length = history.length - 1;
-		const latest = {};
-		const limit = ResocieObs.queriesRange[media.queries];
-		const queries = ResocieObs.queries[media.queries];
-		let count = 0;
-
-		for (let ind = length; ind >= 0 && count <= limit; ind -= 1) {
-			/* eslint-disable */
-			for (query of queries) {
-				if (latest[query] === undefined
-					&& history[ind][query] !== undefined) {
-					latest[query] = history[ind][query];
-					count += 1;
-				}
-			}
-			/* eslint-enable */
-		}
+		const latest = getLatestData(history, media);
 
 		res.send(latest);
 	} catch (error) {
@@ -86,10 +75,33 @@ const getLatest = (req, res, media) => {
 
 /*	Route middlewares */
 /**
+ * Look for a specific registered account, by your identification.
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @param {object} next - standard next function
+ * @param {object} media - selected digital media
+ * @returns Execution of the next feature, over the data found
+ */
+const loadAccount = async (req, res, next, media) => {
+	try {
+		await lookUpAccount(req, media);
+
+		return next();
+	} catch (error) {
+		const id = getRequestID(req);
+
+		const errorMsg = ErrorMsgs.ERROR_LOAD_ACCOUNT + id;
+
+		return stdErrorHand(res, HttpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
+	}
+};
+
+/**
  * Split of actors to be compared
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  * @param {object} next - standard next function
+ * @returns Execution of the next feature
  */
 const splitActors = (req, res, next) => {
 	try {
@@ -107,12 +119,45 @@ const splitActors = (req, res, next) => {
 
 /*	Methods of abstraction upon request */
 /**
+ * Choose from searching multiple accounts or just one
+ * @param {object} req - standard request object from the Express library
+ * @param {object} media - selected digital media
+ */
+const lookUpAccount = async (req, media) => {
+	if (req.actors !== undefined) {
+		/* eslint-disable */
+		for (const cActor of req.actors)
+			await findAccount(req, cActor, media);
+		/* eslint-enable */
+	} else {
+		const id = req.params.id;
+		await findAccount(req, id, media);
+	}
+};
+
+/**
+ * Search for an account in the records and making it available
+ * @param {object} req - standard request object from the Express library
+ * @param {object} id - standard identifier of a Facebook account
+ */
+const findAccount = async (req, id, media) => {
+	const account = await media.model.findOne({ username: id }, media.projection);
+
+	if (!account) throw TypeError(`There is no user [${id}]`);
+
+	if (req.account === undefined) req.account = [];
+
+	req.account.push(account);
+};
+
+/**
  * Acquiring the links to the home page
  * @param {object} req - standard request object from the Express library
  * @param {object} accounts - Accounts registered for Facebook
  */
 const getInitialLink = (req, accounts, socialMedia) => {
 	getAccountLink(req, accounts, socialMedia);
+
 	return getImportLink(req, socialMedia);
 };
 
@@ -195,6 +240,16 @@ const getQueryLink = (req, id, socialMedia, query) => {
 	};
 };
 
+/**
+ * Acquire of ID under handling
+ * @param {object} req - standard request object from the Express library
+ */
+const getRequestID = (req) => {
+	if (req.actors !== undefined)	return req.actors;
+
+	return req.params.id;
+};
+
 /*	Methods of abstraction upon response */
 /**
  * Standard Error Handling
@@ -213,6 +268,33 @@ const stdErrorHand = (res, errorCode, errorMsg, error) => {
 
 /*	Methods of abstraction */
 /**
+ * Data recovery latest about a given user
+ * @param {object} history - history under analysis
+ * @param {object} media - selected digital media
+ */
+const getLatestData = (history, media) => {
+	const length = history.length - 1;
+	const latest = {};
+	const limit = ResocieObs.queriesRange[media.queries];
+	const queries = ResocieObs.queries[media.queries];
+	let count = 0;
+
+	for (let ind = length; ind >= 0 && count <= limit; ind -= 1) {
+		/* eslint-disable */
+		for (query of queries) {
+			if (latest[query] === undefined
+				&& history[ind][query] !== undefined) {
+				latest[query] = history[ind][query];
+				count += 1;
+			}
+		}
+		/* eslint-enable */
+	}
+
+	return latest;
+};
+
+/**
  * Capitalization of a given string
  * @param {string} str - string for modification
  */
@@ -229,5 +311,6 @@ module.exports = {
 	listAccounts,
 	getUser,
 	getLatest,
+	loadAccount,
 	splitActors,
 };
