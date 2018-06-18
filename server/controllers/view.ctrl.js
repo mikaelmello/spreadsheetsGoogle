@@ -2,7 +2,6 @@
 const ChartNode = require("chartjs-node");
 const httpStatus = require("http-status");
 const Color = require("./color.controller");
-const digitalMedia = require("./digitalMedia.ctrl");
 
 /*	Global constants */
 const CHART_SIZE = 700;

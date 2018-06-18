@@ -2,7 +2,7 @@
 const express = require("express");
 const facebookCtrl = require("../controllers/facebook.ctrl");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
-const geralCtrl = require("../controllers/digitalMedia.ctrl");
+const digitalMediaCtrl = require("../controllers/digitalMedia.ctrl");
 const viewCtrl = require("../controllers/view.ctrl");
 
 /*	Global constants */
@@ -20,13 +20,14 @@ router.route("/")
  */
 router.route("/compare/:query")
 	.get(
-		geralCtrl.splitActors,
+		digitalMediaCtrl.splitActors,
 		facebookCtrl.loadAccount,
 		viewCtrl.getDataset,
 		viewCtrl.getChartLimits,
 		viewCtrl.getConfigLineChart,
 		viewCtrl.plotLineChart,
 	);
+
 /**
  *  Inserting all records, redirecting to Facebook main page
  */
@@ -66,6 +67,7 @@ router.route("/:id/:query")
  * Search for a user in the database
  */
 router.param("id", facebookCtrl.loadAccount);
+
 /**
  * Sets the requested query
  */

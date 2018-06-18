@@ -38,6 +38,11 @@ const instagramAccountSchema = new mongoose.Schema({
 		type: String,
 		default: null,
 	},
+	link: {
+		type: String,
+		trim: true,
+		default: null,
+	},
 	history: {
 		type: [instagramHistory],
 		default: [],

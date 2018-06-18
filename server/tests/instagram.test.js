@@ -1,23 +1,212 @@
 const request = require("supertest");
 const app = require("../../index");
-const instagramAccountModel = require("../models/instagram.model");
+const InstagramDB = require("../models/instagram.model");
 const instagramStub = require("./instagram-stub.json").instagram;
-const instagramCtrl = require("../controllers/instagram.controller");
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 /**
  * Tests if instagram endpoint can be reached
  */
 beforeAll(async (done) => {
-	await instagramAccountModel.insertMany(instagramStub);
+	await InstagramDB.insertMany(instagramStub);
 	done();
 });
 
 afterAll(async (done) => {
-	await instagramAccountModel.deleteMany({});
+	await InstagramDB.deleteMany({});
 	done();
 });
 
+/**
+ * Test case for the /instagram, and derived pages, endpoint.
+ * Tests behavior of sad path for now.
+*/
+describe("Instagram endpoint", () => {
+	let accountId1;
+	let accountId2;
+	let accountId3;
+
+	describe("Get /instagram", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get("/instagram")
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a import link", async (done) => {
+			const res = await request(app).get("/instagram");
+			const importRel = "instagram.import";
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("import");
+			expect(jsonReturn.import).toHaveProperty("rel");
+			expect(jsonReturn.import.rel).toEqual(importRel);
+			expect(jsonReturn.import).toHaveProperty("href");
+			expect(typeof jsonReturn.import.href).toEqual("string");
+
+			done();
+		});
+
+		it("should return all the registered users", async (done) => {
+			const res = await request(app).get("/instagram");
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("accounts");
+			expect(jsonReturn.accounts).toBeInstanceOf(Array);
+			expect(jsonReturn.accounts.length).toEqual(instagramStub.length);
+
+			accountId1 = jsonReturn.accounts[0].username;
+			accountId2 = jsonReturn.accounts[1].username;
+			accountId3 = jsonReturn.accounts[2].username;
+
+			done();
+		});
+
+		it("should save 3 user id", async (done) => {
+			expect(accountId1).toBeDefined();
+			expect(accountId2).toBeDefined();
+			expect(accountId3).toBeDefined();
+
+			done();
+		});
+	});
+
+	describe("Get /instagram/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/instagram/${accountId1}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid user", async (done) => {
+			const res = await request(app).get(`/instagram/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("name");
+			expect(jsonReturn).toHaveProperty("username");
+			expect(jsonReturn).toHaveProperty("link");
+			expect(jsonReturn).toHaveProperty("history");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/instagram/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.name).toEqual("Jorge da Silva");
+			expect(jsonReturn.username).toEqual("jorge");
+			expect(jsonReturn.link).toEqual("jorgeLink/jorge/");
+
+			expect(jsonReturn.history).toBeInstanceOf(Array);
+
+			done();
+		});
+
+		it("should return the correct history", async (done) => {
+			const res = await request(app).get(`/instagram/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.history.length).toEqual(3);
+
+			expect(jsonReturn.history[0].date).toEqual("2018-04-01T12:30:00.500Z");
+			expect(jsonReturn.history[0].followers).toEqual(10);
+			expect(jsonReturn.history[0].following).toEqual(1);
+			expect(jsonReturn.history[0].num_of_posts).toEqual(10);
+
+			expect(jsonReturn.history[1].date).toEqual("2018-04-05T12:30:00.505Z");
+			expect(jsonReturn.history[1].followers).toEqual(15);
+			expect(jsonReturn.history[1].following).toEqual(6);
+			expect(jsonReturn.history[1].num_of_posts).toEqual(15);
+
+			expect(jsonReturn.history[2].date).toEqual("2018-04-05T12:30:00.510Z");
+			expect(jsonReturn.history[2].followers).toEqual(12);
+			expect(jsonReturn.history[2].following).toEqual(8);
+			expect(jsonReturn.history[2].num_of_posts).toEqual(17);
+
+			done();
+		});
+	});
+
+	describe("Get /instagram/import", () => {
+		it("should redirect to Google authentication", async (done) => {
+			const res = await request(app).get("/instagram/import")
+				.expect(httpStatus.FOUND);
+
+			expect(res).toHaveProperty("redirect");
+			expect(res.redirect).toBe(true);
+
+			done();
+		});
+
+		it("should identify the request", async (done) => {
+			const res = await request(app).get("/instagram/import");
+
+			expect(res).toHaveProperty("request");
+			expect(res.request).toHaveProperty("host");
+
+			done();
+		});
+
+		it("should generate the correct location", async (done) => {
+			const res = await request(app).get("/instagram/import");
+			const host = res.request.host.replace(/:/g, "%3A");
+
+			let msg = "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline";
+			msg += "&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fspreadsheets.readonly";
+			msg += "&response_type=code&client_id=irrelevant&redirect_uri=http%3A%2F%2F";
+			msg += host;
+			msg += "%2Finstagram%2Fimport";
+
+			expect(res).toHaveProperty("header");
+			expect(res.header).toHaveProperty("location");
+			expect(res.header.location).toEqual(msg);
+
+			done();
+		});
+	});
+
+	describe("Get /instagram/latest/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/instagram/latest/${accountId1}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid queries' set", async (done) => {
+			const res = await request(app).get(`/instagram/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("followers");
+			expect(jsonReturn).toHaveProperty("following");
+			expect(jsonReturn).toHaveProperty("num_of_posts");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/instagram/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.followers).toEqual(12);
+			expect(jsonReturn.following).toEqual(8);
+			expect(jsonReturn.num_of_posts).toEqual(17);
+
+			done();
+		});
+	});
+});
+
+/*
 describe("GET /instagram", () => {
 	let usernameTest1;
 	let usernameTest2;
@@ -123,7 +312,8 @@ describe("GET /instagram", () => {
 	it("GET /instagram/:username/followers should return an image (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
-		const res = await request(app).get(`/instagram/${usernameTest1}/followers`).expect(httpStatus.OK);
+		const res = await request(app).get(`/instagram/${usernameTest1}/followers`)
+			.expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
@@ -133,7 +323,8 @@ describe("GET /instagram", () => {
 	it("GET /instagram/:username/followers should return an image (the graph)", async (done) => {
 		expect(usernameTest3).toBeDefined();
 
-		const res = await request(app).get(`/instagram/${usernameTest3}/followers`).expect(httpStatus.OK);
+		const res = await request(app).get(`/instagram/${usernameTest3}/followers`)
+			.expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
@@ -143,7 +334,8 @@ describe("GET /instagram", () => {
 	it("GET /instagram/:username/following should return an image (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
-		const res = await request(app).get(`/instagram/${usernameTest1}/following`).expect(httpStatus.OK);
+		const res = await request(app).get(`/instagram/${usernameTest1}/following`)
+			.expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
@@ -153,40 +345,47 @@ describe("GET /instagram", () => {
 	it("GET /instagram/:username/num_of_posts should return an image (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
-		const res = await request(app).get(`/instagram/${usernameTest1}/num_of_posts`).expect(httpStatus.OK);
+		const res = await request(app).get(`/instagram/${usernameTest1}/num_of_posts`)
+			.expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /instagram/compare/followers?actors={:usermane} should return an image (the graph)", async (done) => {
+	it("GET /instagram/compare/followers?actors={:usermane} should return an image
+	 (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/instagram/compare/followers?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/instagram/compare/followers?actors
+		=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /instagram/compare/following?actors={:usermane} should return an image (the graph)", async (done) => {
+	it("GET /instagram/compare/following?actors={:usermane} should return an image
+	 (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/instagram/compare/following?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/instagram/compare/following?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /instagram/compare/num_of_posts?actors={:usermane} should return an image (the graph)", async (done) => {
+	it("GET /instagram/compare/num_of_posts?actors={:usermane} should return an image
+	 (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/instagram/compare/num_of_posts?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/instagram/compare/num_of_posts?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
@@ -206,12 +405,14 @@ describe("GET /instagram", () => {
 		done();
 	});
 
-	it("GET /instagram/compare/followers?actors=:id,error shoul return error on loadAccount", async (done) => {
+	it("GET /instagram/compare/followers?actors=:id,error shoul return error
+	 on loadAccount", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
 		const res = await request(app).get(`/instagram/compare/followers?actors=${usernameTest1},error`)
 			.expect(httpStatus.ERROR_LOAD_ACCOUNT);
-		const msgError = `Error ao carregar usuário(s) [${usernameTest1},error] dos registros do Instagram`;
+		const msgError = `Error ao carregar usuário(s) [${usernameTest1},error]
+		 dos registros do Instagram`;
 
 		expect(res.body).toHaveProperty("error");
 		expect(res.body.error).toBe(true);
@@ -224,7 +425,8 @@ describe("GET /instagram", () => {
 	it("GET /instagram/:username/qualquer should return error on setHistoryKey", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
-		const res = await request(app).get(`/instagram/${usernameTest1}/qualquer`).expect(httpStatus.ERROR_QUERY_KEY);
+		const res = await request(app).get(`/instagram/${usernameTest1}/qualquer`)
+		.expect(httpStatus.ERROR_QUERY_KEY);
 		const msgError = "Não existe a caracteristica [qualquer] para o Instagram";
 
 		expect(res.body).toHaveProperty("error");
@@ -236,11 +438,13 @@ describe("GET /instagram", () => {
 		done();
 	});
 
-	it("GET /instagram/compare/likes?actors={:usermane} should return error on setHistoryKey", async (done) => {
+	it("GET /instagram/compare/likes?actors={:usermane} should return error
+	 on setHistoryKey", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/instagram/compare/likes?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.ERROR_QUERY_KEY);
+		const res = await request(app).get(`/instagram/compare/likes?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.ERROR_QUERY_KEY);
 		const msgError = "Não existe a caracteristica [likes] para o Instagram";
 
 		expect(res.body).toHaveProperty("error");
@@ -252,7 +456,8 @@ describe("GET /instagram", () => {
 		done();
 	});
 
-	it("GET /instagram/compare/followers?actors=:id;:username shoul return error on splitActors", async (done) => {
+	it("GET /instagram/compare/followers?actors=:id;:username shoul
+	return error on splitActors", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
 		const res = await request(app).get(`/instagram/compare/followers?actors=${usernameTest1};error`)
@@ -369,3 +574,4 @@ describe("Instagram methods", () => {
 		done();
 	});
 });
+// */

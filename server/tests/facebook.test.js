@@ -1,16 +1,16 @@
 const request = require("supertest");
 const app = require("../../index");
-const facebookAccount = require("../models/facebook.model");
+const FacebookDB = require("../models/facebook.model");
 const facebookStub = require("./facebook.stub.json").facebook;
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 beforeAll(async (done) => {
-	await facebookAccount.insertMany(facebookStub);
+	await FacebookDB.insertMany(facebookStub);
 	done();
 });
 
 afterAll(async (done) => {
-	await facebookAccount.deleteMany({});
+	await FacebookDB.deleteMany({});
 	done();
 });
 
