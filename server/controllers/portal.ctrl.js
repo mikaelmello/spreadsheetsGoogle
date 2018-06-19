@@ -16,6 +16,18 @@ const getDataviz = (req, res) => {
 			img: "/imagens/Larissa.jpeg",
 		},
 		{
+			name: "Mikael Mello",
+			text: "Estudante de Ciência da Computação pela Universidade de Brasília. Tem interesse na área de segurança da informação. ",
+			github: "https://github.com/mikaelmello",
+			img: "/imagens/Mikael.jpeg",
+		},
+		{
+			name: "Pedro Egler",
+			text: "Estudante de Engenharia de Computação pela Universidade de Brasília. ",
+			github: "https://github.com/pedrohpe",
+			img: "/imagens/PedroEgler.jpeg",
+		},
+		{
 			name: "Pedro Ivo",
 			text: "Estudante de Computação pela Universidade de Brasília. Tem interesse pela área empresarial. ",
 			github: "https://github.com/ivomachadon",
