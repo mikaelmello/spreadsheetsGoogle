@@ -1,6 +1,7 @@
 /*	Required modules */
 const Chart = require("chartjs-node");
 const mongoose = require("mongoose");
+const request = require("request-promise");
 const Color = require("./color.controller");
 const twitterAccount = require("../models/twitter.model");
 const logger = require("../../config/logger");
@@ -136,6 +137,115 @@ const importData = async (req, res) => {
 	});
 	await Promise.all(savePromises);
 	return res.redirect("/twitter");
+};
+
+const updateData = async (req, res) => {
+	const actorsArray = await twitterAccount.find({});
+	const actors = {};
+	let newActors;
+	let dates;
+
+	try {
+		const response = await request({	uri: "https://twitter-data-monitor-unb.herokuapp.com/api/actors", json: true });
+		newActors = response.actors;
+	} catch (e) {
+		return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+			error: true,
+			description: `Houve um erro ao fazer o pedido de atores no servidor do Monitor de Dados do Youtube: ${e}`,
+		});
+	}
+
+	const lengthActors = actorsArray.length;
+	for (let i = 0; i < lengthActors; i += 1) {
+		actors[actorsArray[i].username] = actorsArray[i];
+	}
+
+	// const lenActorsNew = newActors.length;
+
+	try {
+		const response = await request({	uri: "https://twitter-data-monitor-unb.herokuapp.com/api/actors/datetime", json: true });
+		dates = response.dates;
+		dates.sort();
+	} catch (e) {
+		return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+			error: true,
+			description: `Houve um erro ao fazer o pedido de datas no servidor do Monitor de Dados do Youtube: ${e}`,
+		});
+	}
+
+	let ans = "";
+
+	for (let i = 0; i < newActors.length; i += 1) {
+		if (actors[newActors[i]] === undefined) {
+			const newActor = twitterAccount({
+				name: newActors[i],
+				username: newActors[i],
+				samples: [],
+			});
+			actors[newActors[i]] = newActor;
+			console.log("new actor");
+		}
+		const username = actors[newActors[i]].username;
+		const dateMap = {};
+		const history = actors[username].history;
+		if (history !== undefined) {
+			const length = history.length;
+			for (let j = 0; j < length; j += 1) {
+				dateMap[history[j].date] = 1;
+			}
+		}
+		console.log(newActors[i]);
+		const lenDates = dates.length;
+		for (let j = 0; j < lenDates; j += 1) {
+			const newHistory = {};
+			const date = dates[j].substring(0, 10);
+			const dateArray = date.split("-");
+			const dateDate = new Date(`${dateArray[1]}-${dateArray[2]}-${dateArray[0]}`);
+			if (dateMap[dateDate] === 1) continue; // eslint-disable-line
+
+			const linkName = username.replace(/ /g, "_");
+			let rawHistory = {};
+
+			try {
+				// melhorar esse await depois para agilizar o processo
+				newHistory.date = dateDate;
+				console.log(date);
+				console.log(linkName);
+				rawHistory = await getHistory(`https://twitter-data-monitor-unb.herokuapp.com/api/actor/${linkName}/${date}`); // eslint-disable-line
+				const keys = [];
+				for (key in rawHistory) { // eslint-disable-line
+					keys.push(key); // eslint-disable-line
+				}
+				newHistory.tweets = rawHistory[keys[0]].tweets_count;
+				newHistory.followers = rawHistory[keys[0]].followers_count;
+				newHistory.following = rawHistory[keys[0]].following_count;
+				newHistory.likes = rawHistory[keys[0]].likes_count;
+				actors[newActors[i]].samples.push(newHistory);
+			} catch (e) {
+				ans += `Houve um erro ao fazer o pedido de dados no Monitor de Dados do Twitter: ${e}\n\n`;
+			}
+		}
+	}
+
+	console.log("terminou");
+
+	const savePromises = [];
+	Object.entries(actors).forEach(([cActor]) => {
+		savePromises.push(actors[cActor].save());
+	});
+	await Promise.all(savePromises);
+	if (ans) {
+		return res.status(400).json({
+			error: true,
+			description: ans,
+		});
+	}
+	return res.redirect("/twitter");
+};
+
+const getHistory = async (adr) => {
+	const history = await request({	uri: adr, json: true });
+	return history;
 };
 
 /**
@@ -699,6 +809,8 @@ const getImportNumber = (number) => {
 module.exports = {
 	listAccounts,
 	importData,
+	updateData,
+	getHistory,
 	getUser,
 	userLastSample,
 	drawLineChart,
