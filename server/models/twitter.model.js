@@ -39,7 +39,12 @@ const twitterAccountSchema = new mongoose.Schema({
 		type: String,
 		default: null,
 	},
-	samples: {
+	link: {
+		type: String,
+		trim: true,
+		default: null,
+	},
+	history: {
 		type: [sampleSchema],
 		default: [],
 	},

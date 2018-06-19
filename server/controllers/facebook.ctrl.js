@@ -1,12 +1,9 @@
 /*	Required modules */
 const mongoose = require("mongoose");
 const FacebookDB = require("../models/facebook.model");
-const ResocieObs = require("../../config/resocie.json").observatory;
-
 const digitalMediaCtrl = require("./digitalMedia.ctrl");
-
 /*	Media identification */
-const SOCIAL_MIDIA = ResocieObs.socialMidia.facebookMidia;
+const SOCIAL_MIDIA = require("../../config/resocie.json").observatory.socialMidia.facebookMidia;
 
 /*	Route final methods */
 /**

@@ -4,7 +4,8 @@
       "name": "Joao",
       "username": "john",
       "type": "Presidente",
-      "samples": [
+      "link": "joao/john",
+      "history": [
         {
           "date": "2012-04-23T18:25:43.511Z",
           "tweets": 123,
@@ -35,7 +36,8 @@
       "name": "Maria",
       "username": "marie",
       "type": "Governador",
-      "samples": [
+      "link": "maria/marie",
+      "history": [
         {
           "date": "2012-04-23T18:25:43.511Z",
           "tweets": 400,

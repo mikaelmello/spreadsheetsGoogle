@@ -1,24 +1,210 @@
 const request = require("supertest");
 const app = require("../../index");
-const twitterAccount = require("../models/twitter.model");
+const TwitterDB = require("../models/twitter.model");
 const twitterMockAccounts = require("./twitter-stub-accounts.json").accounts;
-const twitterCtrl = require("../controllers/twitter.controller");
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 beforeAll(async (done) => {
-	await twitterAccount.insertMany(twitterMockAccounts);
+	await TwitterDB.insertMany(twitterMockAccounts);
 	done();
 });
 
 afterAll(async (done) => {
-	await twitterAccount.deleteMany();
+	await TwitterDB.deleteMany();
 	done();
 });
 
 /**
+ * Test case for the /twitter, and derived pages, endpoint.
+ * Tests behavior of sad path for now.
+*/
+describe("Twtiiter endpoint", () => {
+	let accountId1;
+	let accountId2;
+	let accountId3;
+
+	describe("Get /twitter", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get("/twitter")
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a import link", async (done) => {
+			const res = await request(app).get("/twitter");
+			const importRel = "twitter.import";
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("import");
+			expect(jsonReturn.import).toHaveProperty("rel");
+			expect(jsonReturn.import.rel).toEqual(importRel);
+			expect(jsonReturn.import).toHaveProperty("href");
+			expect(typeof jsonReturn.import.href).toEqual("string");
+
+			done();
+		});
+
+		it("should return all the registered users", async (done) => {
+			const res = await request(app).get("/twitter");
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("accounts");
+			expect(jsonReturn.accounts).toBeInstanceOf(Array);
+			expect(jsonReturn.accounts.length).toEqual(twitterMockAccounts.length);
+
+			accountId1 = jsonReturn.accounts[0].username;
+			accountId2 = jsonReturn.accounts[1].username;
+			accountId3 = jsonReturn.accounts[2].username;
+
+			done();
+		});
+
+		it("should save 3 user id", async (done) => {
+			expect(accountId1).toBeDefined();
+			expect(accountId2).toBeDefined();
+			expect(accountId3).toBeDefined();
+
+			done();
+		});
+	});
+
+	describe("Get /twitter/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/twitter/${accountId1}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid user", async (done) => {
+			const res = await request(app).get(`/twitter/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("name");
+			expect(jsonReturn).toHaveProperty("username");
+			expect(jsonReturn).toHaveProperty("type");
+			expect(jsonReturn).toHaveProperty("link");
+			expect(jsonReturn).toHaveProperty("history");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/twitter/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.name).toEqual("Joao");
+			expect(jsonReturn.username).toEqual("john");
+			expect(jsonReturn.type).toEqual("Presidente");
+			expect(jsonReturn.link).toEqual("joao/john");
+
+			expect(jsonReturn.history).toBeInstanceOf(Array);
+
+			done();
+		});
+
+		it("should return the correct history", async (done) => {
+			const res = await request(app).get(`/twitter/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.history.length).toEqual(3);
+
+			expect(jsonReturn.history[0].tweets).toEqual(123);
+			expect(jsonReturn.history[0].likes).toEqual(321);
+			expect(jsonReturn.history[0].followers).toEqual(555);
+			expect(jsonReturn.history[0].following).toEqual(10);
+			expect(jsonReturn.history[0].moments).toEqual(0);
+			expect(jsonReturn.history[0].date).toEqual("2012-04-23T18:25:43.511Z");
+
+			done();
+		});
+	});
+
+	describe("Get /twitter/import", () => {
+		it("should redirect to Google authentication", async (done) => {
+			const res = await request(app).get("/twitter/import")
+				.expect(httpStatus.FOUND);
+
+			expect(res).toHaveProperty("redirect");
+			expect(res.redirect).toBe(true);
+
+			done();
+		});
+
+		it("should identify the request", async (done) => {
+			const res = await request(app).get("/twitter/import");
+
+			expect(res).toHaveProperty("request");
+			expect(res.request).toHaveProperty("host");
+
+			done();
+		});
+
+		it("should generate the correct location", async (done) => {
+			const res = await request(app).get("/twitter/import");
+			const host = res.request.host.replace(/:/g, "%3A");
+
+			let msg = "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline";
+			msg += "&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fspreadsheets.readonly";
+			msg += "&response_type=code&client_id=irrelevant&redirect_uri=http%3A%2F%2F";
+			msg += host;
+			msg += "%2Ftwitter%2Fimport";
+
+			expect(res).toHaveProperty("header");
+			expect(res.header).toHaveProperty("location");
+			expect(res.header.location).toEqual(msg);
+
+			done();
+		});
+	});
+
+	describe("Get /twitter/latest/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/twitter/latest/${accountId1}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid queries' set", async (done) => {
+			const res = await request(app).get(`/twitter/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("likes");
+			expect(jsonReturn).toHaveProperty("followers");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/twitter/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toEqual({
+				tweets: 323,
+				likes: 621,
+				followers: 855,
+				following: 30,
+				moments: 11,
+			});
+
+			done();
+		});
+	});
+});
+
+
+/**
  * Test case for the /twitter endpoint.
  * Tests whether it returns no error and body has an array usernames as property
- */
+ *
 describe("Twitter endpoint", () => {
 	let usernameTest1;
 	let usernameTest2;
@@ -88,7 +274,8 @@ describe("Twitter endpoint", () => {
 		done();
 	});
 
-	it("GET /twitter/latest/:username should return json with latest user information", async (done) => {
+	it("GET /twitter/latest/:username should return json with latest
+	 user information", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
 		const res = await request(app).get(`/twitter/latest/${usernameTest1}`).expect(httpStatus.OK);
@@ -194,51 +381,60 @@ describe("Twitter endpoint", () => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/twitter/compare/likes?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/twitter/compare/likes?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /twitter/compare/tweets?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /twitter/compare/tweets?actors={:id} should return an
+	 image (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/twitter/compare/tweets?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/twitter/compare/tweets?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /twitter/compare/followers?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /twitter/compare/followers?actors={:id} should return an
+	 image (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/twitter/compare/followers?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/twitter/compare/followers?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /twitter/compare/following?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /twitter/compare/following?actors={:id} should return an
+	 image (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/twitter/compare/following?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/twitter/compare/following?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
 		done();
 	});
 
-	it("GET /twitter/compare/moments?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /twitter/compare/moments?actors={:id} should return an image
+	 (the graph)", async (done) => {
 		expect(usernameTest1).toBeDefined();
 		expect(usernameTest2).toBeDefined();
 
-		const res = await request(app).get(`/twitter/compare/moments?actors=${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
+		const res = await request(app).get(`/twitter/compare/moments?actors=
+		${usernameTest1},${usernameTest2}`).expect(httpStatus.OK);
 
 		expect(res.header["content-type"]).toEqual("image/png");
 
@@ -258,12 +454,14 @@ describe("Twitter endpoint", () => {
 		done();
 	});
 
-	it("GET /twitter/compare/likes?actors=:id,error shoul return error on loadAccount", async (done) => {
+	it("GET /twitter/compare/likes?actors=:id,error shoul return error
+	on loadAccount", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
 		const res = await request(app).get(`/twitter/compare/likes?actors=${usernameTest1},error`)
 			.expect(httpStatus.ERROR_LOAD_ACCOUNT);
-		const msgError = `Error ao carregar usuário(s) [${usernameTest1},error] dos registros do Twitter`;
+		const msgError = `Error ao carregar usuário(s) [${usernameTest1},error]
+		dos registros do Twitter`;
 
 		expect(res.body).toHaveProperty("error");
 		expect(res.body.error).toBe(true);
@@ -276,7 +474,8 @@ describe("Twitter endpoint", () => {
 	it("GET /twitter/:username/qualquer should return error on setSampleKey", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
-		const res = await request(app).get(`/twitter/${usernameTest1}/qualquer`).expect(httpStatus.ERROR_QUERY_KEY);
+		const res = await request(app).get(`/twitter/${usernameTest1}/qualquer`)
+		.expect(httpStatus.ERROR_QUERY_KEY);
 		const msgError = "Não existe a caracteristica [qualquer] para o Twitter";
 
 		expect(res.body).toHaveProperty("error");
@@ -288,7 +487,8 @@ describe("Twitter endpoint", () => {
 		done();
 	});
 
-	it("GET /twitter/compare/likes?actors=:id;:username shoul return error on splitActors", async (done) => {
+	it("GET /twitter/compare/likes?actors=:id;:username shoul return error
+	on splitActors", async (done) => {
 		expect(usernameTest1).toBeDefined();
 
 		const res = await request(app).get(`/twitter/compare/likes?actors=${usernameTest1};error`)
@@ -409,3 +609,4 @@ describe("Twitter methods", () => {
 		done();
 	});
 });
+// */
