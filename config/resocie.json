@@ -129,6 +129,7 @@
 		"ERROR_GET_USER": "Erro enquanto configura-se o usuário",
 		"ERROR_LATEST": "Error enquanto se recuperava os últimos dados válidos para o usuário: ",
 		"ERROR_LOAD_ACCOUNT": "Error ao buscar, nos registros, o(s) usuário(s): ",
-		"ERROR_QUERY_KEY": "Para tal mídia digital, não existe a característica: "
+		"ERROR_QUERY_KEY": "Para tal mídia digital, não existe a característica: ",
+		"ERROR_SPLIT_ACTORS": "Erro ao criar o ambiente para a comparação"
 	}
 }

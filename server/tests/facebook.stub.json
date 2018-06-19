@@ -51,7 +51,23 @@
 			"username": "princesaIsabel",
 			"class": "isaClass",
 			"link": "isaLink/princessa/",
-			"history": []
+			"history": [
+				{
+					"likes": 42,
+					"followers": 420,
+					"date": "1994-12-24T02:00:00.000Z"
+				},
+				{
+					"likes": 40,
+					"followers": 840,
+					"date": "1995-01-24T02:00:00.000Z"
+				},
+				{
+					"likes": 45,
+					"followers": 1000,
+					"date": "1995-02-24T02:00:00.000Z"
+				}
+			]
 		}
 	]
 }

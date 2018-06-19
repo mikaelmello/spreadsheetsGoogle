@@ -3,6 +3,7 @@ const app = require("../../index");
 const FacebookDB = require("../models/facebook.model");
 const facebookStub = require("./facebook.stub.json").facebook;
 const httpStatus = require("../../config/resocie.json").httpStatus;
+const ErrorMsgs = require("../../config/resocie.json").errorMessages;
 
 beforeAll(async (done) => {
 	await FacebookDB.insertMany(facebookStub);
@@ -199,75 +200,203 @@ describe("Facebook endpoint", () => {
 		});
 	});
 
+	describe("Get /facebook/:id/:query", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId3}/likes`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid chart's set", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId3}/likes`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("ContentType");
+			expect(jsonReturn).toHaveProperty("img");
+			expect(jsonReturn.img).toHaveProperty("type");
+			expect(jsonReturn.img).toHaveProperty("data");
+			expect(jsonReturn.img.data).toBeInstanceOf(Array);
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId3}/likes`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.ContentType).toEqual("image/png");
+			expect(jsonReturn.img.type).toEqual("Buffer");
+
+			done();
+		});
+	});
+
+	describe("Get /facebook/compare/likes?actors={:id}", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},${accountId2}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid chart's set", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},${accountId2}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("ContentType");
+			expect(jsonReturn).toHaveProperty("img");
+			expect(jsonReturn.img).toHaveProperty("type");
+			expect(jsonReturn.img).toHaveProperty("data");
+			expect(jsonReturn.img.data).toBeInstanceOf(Array);
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},${accountId2}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.ContentType).toEqual("image/png");
+			expect(jsonReturn.img.type).toEqual("Buffer");
+
+			done();
+		});
+	});
+
+	describe("Get /facebook/error", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get("/facebook/error")
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid error indicator", async (done) => {
+			const res = await request(app).get("/facebook/error");
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("errorCode");
+			expect(jsonReturn).toHaveProperty("description");
+
+			done();
+		});
+
+		it("should return error on loadAccount", async (done) => {
+			const res = await request(app).get("/facebook/error");
+			const jsonReturn = JSON.parse(res.text);
+			const errorMsg = `${ErrorMsgs.ERROR_LOAD_ACCOUNT}error`;
+
+			expect(jsonReturn.errorCode).toEqual(httpStatus.ERROR_LOAD_ACCOUNT);
+			expect(jsonReturn.description).toEqual(errorMsg);
+
+			done();
+		});
+	});
+
+	describe("Get /facebook/:id/qualquer", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId1}/qualquer`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid error indicator", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId1}/qualquer`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("errorCode");
+			expect(jsonReturn).toHaveProperty("description");
+
+			done();
+		});
+
+		it("should return error on setHistoryKey", async (done) => {
+			const res = await request(app).get(`/facebook/${accountId1}/qualquer`);
+			const jsonReturn = JSON.parse(res.text);
+			const errorMsg = `${ErrorMsgs.ERROR_QUERY_KEY}qualquer`;
+
+			expect(jsonReturn.errorCode).toEqual(httpStatus.ERROR_QUERY_KEY);
+			expect(jsonReturn.description).toEqual(errorMsg);
+
+			done();
+		});
+	});
+
+	describe("Get /facebook/compare/likes?actors=:id;error", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1};error`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid error indicator", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1};error`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("errorCode");
+			expect(jsonReturn).toHaveProperty("description");
+
+			done();
+		});
+
+		it("should return error on splitActors", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1};error`);
+			const jsonReturn = JSON.parse(res.text);
+			const errorMsg = ErrorMsgs.ERROR_SPLIT_ACTORS;
+
+			expect(jsonReturn.errorCode).toEqual(httpStatus.ERROR_SPLIT_ACTORS);
+			expect(jsonReturn.description).toEqual(errorMsg);
+
+			done();
+		});
+	});
+
+	describe("Get /facebook/compare/likes?actors=:id,error", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},error`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid error indicator", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},error`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("errorCode");
+			expect(jsonReturn).toHaveProperty("description");
+
+			done();
+		});
+
+		it("should return error on splitActors", async (done) => {
+			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},error`);
+			const jsonReturn = JSON.parse(res.text);
+			const errorMsg = `${ErrorMsgs.ERROR_LOAD_ACCOUNT}${accountId1},error`;
+
+			expect(jsonReturn.errorCode).toEqual(httpStatus.ERROR_LOAD_ACCOUNT);
+			expect(jsonReturn.description).toEqual(errorMsg);
+
+			done();
+		});
+	});
+
 	/*
-	it("GET /facebook/compare/likes?actors={:id} should return an image
-	(the graph)", async (done) => {
-		expect(accountId1).toBeDefined();
-		expect(accountId2).toBeDefined();
-
-		const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},
-		${accountId2}`).expect(httpStatus.OK);
-
-		expect(res.header["content-type"]).toEqual("image/png");
-
-		done();
-	});
-
-	it("GET /facebook/compare/followers?actors={:id} should return an image
-	(the graph)", async (done) => {
-		expect(accountId1).toBeDefined();
-		expect(accountId2).toBeDefined();
-
-		const res = await request(app).get(`/facebook/compare/followers?actors=${accountId1},
-		${accountId2}`).expect(httpStatus.OK);
-
-		expect(res.header["content-type"]).toEqual("image/png");
-
-		done();
-	});
-
-	it("GET /facebook/:username/likes should return an image (the graph)", async (done) => {
-		expect(accountId1).toBeDefined();
-
-		const res = await request(app).get(`/facebook/${accountId1}/likes`).expect(httpStatus.OK);
-
-		expect(res.header["content-type"]).toEqual("image/png");
-
-		done();
-	});
-
-	it("GET /facebook/:username/likes should return an image (the graph)", async (done) => {
-		expect(accountId3).toBeDefined();
-
-		const res = await request(app).get(`/facebook/${accountId3}/likes`).expect(httpStatus.OK);
-
-		expect(res.header["content-type"]).toEqual("image/png");
-
-		done();
-	});
-
-	it("GET /facebook/:username/followers should return an image (the graph)", async (done) => {
-		expect(accountId1).toBeDefined();
-
-		const res = await request(app).get(`/facebook/${accountId1}/followers`).expect(httpStatus.OK);
-
-		expect(res.header["content-type"]).toEqual("image/png");
-
-		done();
-	});
-
-	it("GET /facebook/error should return error on loadAccount", async (done) => {
-		const res = await request(app).get("/facebook/error").expect(httpStatus.ERROR_LOAD_ACCOUNT);
-		const msgError = "Error ao carregar usuário(s) [error] dos registros do Facebook";
-
-		expect(res.body).toHaveProperty("error");
-		expect(res.body.error).toBe(true);
-
-		expect(res.body).toHaveProperty("description");
-		expect(res.body.description).toEqual(msgError);
-
-		done();
-	});
 
 	it("GET /facebook/compare/likes?actors=:id,error shoul return error on
 	loadAccount", async (done) => {
@@ -276,38 +405,6 @@ describe("Facebook endpoint", () => {
 		const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},error`)
 			.expect(httpStatus.ERROR_LOAD_ACCOUNT);
 		const msgError = `Error ao carregar usuário(s) [${accountId1},error] dos registros do Facebook`;
-
-		expect(res.body).toHaveProperty("error");
-		expect(res.body.error).toBe(true);
-
-		expect(res.body).toHaveProperty("description");
-		expect(res.body.description).toEqual(msgError);
-		done();
-	});
-
-	it("GET /facebook/:username/qualquer should return error on setHistoryKey", async (done) => {
-		expect(accountId1).toBeDefined();
-
-		const res = await request(app).get(`/facebook/${accountId1}/qualquer`).
-		expect(httpStatus.ERROR_QUERY_KEY);
-		const msgError = "Não existe a caracteristica [qualquer] para o Facebook";
-
-		expect(res.body).toHaveProperty("error");
-		expect(res.body.error).toBe(true);
-
-		expect(res.body).toHaveProperty("description");
-		expect(res.body.description).toEqual(msgError);
-
-		done();
-	});
-
-	it("GET /facebook/compare/likes?actors=:id;:username shoul return error on
-	splitActors", async (done) => {
-		expect(accountId1).toBeDefined();
-
-		const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1};error`)
-			.expect(httpStatus.ERROR_SPLIT_ACTORS);
-		const msgError = "Erro ao criar o ambiente para a comparação";
 
 		expect(res.body).toHaveProperty("error");
 		expect(res.body.error).toBe(true);

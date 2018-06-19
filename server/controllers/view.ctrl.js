@@ -1,7 +1,7 @@
 /*	Required modules */
 const ChartNode = require("chartjs-node");
-const httpStatus = require("http-status");
-const Color = require("./color.controller");
+// const httpStatus = require("http-status");
+const Color = require("./color.ctrl");
 
 /*	Global constants */
 const CHART_SIZE = 700;
@@ -17,9 +17,15 @@ const plotLineChart = async (req, res) => {
 
 	await chart.drawChart(req.chart.config);
 	const buffer = await chart.getImageBuffer("image/png");
+	/*
 	res.writeHeader(httpStatus.OK, { "Content-type": "image/png" });
 	res.write(buffer);
 	res.end();
+	*/
+	res.send({
+		ContentType: "image/png",
+		img: buffer,
+	});
 };
 
 /**

@@ -130,11 +130,15 @@ const splitActors = (req, res, next) => {
 	try {
 		const actors = req.query.actors.split(",");
 
+		if (actors.length <= 1) {
+			throw new TypeError("Insufficient amount of actors for a comparison");
+		}
+
 		req.actors = actors;
 
 		next();
 	} catch (error) {
-		const errorMsg = "Erro ao criar o ambiente para a comparação";
+		const errorMsg = ErrorMsgs.ERROR_SPLIT_ACTORS;
 
 		stdErrorHand(res, HttpStatus.ERROR_SPLIT_ACTORS, errorMsg, error);
 	}
@@ -296,8 +300,8 @@ const errorHistoryKey = (req, res, query) => {
 const stdErrorHand = (res, errorCode, errorMsg, error) => {
 	logger.error(`${errorMsg} - Detalhes: ${error}`);
 
-	res.render("error", {
-		code: errorCode,
+	res.send({
+		errorCode: errorCode,
 		description: errorMsg,
 	});
 };
