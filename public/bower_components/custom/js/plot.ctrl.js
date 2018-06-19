@@ -33,7 +33,8 @@ $(document).ready(() => {
 $(document).ready(() => {
 	$("#categories").on("change", () => {
 		let category = $("#categories").val();
-
+		let media = $("#digitalMedia").val();
+		
 		//*
         switch(category){
         	case "FC": getActorsFC(); break;
@@ -47,7 +48,7 @@ $(document).ready(() => {
 		restart("actors");
 		if(category) {
 			$("body").append("Leu: " + category + "<br>");
-			getActors(category);
+			getActors(media, category);
 		}else{
 			$("#actors").append("<p class='text-center'>Não há categoria selecionada</p>");
 		}
@@ -93,7 +94,7 @@ $(document).ready(() => {
  * @param {string} media - Selected digital media
  */
 let getQueries = (media) => {
-	let URL = "/config/qr/" + media + "/queries";
+	let URL = "/" + media + "/queries";
 
 	// $("body").append("Indo buscar em: " + URL + "<br>");
 
@@ -112,8 +113,8 @@ let getQueries = (media) => {
  * Acquisition of registered actors in a given category
  * @param {string} category - Selected actors' category
  */
-let getActors = (category) => {
-	let URL = "/config/cat/" + category;
+let getActors = (media, category) => {
+	let URL = "/" + media + "/cat/" + category;
 
 	//$("body").append("Indo buscar em: " + URL + "<br>");
 
