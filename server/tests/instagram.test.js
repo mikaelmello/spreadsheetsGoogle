@@ -58,9 +58,9 @@ describe("Instagram endpoint", () => {
 			expect(jsonReturn.accounts).toBeInstanceOf(Array);
 			expect(jsonReturn.accounts.length).toEqual(instagramStub.length);
 
-			accountId1 = jsonReturn.accounts[0].username;
-			accountId2 = jsonReturn.accounts[1].username;
-			accountId3 = jsonReturn.accounts[2].username;
+			accountId1 = jsonReturn.accounts[0].ID;
+			accountId2 = jsonReturn.accounts[1].ID;
+			accountId3 = jsonReturn.accounts[2].ID;
 
 			done();
 		});
@@ -89,7 +89,7 @@ describe("Instagram endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("name");
-			expect(jsonReturn).toHaveProperty("username");
+			expect(jsonReturn).toHaveProperty("ID");
 			expect(jsonReturn).toHaveProperty("link");
 			expect(jsonReturn).toHaveProperty("history");
 
@@ -101,7 +101,7 @@ describe("Instagram endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn.name).toEqual("Jorge da Silva");
-			expect(jsonReturn.username).toEqual("jorge");
+			expect(jsonReturn.ID).toEqual("jorge");
 			expect(jsonReturn.link).toEqual("jorgeLink/jorge/");
 
 			expect(jsonReturn.history).toBeInstanceOf(Array);

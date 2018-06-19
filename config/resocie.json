@@ -63,7 +63,7 @@
 			"facebookQueries": 2,
 			"instagramQueries": 3,
 			"twitterQueries": 5,
-			"youtubeTypes": 3
+			"youtubeQueries": 3
 		},
 		"queries": {
 			"commonQuery": "latest",

@@ -31,7 +31,7 @@ const twitterAccountSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	username: {
+	ID: {
 		type: String,
 		default: null,
 	},

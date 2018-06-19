@@ -42,7 +42,7 @@ const listAccounts = async (req, res, media) => {
 const getUser = (req, res, media) => {
 	try {
 		const account = req.account[0].toObject();
-		account.links = getQueriesLink(req, account.username, media);
+		account.links = getQueriesLink(req, account.ID, media);
 
 		res.send(account);
 	} catch (error) {
@@ -168,7 +168,7 @@ const lookUpAccount = async (req, media) => {
  * @param {object} id - standard identifier of a Facebook account
  */
 const findAccount = async (req, id, media) => {
-	const account = await media.model.findOne({ username: id }, media.projection);
+	const account = await media.model.findOne({ ID: id }, media.projection);
 
 	if (!account) throw TypeError(`There is no user [${id}]`);
 
@@ -199,7 +199,7 @@ const getAccountLink = (req, accounts, socialMedia) => {
 	for (let i = 0; i < length; i += 1) {
 		accounts[i] = accounts[i].toObject();
 		accounts[i].links = [];
-		const id = accounts[i].username;
+		const id = accounts[i].ID;
 
 		if (id) {
 			const link = {
@@ -262,7 +262,7 @@ const getCommomLink = (req, id, socialMedia) => {
  */
 const getQueryLink = (req, id, socialMedia, query) => {
 	return {
-		rel: `${socialMedia}.account.${query}`,
+		rel: `${socialMedia.name}.account.${query}`,
 		href: `${req.protocol}://${req.get("host")}/${socialMedia.name}/${id}/${query}`,
 	};
 };

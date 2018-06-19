@@ -18,7 +18,7 @@ const SOCIAL_MIDIA = ResocieObs.socialMidia.instagramMidia;
 const listAccounts = async (req, res) => {
 	const instagramInfo = {
 		model: InstagramDB,
-		projection: "name username link -_id",
+		projection: "name ID link -_id",
 		name: SOCIAL_MIDIA,
 	};
 
@@ -73,13 +73,13 @@ const importData = async (req, res) => {
 			if (actors[name] === undefined) {
 				const newAccount = InstagramDB({
 					name: name,
-					username: username,
+					ID: username,
 					link: row[iRange.profileRow],
 					type: req.sheet.categories[cType],
 				});
 				actors[name] = newAccount;
-			} else if (!actors[name].username) {
-				actors[name].username = username;
+			} else if (!actors[name].ID) {
+				actors[name].ID = username;
 			}
 
 			// if current actor does not have a instagram username, continue

@@ -2,7 +2,7 @@
 /*	Required modules */
 const mongoose = require("mongoose");
 const request = require("request-promise");
-const YoutubeDB = require("../models/facebook.model");
+const YoutubeDB = require("../models/youtube.model");
 const digitalMediaCtrl = require("./digitalMedia.ctrl");
 const HttpStatus = require("../../config/resocie.json").httpStatus;
 /*	Media identification */
@@ -20,7 +20,7 @@ const SOCIAL_MIDIA = require("../../config/resocie.json").observatory.socialMidi
 const listAccounts = async (req, res) => {
 	const youtubeInfo = {
 		model: YoutubeDB,
-		projection: "name username channelUrl -_id",
+		projection: "name ID link -_id",
 		name: SOCIAL_MIDIA,
 	};
 
@@ -85,13 +85,13 @@ const importData = async (req, res) => {
 				const newAccount = YoutubeDB({
 					name: name,
 					category: categories[cCategory],
-					channelUrl: channelUrl,
-					username: getImportUsername(channelUrl),
+					link: channelUrl,
+					ID: channel,
 				});
 				actors[cRow[nameRow]] = newAccount;
-			} else if (!actors[cRow[nameRow]].channelUrl) {
-				actors[cRow[nameRow]].channelUrl = channelUrl;
-				actors[cRow[nameRow]].channel = channel;
+			} else if (!actors[cRow[nameRow]].link) {
+				actors[cRow[nameRow]].link = channelUrl;
+				actors[cRow[nameRow]].ID = channel;
 			}
 
 			// Se o canal não for null verifica se os inscritos,
@@ -181,10 +181,9 @@ const updateData = async (req, res) => {
 				history: [],
 			});
 			actors[newActors[i]] = newActor;
-			console.log("ops");
 		}
 		const name = actors[newActors[i]].name;
-		if (actors[name].channelUrl !== null) {
+		if (actors[name].link !== null) {
 			const dateMap = {};
 			const history = actors[name].history;
 			if (history !== undefined) {

@@ -18,7 +18,7 @@ const SOCIAL_MIDIA = require("../../config/resocie.json").observatory.socialMidi
 const listAccounts = async (req, res) => {
 	const twitterInfo = {
 		model: TwitterDB,
-		projection: "name username link -_id",
+		projection: "name ID link -_id",
 		name: SOCIAL_MIDIA,
 	};
 
@@ -74,13 +74,13 @@ const importData = async (req, res) => {
 			if (actors[name] === undefined) {
 				const newAccount = TwitterDB({
 					name: name,
-					username: username,
+					ID: username,
 					link: row[tRange.profileRow],
 					type: req.sheet.categories[cType],
 				});
 				actors[name] = newAccount;
-			} else if (!actors[name].username) {
-				actors[name].username = username;
+			} else if (!actors[name].ID) {
+				actors[name].ID = username;
 			}
 
 			// if current actor does not have a twitter username, continue
@@ -144,7 +144,7 @@ const updateData = async (req, res) => {
 
 	const lengthActors = actorsArray.length;
 	for (let i = 0; i < lengthActors; i += 1) {
-		actors[actorsArray[i].username] = actorsArray[i];
+		actors[actorsArray[i].ID] = actorsArray[i];
 	}
 
 	// const lenActorsNew = newActors.length;
@@ -172,7 +172,7 @@ const updateData = async (req, res) => {
 			actors[newActors[i]] = newActor;
 			console.log("new actor");
 		}
-		const username = actors[newActors[i]].username;
+		const username = actors[newActors[i]].ID;
 		const dateMap = {};
 		const history = actors[username].history;
 		if (history !== undefined) {

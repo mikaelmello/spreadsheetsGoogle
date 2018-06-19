@@ -46,7 +46,6 @@ const getDataset = async (req, res, next) => {
 	if (req.chart.data === undefined) {
 		req.chart.data = [];
 	}
-
 	accounts.forEach((account) => {
 		const dataUser = [];
 		const history = account.history;
@@ -177,7 +176,7 @@ const getConfigLineChart = (req, res, next) => {
 			response: true,
 			title: {
 				display: true,
-				text: evolutionMsg(req.chart.historyKeyPT),
+				text: evolutionMsg(req.chart.hisoptiontoryKeyPT),
 			},
 			legend: {
 				display: true,

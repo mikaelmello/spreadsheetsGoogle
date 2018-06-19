@@ -62,6 +62,7 @@ router.route("/:id/:query")
 	.get(
 		viewCtrl.getDataset,
 		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
 		viewCtrl.plotLineChart,
 	);
 

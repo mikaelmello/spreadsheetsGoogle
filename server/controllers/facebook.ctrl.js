@@ -16,7 +16,7 @@ const SOCIAL_MIDIA = require("../../config/resocie.json").observatory.socialMidi
 const listAccounts = async (req, res) => {
 	const facebookInfo = {
 		model: FacebookDB,
-		projection: "name username link -_id",
+		projection: "name ID link -_id",
 		name: SOCIAL_MIDIA,
 	};
 
@@ -70,13 +70,13 @@ const importAccounts = async (req, res) => {
 					name: cRow[nameRow].replace(/\n/g, " "),
 					class: categories[cCategory],
 					link: accountLink,
-					username: getImportUsername(accountLink),
+					ID: getImportUsername(accountLink),
 				});
 
 				actors[cRow[nameRow]] = newAccount;
-			} else if (!actors[cRow[nameRow]].username) {
+			} else if (!actors[cRow[nameRow]].ID) {
 				actors[cRow[nameRow]].link = accountLink;
-				actors[cRow[nameRow]].username = accountLink;
+				actors[cRow[nameRow]].ID = accountLink;
 			}
 
 			if (accountLink) {

@@ -3,8 +3,8 @@
 		{
 			"name": "Mariana",
 			"category": "marianacategory",
-			"channelUrl": "youtube.com/user/marianachannel",
-			"username": "marianachannel",
+			"link": "youtube.com/user/marianachannel",
+			"ID": "marianachannel",
 			"history": [
 				{
 					"subscribers": 542,
@@ -29,8 +29,8 @@
 		{
 			"name": "Luiza",
 			"category": "luizacategory",
-			"channelUrl": "youtube.com/channel/UCmo_qwwtofscJjjND_Pm-UA",
-			"username": "UCmo_qwwtofscJjjND_Pm-UA",
+			"link": "youtube.com/channel/UCmo_qwwtofscJjjND_Pm-UA",
+			"ID": "UCmo_qwwtofscJjjND_Pm-UA",
 			"history": [
 				{
 					"subscribers": 45,
@@ -54,8 +54,8 @@
 		},
 		{
 			"name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
-			"channelUrl": "youtube.com/channel/princesaIsabel",
-			"username": "princesaIsabel"
+			"link": "youtube.com/channel/princesaIsabel",
+			"ID": "princesaIsabel"
 		}
 	]
 }

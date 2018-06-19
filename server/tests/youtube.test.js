@@ -55,9 +55,9 @@ describe("Youtube endpoint", () => {
 			expect(jsonReturn.accounts).toBeInstanceOf(Array);
 			expect(jsonReturn.accounts.length).toEqual(youtubeStub.length);
 
-			accountId1 = jsonReturn.accounts[0].username;
-			accountId2 = jsonReturn.accounts[1].username;
-			accountId3 = jsonReturn.accounts[2].username;
+			accountId1 = jsonReturn.accounts[0].ID;
+			accountId2 = jsonReturn.accounts[1].ID;
+			accountId3 = jsonReturn.accounts[2].ID;
 
 			done();
 		});
@@ -86,9 +86,9 @@ describe("Youtube endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("name");
-			expect(jsonReturn).toHaveProperty("username");
+			expect(jsonReturn).toHaveProperty("ID");
 			expect(jsonReturn).toHaveProperty("category");
-			expect(jsonReturn).toHaveProperty("channelUrl");
+			expect(jsonReturn).toHaveProperty("link");
 			expect(jsonReturn).toHaveProperty("history");
 
 			done();
@@ -99,9 +99,9 @@ describe("Youtube endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn.name).toEqual("Mariana");
-			expect(jsonReturn.username).toEqual("marianachannel");
+			expect(jsonReturn.ID).toEqual("marianachannel");
 			expect(jsonReturn.category).toEqual("marianacategory");
-			expect(jsonReturn.channelUrl).toEqual("youtube.com/user/marianachannel");
+			expect(jsonReturn.link).toEqual("youtube.com/user/marianachannel");
 
 			expect(jsonReturn.history).toBeInstanceOf(Array);
 
@@ -114,11 +114,9 @@ describe("Youtube endpoint", () => {
 
 			expect(jsonReturn.history.length).toEqual(3);
 
-			expect(jsonReturn.history).toEqual({
-				subscribers: 542,
-				videos: 420,
-				views: 24,
-			});
+			expect(jsonReturn.history[0].subscribers).toEqual(542);
+			expect(jsonReturn.history[0].videos).toEqual(420);
+			expect(jsonReturn.history[0].views).toEqual(24);
 
 			done();
 		});

@@ -3,7 +3,7 @@
     [
         {
             "name": "Jorge da Silva",
-            "username": "jorge",
+            "ID": "jorge",
             "link": "jorgeLink/jorge/",
             "history": [
                 {
@@ -28,7 +28,7 @@
         },
         {
             "name": "Maria da Silva",
-            "username": "marie",
+            "ID": "marie",
             "link": "mariaLink/maria/",
             "history": [
                 {
@@ -53,7 +53,7 @@
         },
         {
             "name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
-            "username": "princesaIsabel",
+            "ID": "princesaIsabel",
             "link": "isabelLink/cristina/",
             "history": []
         }

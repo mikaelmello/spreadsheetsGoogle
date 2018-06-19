@@ -55,9 +55,9 @@ describe("Twtiiter endpoint", () => {
 			expect(jsonReturn.accounts).toBeInstanceOf(Array);
 			expect(jsonReturn.accounts.length).toEqual(twitterMockAccounts.length);
 
-			accountId1 = jsonReturn.accounts[0].username;
-			accountId2 = jsonReturn.accounts[1].username;
-			accountId3 = jsonReturn.accounts[2].username;
+			accountId1 = jsonReturn.accounts[0].ID;
+			accountId2 = jsonReturn.accounts[1].ID;
+			accountId3 = jsonReturn.accounts[2].ID;
 
 			done();
 		});
@@ -86,7 +86,7 @@ describe("Twtiiter endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("name");
-			expect(jsonReturn).toHaveProperty("username");
+			expect(jsonReturn).toHaveProperty("ID");
 			expect(jsonReturn).toHaveProperty("type");
 			expect(jsonReturn).toHaveProperty("link");
 			expect(jsonReturn).toHaveProperty("history");
@@ -99,7 +99,7 @@ describe("Twtiiter endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn.name).toEqual("Joao");
-			expect(jsonReturn.username).toEqual("john");
+			expect(jsonReturn.ID).toEqual("john");
 			expect(jsonReturn.type).toEqual("Presidente");
 			expect(jsonReturn.link).toEqual("joao/john");
 

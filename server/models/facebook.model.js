@@ -52,7 +52,7 @@ const facebookAccountSchema = new mongoose.Schema({
 		required: true,
 		unique: true,
 	},
-	username: {
+	ID: {
 		type: String,
 		default: null,
 	},

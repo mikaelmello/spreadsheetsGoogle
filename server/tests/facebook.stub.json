@@ -2,7 +2,7 @@
 	"facebook": [
 		{
 			"name": "José Maria",
-			"username": "jose",
+			"ID": "jose",
 			"class": "joseClass",
 			"link": "joseLink/jose/",
 			"history": [
@@ -25,7 +25,7 @@
 		},
 		{
 			"name": "Ana Francisca",
-			"username": "ana",
+			"ID": "ana",
 			"class": "anaClass",
 			"link": "anaLink/ana/",
 			"history": [
@@ -48,7 +48,7 @@
 		},
 		{
 			"name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
-			"username": "princesaIsabel",
+			"ID": "princesaIsabel",
 			"class": "isaClass",
 			"link": "isaLink/princessa/",
 			"history": [

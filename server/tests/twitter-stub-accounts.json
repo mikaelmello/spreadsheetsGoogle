@@ -2,7 +2,7 @@
   "accounts": [
     {
       "name": "Joao",
-      "username": "john",
+      "ID": "john",
       "type": "Presidente",
       "link": "joao/john",
       "history": [
@@ -34,7 +34,7 @@
     },
     {
       "name": "Maria",
-      "username": "marie",
+      "ID": "marie",
       "type": "Governador",
       "link": "maria/marie",
       "history": [
@@ -66,7 +66,7 @@
     },
     {
         "name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
-        "username": "princesaIsabel"
+        "ID": "princesaIsabel"
     }
   ]
 }

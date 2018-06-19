@@ -26,12 +26,13 @@ const youtubeAccountSchema = new mongoose.Schema({
 		type: String,
 		default: null,
 	},
-	channelUrl: {
+	ID: {
 		type: String,
 		default: null,
 	},
-	channel: {
+	link: {
 		type: String,
+		trim: true,
 		default: null,
 	},
 	history: {
