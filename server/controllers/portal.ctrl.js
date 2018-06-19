@@ -23,9 +23,9 @@ const getDataviz = (req, res) => {
 		},
 		{
 			name: "Pedro Egler",
-			text: "Estudante de Engenharia de Computação pela Universidade de Brasília. ",
+			text: "Estudante de Engenharia de Computação pela Universidade de Brasília. Tem interesse nas áreas de Inteligência Artificial e Geração Procedural. ",
 			github: "https://github.com/pedrohpe",
-			img: "/imagens/PedroEgler.jpeg",
+			img: "/imagens/PedroEgler.jpg",
 		},
 		{
 			name: "Pedro Ivo",

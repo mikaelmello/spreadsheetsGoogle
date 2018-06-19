@@ -28,14 +28,14 @@ mixin digitalMedia
 
 mixin queries
 	label(for="queries") Aspecto de análise:
-		select#queries.custom-select.d-block.w-100(required="")
+		select#queries.custom-select.d-block.w-100(required="", disabled="")
 			option(value="") Escolha...
 		.invalid-feedback
 			| Por favor selecione um aspecto válido.
 
 mixin categories
 	label(for="categories") Categorias:
-		select#categories.custom-select.d-block.w-100(required="")
+		select#categories.custom-select.d-block.w-100(required="", disabled="")
 			option(value = "") Escolha...
 			each category in categories
 				option(value = category.val)= category.name

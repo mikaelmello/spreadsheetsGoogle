@@ -19,6 +19,8 @@ $(document).ready(() => {
 
 		if(media) {
 			$("body").append("Leu: " + media + "<br>");
+			$("#queries").attr("disabled", false);
+			$("#categories").attr("disabled", false);
 			getQueries(media);
 		}
 		*/
@@ -182,6 +184,8 @@ let restart = (field) => {
  * Restart the queries field
  */
 let restartQueries = () => {
+	$("#queries").attr("disabled", true);
+	$("#categories").attr("disabled", true);
 	$("#queries").empty();
     $("#queries").prepend("<option value=''>Escolha...</option>");
 };
@@ -274,12 +278,16 @@ let getActorsCP = () => {
 
 let facebookQueries = () => {
 	restart("queries");
+	$("#queries").attr("disabled", false);
+	$("#categories").attr("disabled", false);
 	$("#queries").append("<option value='likes'>Curtidas</option>");
     $("#queries").append("<option value='followers'>Seguidores</option>");
 }
 
 let instagramQueries = () => {
 	restart("queries");
+	$("#queries").attr("disabled", false);
+	$("#categories").attr("disabled", false);
 	$("#queries").append("<option value='followers'>Seguidores</option>"); 
     $("#queries").append("<option value='following'>Seguindo</option>");
     $("#queries").append("<option value='num_of_posts'>Postagens</option>");
@@ -287,6 +295,8 @@ let instagramQueries = () => {
 
 let twitterQueries = () => {
 	restart("queries");
+	$("#queries").attr("disabled", false);
+	$("#categories").attr("disabled", false);
 	$("#queries").append("<option value='tweets'>Tweets</option>");
     $("#queries").append("<option value='followers'>Seguidores</option>");
     $("#queries").append("<option value='following'>Seguindo</option>");
@@ -296,6 +306,8 @@ let twitterQueries = () => {
 
 let youtubeQueries = () => {
 	restart("queries");
+	$("#queries").attr("disabled", false);
+	$("#categories").attr("disabled", false);
 	$("#queries").append("<option value='videos'>Vídeos</option>");
     $("#queries").append("<option value='views'>Visualizações</option>");
     $("#queries").append("<option value='subscribers'>Inscritos</option>");
