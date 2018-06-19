@@ -1,5 +1,5 @@
 const express = require("express");
-const instagramCtrl = require("../controllers/instagram.controller");
+const instagramCtrl = require("../controllers/instagram.ctrl");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
 const digitalMediaCtrl = require("../controllers/digitalMedia.ctrl");
 const viewCtrl = require("../controllers/view.ctrl");

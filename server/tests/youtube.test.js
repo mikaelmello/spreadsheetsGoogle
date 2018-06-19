@@ -1,23 +1,206 @@
 const request = require("supertest");
 const app = require("../../index");
-const youtubeAccount = require("../models/youtube.model");
+const YoutubeDB = require("../models/youtube.model");
 const youtubeStub = require("./youtube.stub.json").accounts;
-const youtubeCtrl = require("../controllers/youtube.controller");
 const httpStatus = require("../../config/resocie.json").httpStatus;
 
 beforeAll(async (done) => {
-	await youtubeAccount.insertMany(youtubeStub);
+	await YoutubeDB.insertMany(youtubeStub);
 	done();
 });
 
 afterAll(async (done) => {
-	await youtubeAccount.deleteMany();
+	await YoutubeDB.deleteMany();
 	done();
 });
 
 /**
+ * Test case for the /youtube, and derived pages, endpoint.
+ * Tests behavior of sad path for now.
+*/
+describe("Youtube endpoint", () => {
+	let accountId1;
+	let accountId2;
+	let accountId3;
+
+	describe("Get /youtube", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get("/youtube")
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a import link", async (done) => {
+			const res = await request(app).get("/youtube");
+			const importRel = "youtube.import";
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("import");
+			expect(jsonReturn.import).toHaveProperty("rel");
+			expect(jsonReturn.import.rel).toEqual(importRel);
+			expect(jsonReturn.import).toHaveProperty("href");
+			expect(typeof jsonReturn.import.href).toEqual("string");
+
+			done();
+		});
+
+		it("should return all the registered users", async (done) => {
+			const res = await request(app).get("/youtube");
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("accounts");
+			expect(jsonReturn.accounts).toBeInstanceOf(Array);
+			expect(jsonReturn.accounts.length).toEqual(youtubeStub.length);
+
+			accountId1 = jsonReturn.accounts[0].username;
+			accountId2 = jsonReturn.accounts[1].username;
+			accountId3 = jsonReturn.accounts[2].username;
+
+			done();
+		});
+
+		it("should save 3 user id", async (done) => {
+			expect(accountId1).toBeDefined();
+			expect(accountId2).toBeDefined();
+			expect(accountId3).toBeDefined();
+
+			done();
+		});
+	});
+
+	describe("Get /youtube/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/youtube/${accountId1}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid user", async (done) => {
+			const res = await request(app).get(`/youtube/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("name");
+			expect(jsonReturn).toHaveProperty("username");
+			expect(jsonReturn).toHaveProperty("category");
+			expect(jsonReturn).toHaveProperty("channelUrl");
+			expect(jsonReturn).toHaveProperty("history");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/youtube/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.name).toEqual("Mariana");
+			expect(jsonReturn.username).toEqual("marianachannel");
+			expect(jsonReturn.category).toEqual("marianacategory");
+			expect(jsonReturn.channelUrl).toEqual("youtube.com/user/marianachannel");
+
+			expect(jsonReturn.history).toBeInstanceOf(Array);
+
+			done();
+		});
+
+		it("should return the correct history", async (done) => {
+			const res = await request(app).get(`/youtube/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn.history.length).toEqual(3);
+
+			expect(jsonReturn.history).toEqual({
+				subscribers: 542,
+				videos: 420,
+				views: 24,
+			});
+
+			done();
+		});
+	});
+
+	describe("Get /youtube/import", () => {
+		it("should redirect to Google authentication", async (done) => {
+			const res = await request(app).get("/youtube/import")
+				.expect(httpStatus.FOUND);
+
+			expect(res).toHaveProperty("redirect");
+			expect(res.redirect).toBe(true);
+
+			done();
+		});
+
+		it("should identify the request", async (done) => {
+			const res = await request(app).get("/youtube/import");
+
+			expect(res).toHaveProperty("request");
+			expect(res.request).toHaveProperty("host");
+
+			done();
+		});
+
+		it("should generate the correct location", async (done) => {
+			const res = await request(app).get("/youtube/import");
+			const host = res.request.host.replace(/:/g, "%3A");
+
+			let msg = "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline";
+			msg += "&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fspreadsheets.readonly";
+			msg += "&response_type=code&client_id=irrelevant&redirect_uri=http%3A%2F%2F";
+			msg += host;
+			msg += "%2Fyoutube%2Fimport";
+
+			expect(res).toHaveProperty("header");
+			expect(res.header).toHaveProperty("location");
+			expect(res.header.location).toEqual(msg);
+
+			done();
+		});
+	});
+
+	describe("Get /youtube/latest/:id", () => {
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get(`/youtube/latest/${accountId1}`)
+				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return a valid queries' set", async (done) => {
+			const res = await request(app).get(`/youtube/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveProperty("subscribers");
+			expect(jsonReturn).toHaveProperty("videos");
+			expect(jsonReturn).toHaveProperty("views");
+
+			done();
+		});
+
+		it("should return all correct data", async (done) => {
+			const res = await request(app).get(`/youtube/latest/${accountId1}`);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toEqual({
+				subscribers: 532,
+				videos: 1000,
+				views: 420,
+			});
+
+			done();
+		});
+	});
+});
+
+/**
  * Test case for the /youtube endpoint.
- */
+ *
 describe("Youtube endpoint", () => {
 	let accountId1;
 	let accountId2;
@@ -162,20 +345,24 @@ describe("Youtube endpoint", () => {
 		done();
 	});
 
-	it("GET /youtube/compare/subscribers?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /youtube/compare/subscribers?actors={:id} should return an image
+	 (the graph)", async (done) => {
 		expect(accountId1).toBeDefined();
 		expect(accountId2).toBeDefined();
 
-		await request(app).get(`/youtube/compare/subscribers?actors=${accountId1},${accountId2}`).expect(httpStatus.OK);
+		await request(app).get(`/youtube/compare/subscribers?actors=${accountId1},
+		${accountId2}`).expect(httpStatus.OK);
 
 		done();
 	});
 
-	it("GET /youtube/compare/videos?actors={:id} should return an image (the graph)", async (done) => {
+	it("GET /youtube/compare/videos?actors={:id} should return an image
+	 (the graph)", async (done) => {
 		expect(accountId1).toBeDefined();
 		expect(accountId2).toBeDefined();
 
-		await request(app).get(`/youtube/compare/videos?actors=${accountId1},${accountId2}`).expect(httpStatus.OK);
+		await request(app).get(`/youtube/compare/videos?actors=${accountId1},
+		${accountId2}`).expect(httpStatus.OK);
 
 		done();
 	});
@@ -184,7 +371,8 @@ describe("Youtube endpoint", () => {
 		expect(accountId1).toBeDefined();
 		expect(accountId2).toBeDefined();
 
-		await request(app).get(`/youtube/compare/views?actors=${accountId1},${accountId2}`).expect(httpStatus.OK);
+		await request(app).get(`/youtube/compare/views?actors=${accountId1},
+		${accountId2}`).expect(httpStatus.OK);
 
 		done();
 	});
@@ -202,7 +390,8 @@ describe("Youtube endpoint", () => {
 		done();
 	});
 
-	it("GET /youtube/compare/subscribers?actors=:id,error shoul return error on loadAccount", async (done) => {
+	it("GET /youtube/compare/subscribers?actors=:id,error shoul return error
+	on loadAccount", async (done) => {
 		expect(accountId1).toBeDefined();
 
 		const res = await request(app).get(`/youtube/compare/subscribers?actors=${accountId1},error`)
@@ -220,7 +409,8 @@ describe("Youtube endpoint", () => {
 	it("GET /youtube/:username/qualquer should return error on setHistoryKey", async (done) => {
 		expect(accountId1).toBeDefined();
 
-		const res = await request(app).get(`/youtube/${accountId1}/qualquer`).expect(httpStatus.ERROR_QUERY_KEY);
+		const res = await request(app).get(`/youtube/${accountId1}/qualquer`)
+		.expect(httpStatus.ERROR_QUERY_KEY);
 		const msgError = "Não existe a caracteristica [qualquer] para o Youtube";
 
 		expect(res.body).toHaveProperty("error");
@@ -232,7 +422,8 @@ describe("Youtube endpoint", () => {
 		done();
 	});
 
-	it("GET /youtube/compare/subscribers?actors=:id;:username shoul return error on splitActors", async (done) => {
+	it("GET /youtube/compare/subscribers?actors=:id;:username shoul return
+	 error on splitActors", async (done) => {
 		expect(accountId1).toBeDefined();
 
 		const res = await request(app).get(`/youtube/compare/subscribers?actors=${accountId1};error`)
@@ -372,3 +563,4 @@ describe("Youtbe methods", () => {
 		done();
 	});
 });
+// */

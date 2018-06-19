@@ -1,39 +1,30 @@
 /*	Required modules */
+/*	Required modules */
+const mongoose = require("mongoose");
 const request = require("request-promise");
-const youtubeAccount = require("../models/youtube.model");
-const logger = require("../../config/logger");
-const ResocieObs = require("../../config/resocie.json").observatory;
-const httpStatus = require("../../config/resocie.json").httpStatus;
+const YoutubeDB = require("../models/facebook.model");
+const digitalMediaCtrl = require("./digitalMedia.ctrl");
+const HttpStatus = require("../../config/resocie.json").httpStatus;
+/*	Media identification */
+const SOCIAL_MIDIA = require("../../config/resocie.json").observatory.socialMidia.youtubeMidia;
 
-const viewCtrl = require("./view.ctrl");
-const geralCtrl = require("./digitalMedia.ctrl");
-
-/*	Global constants */
-const SOCIAL_MIDIA = ResocieObs.socialMidia.youtubeMidia;
 
 /*	Route final methods */
 /**
- * Search for all YouTube Accounts on the database.
- * @param {object} req - standard req object from the Express library
- * @param {object} res - standard res object from the Express library
- * @return {object} accounts - list all accounts showing the name of valid accounts
+ * Search for all registered Youtube accounts.
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
  */
 const listAccounts = async (req, res) => {
-	try {
-		const accounts = await youtubeAccount.find({}, "name channel -_id");
+	const youtubeInfo = {
+		model: YoutubeDB,
+		projection: "name username channelUrl -_id",
+		name: SOCIAL_MIDIA,
+	};
 
-		const importLink = await getInitialLink(req, accounts);
-
-		res.status(httpStatus.OK).json({
-			error: false,
-			import: importLink,
-			accounts,
-		});
-	} catch (error) {
-		const errorMsg = `Erro ao carregar usuários do ${geralCtrl.capitalize(SOCIAL_MIDIA)} nos registros`;
-
-		stdErrorHand(res, httpStatus.ERROR_LIST_ACCOUNTS, errorMsg, error);
-	}
+	await digitalMediaCtrl.listAccounts(req, res, youtubeInfo);
 };
 
 /**
@@ -42,9 +33,8 @@ const listAccounts = async (req, res) => {
  * @param {object} res - standard res object from the Express library
  * @return {redirect} - redirect for /youtube page if import successful
  */
-
 const importData = async (req, res) => {
-	const actorsArray = await youtubeAccount.find({});
+	const actorsArray = await YoutubeDB.find({});
 	const actors = {};
 	const tabs = req.collectives;
 	const length = tabs.length;
@@ -58,6 +48,8 @@ const importData = async (req, res) => {
 	const viewsRow = youtubeRange.viewsRow;
 	let cCategory;
 	let lastDate;
+
+	mongoose.connection.collections.youtubeAccount.deleteMany();
 
 	const lengthActors = actorsArray.length;
 	for (let i = 0; i < lengthActors; i += 1) {
@@ -90,11 +82,11 @@ const importData = async (req, res) => {
 
 			// Caso não exista o usuario atual, cria um novo schema para o usuario
 			if (actors[cRow[nameRow]] === undefined) {
-				const newAccount = youtubeAccount({
+				const newAccount = YoutubeDB({
 					name: name,
 					category: categories[cCategory],
 					channelUrl: channelUrl,
-					channel: getImportUsername(channelUrl),
+					username: getImportUsername(channelUrl),
 				});
 				actors[cRow[nameRow]] = newAccount;
 			} else if (!actors[cRow[nameRow]].channelUrl) {
@@ -146,7 +138,7 @@ const importData = async (req, res) => {
 };
 
 const updateData = async (req, res) => {
-	const actorsArray = await youtubeAccount.find({});
+	const actorsArray = await YoutubeDB.find({});
 	const actors = {};
 	let newActors;
 	let dates;
@@ -155,7 +147,7 @@ const updateData = async (req, res) => {
 		const response = await request({	uri: "https://youtube-data-monitor.herokuapp.com/actors", json: true });
 		newActors = response.actors;
 	} catch (e) {
-		return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+		return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
 			error: true,
 			description: `Houve um erro ao fazer o pedido de atores no servidor do Monitor de Dados do Youtube: ${e}`,
 		});
@@ -173,7 +165,7 @@ const updateData = async (req, res) => {
 		dates = response.dates;
 		dates.sort();
 	} catch (e) {
-		return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+		return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
 			error: true,
 			description: `Houve um erro ao fazer o pedido de datas no servidor do Monitor de Dados do Youtube: ${e}`,
 		});
@@ -183,7 +175,7 @@ const updateData = async (req, res) => {
 
 	for (let i = 0; i < lenActorsNew; i += 1) {
 		if (actors[newActors[i]] === undefined) {
-			const newActor = youtubeAccount({
+			const newActor = YoutubeDB({
 				name: newActors[i],
 				channelUrl: `https://youtube.com/channel/${newActors[i]}`,
 				history: [],
@@ -257,21 +249,13 @@ const getHistory = async (adr) => {
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  */
-const getUser = async (req, res) => {
-	try {
-		const account = req.account[0].toObject();
+const getUser = (req, res) => {
+	const youtubeInfo = {
+		name: SOCIAL_MIDIA,
+		queries: "youtubeQueries",
+	};
 
-		account.links = await getQueriesLink(req, account.channel); // eslint-disable-line
-
-		res.status(httpStatus.OK).json({
-			error: false,
-			account,
-		});
-	} catch (error) {
-		const errorMsg = "Erro enquanto configura-se o usuário";
-
-		stdErrorHand(res, httpStatus.ERROR_GET_USER, errorMsg, error);
-	}
+	digitalMediaCtrl.getUser(req, res, youtubeInfo);
 };
 
 /**
@@ -280,68 +264,29 @@ const getUser = async (req, res) => {
  * @param {object} res - standard response object from the Express library
  */
 const getLatest = (req, res) => {
-	try {
-		const history = req.account[0].toObject().history;
-		const length = history.length - 1;
-		const latest = {};
-		const limit = ResocieObs.queriesRange.youtubeQueries;
-		const queries = ResocieObs.queries.youtubeQueries;
-		let count = 0;
+	const youtubeInfo = {
+		name: SOCIAL_MIDIA,
+		queries: "youtubeQueries",
+	};
 
-		for (let ind = length; ind >= 0 || count <= limit; ind -= 1) {
-			for (query of queries) {						// eslint-disable-line
-				if (latest[query] === undefined				// eslint-disable-line
-					&& history[ind][query] !== undefined) {	// eslint-disable-line
-					latest[query] = history[ind][query];	// eslint-disable-line
-					count += 1;
-				}
-			}
-		}
-
-		req.account[0].history.latest = latest;
-
-		res.status(httpStatus.OK).json({
-			error: false,
-			latest,
-		});
-	} catch (error) {
-		const errorMsg = `Error enquanto se recuperava os últimos dados válidos para o usuário [${req.account.name}], no ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
-
-		stdErrorHand(res, httpStatus.ERROR_LATEST, errorMsg, error);
-	}
+	digitalMediaCtrl.getLatest(req, res, youtubeInfo);
 };
 
 /*	Route middlewares */
 /**
- * Look for a specific registered Youtube account, by name.
+ * Look for a specific registered Youtube account, by id.
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  * @param {object} next - standard next function
  * @returns Execution of the next feature, over the data found
  */
 const loadAccount = async (req, res, next) => {
-	try {
-		if (req.actors !== undefined) {
-			for (const cActor of req.actors) {	// eslint-disable-line
-				await findAccount(req, cActor);	// eslint-disable-line
-			} 									// eslint-disable-line
-		} else {
-			const id = req.params.id;
-			await findAccount(req, id);
-		}
+	const youtubeInfo = {
+		model: YoutubeDB,
+		projection: "-_id -__v",
+	};
 
-		return next();
-	} catch (error) {
-		let id;
-		if (req.actors !== undefined) {
-			id = req.actors;
-		} else {
-			id = req.params.id;
-		}
-		const errorMsg = `Error ao carregar usuário(s) [${id}] dos registros do ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
-
-		return stdErrorHand(res, httpStatus.ERROR_LOAD_ACCOUNT, errorMsg, error);
-	}
+	return digitalMediaCtrl.loadAccount(req, res, next, youtubeInfo);
 };
 
 /**
@@ -352,156 +297,14 @@ const loadAccount = async (req, res, next) => {
  * @returns Execution of the next feature, over the history key generated
  */
 const setHistoryKey = (req, res, next) => {
-	const queriesPT = ResocieObs.queriesPT.youtubeQueriesPT;
-	const historyKey = req.params.query;
-	const historyKeyPT = queriesPT[historyKey];
-	const errorMsg = `Não existe a caracteristica [${historyKey}] para o ${geralCtrl.capitalize(SOCIAL_MIDIA)}`;
-
-	let mainLabel;
-
-	if (historyKeyPT !== undefined) {
-		mainLabel = viewCtrl.evolutionMsg(historyKeyPT, SOCIAL_MIDIA);
-	} else {
-		logger.error(`${errorMsg} - Tried to access ${req.originalUrl}`);
-		return res.status(httpStatus.ERROR_QUERY_KEY).json({
-			error: true,
-			description: errorMsg,
-		});
-	}
-
-	req.chart = {
-		historyKey: historyKey,
-		historyKeyPT: historyKeyPT,
-		mainLabel: mainLabel,
+	const youtubeInfo = {
+		queriesPT: "youtubeQueriesPT",
 	};
 
-	return next();
-};
-
-/*	Methods of abstraction upon request */
-/**
- * Search for an account in the records and making it available
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a YouTune account
- */
-const findAccount = async (req, id) => {
-	const account = await youtubeAccount.findOne({ channel: id }, "-_id -__v");
-
-	if (!account) throw TypeError(`There is no user [${id}]`);
-
-	if (req.account === undefined) req.account = [];
-
-	req.account.push(account);
-};
-
-/**
- * Acquiring the links to the home page
- * @param {object} req - standard request object from the Express library
- * @param {object} accounts - Accounts registered for Youtube
- */
-const getInitialLink = (req, accounts) => {
-	getAccountLink(req, accounts);
-	return getImportLink(req, SOCIAL_MIDIA);
-};
-
-/**
- * Acquire links to all registered Youtube accounts
- * @param {object} req - standard request object from the Express library
- * @param {object} accounts - Accounts registered for Youtube
- */
-const getAccountLink = (req, accounts) => {
-	const length = accounts.length;
-
-	for (let i = 0; i < length; i += 1) {
-		accounts[i] = accounts[i].toObject();
-		accounts[i].links = [];
-		const id = accounts[i].channel;
-
-		if (id) {
-			const link = {
-				rel: `${SOCIAL_MIDIA}.account`,
-				href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/${id}`,
-			};
-			accounts[i].links.push(link);
-		}
-	}
-};
-
-/**
- * Acquiring link to import from Youtube accounts
- * @param {object} req - standard request object from the Express library
- */
-const getImportLink = (req) => {
-	return {
-		rel: `${SOCIAL_MIDIA}.import`,
-		href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/import`,
-	};
-};
-
-/**
- * Acquiring the links to the possible queries for Youtbe
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a Youtube account
- */
-const getQueriesLink = (req, id) => {
-	const links = [];
-	const midiaQueries = ResocieObs.queries.youtubeQueries;
-
-	links.push(getCommomLink(req, id));
-
-	for (query of midiaQueries) {								// eslint-disable-line
-		links.push(getQueryLink(req, id, query));	// eslint-disable-line
-	}
-
-	return links;
-};
-
-/**
- * Acquisition of the link to the common query among all social media
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a Youtbe account
- */
-const getCommomLink = (req, id) => {
-	const commom = ResocieObs.queries.commonQuery;
-
-	return {
-		rel: `${SOCIAL_MIDIA}.account.${commom}`,
-		href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/${commom}/${id}`,
-	};
-};
-
-/**
- * Acquire the link to a given query for Youtube
- * @param {object} req - standard request object from the Express library
- * @param {object} id - standard identifier of a Youtube account
- * @param {object} query - query requested
- */
-const getQueryLink = (req, id, query) => {
-	return {
-		rel: `${SOCIAL_MIDIA}.account.${query}`,
-		href: `${req.protocol}://${req.get("host")}/${SOCIAL_MIDIA}/${id}/${query}`,
-	};
-};
-
-
-/*	Methods of abstraction upon response */
-/**
- * Standard Error Handling
- * @param {object} res - standard response object from the Express library
- * @param {String} errorMsg - error message for the situation
- * @param {object} error - error that actually happened
- */
-const stdErrorHand = (res, errorCode, errorMsg, error) => {
-	logger.error(`${errorMsg} - Detalhes: ${error}`);
-
-	res.status(errorCode).json({
-		error: true,
-		description: errorMsg,
-	});
+	digitalMediaCtrl.setHistoryKey(req, res, next, youtubeInfo);
 };
 
 /*	Methods of abstraction */
-
 /**
  * Data validation by recurrent criteria
  * @param {String} value - data to be validated
