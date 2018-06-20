@@ -215,10 +215,12 @@ describe("Facebook endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("ContentType");
-			expect(jsonReturn).toHaveProperty("img");
-			expect(jsonReturn.img).toHaveProperty("type");
-			expect(jsonReturn.img).toHaveProperty("data");
-			expect(jsonReturn.img.data).toBeInstanceOf(Array);
+			expect(jsonReturn).toHaveProperty("config");
+
+			expect(jsonReturn.config).toBeInstanceOf(Object);
+			expect(jsonReturn.config).toHaveProperty("type");
+			expect(jsonReturn.config).toHaveProperty("data");
+			expect(jsonReturn.config).toHaveProperty("options");
 
 			done();
 		});
@@ -227,8 +229,13 @@ describe("Facebook endpoint", () => {
 			const res = await request(app).get(`/facebook/${accountId3}/likes`);
 			const jsonReturn = JSON.parse(res.text);
 
+			console.log(jsonReturn.config);
+
 			expect(jsonReturn.ContentType).toEqual("image/png");
-			expect(jsonReturn.img.type).toEqual("Buffer");
+
+			expect(jsonReturn.config.type).toEqual("line");
+			expect(jsonReturn.config.data).toBeInstanceOf(Object);
+			expect(jsonReturn.config.options).toBeInstanceOf(Object);
 
 			done();
 		});
@@ -249,10 +256,12 @@ describe("Facebook endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveProperty("ContentType");
-			expect(jsonReturn).toHaveProperty("img");
-			expect(jsonReturn.img).toHaveProperty("type");
-			expect(jsonReturn.img).toHaveProperty("data");
-			expect(jsonReturn.img.data).toBeInstanceOf(Array);
+			expect(jsonReturn).toHaveProperty("config");
+
+			expect(jsonReturn.config).toBeInstanceOf(Object);
+			expect(jsonReturn.config).toHaveProperty("type");
+			expect(jsonReturn.config).toHaveProperty("data");
+			expect(jsonReturn.config).toHaveProperty("options");
 
 			done();
 		});
@@ -262,7 +271,10 @@ describe("Facebook endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn.ContentType).toEqual("image/png");
-			expect(jsonReturn.img.type).toEqual("Buffer");
+
+			expect(jsonReturn.config.type).toEqual("line");
+			expect(jsonReturn.config.data).toBeInstanceOf(Object);
+			expect(jsonReturn.config.options).toBeInstanceOf(Object);
 
 			done();
 		});

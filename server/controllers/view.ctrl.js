@@ -1,10 +1,11 @@
-/*	Required modules */
+/*	Required modules *
 const ChartNode = require("chartjs-node");
 // const httpStatus = require("http-status");
+*/
 const Color = require("./color.ctrl");
 
 /*	Global constants */
-const CHART_SIZE = 700;
+// const CHART_SIZE = 700;
 const MAX_LEN_LABEL = 80;
 
 /**
@@ -13,19 +14,15 @@ const MAX_LEN_LABEL = 80;
  * @param {object} res - standard response object from the Express library
  */
 const plotLineChart = async (req, res) => {
-	const chart = new ChartNode(CHART_SIZE, CHART_SIZE);
+	const config = req.chart.config;
 
-	await chart.drawChart(req.chart.config);
-	const buffer = await chart.getImageBuffer("image/png");
-	/*
-	res.writeHeader(httpStatus.OK, { "Content-type": "image/png" });
-	res.write(buffer);
-	res.end();
-	*/
 	res.send({
 		ContentType: "image/png",
-		img: buffer,
+		config: config,
 	});
+	/** Usar como sendo
+	 * var myChart = new Chart((#ID_CHART), chart.config);
+	 */
 };
 
 /**
