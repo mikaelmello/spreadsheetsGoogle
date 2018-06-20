@@ -84,7 +84,13 @@ $(document).ready(() => {
 			alert("Deve ter selecionado todos os campos!");
 		else {
 			let URL = getURL (media, query, actors);
+			const chartArea = $("#chartArea");
 			//$("body").append("Requisitando: " + URL + "<br>");
+			/*
+			$.get(URL, (chart, status) => {
+				let myChart = new Chart (chartArea, chart.config);
+			});
+	// */
 		}
 	});
 });
