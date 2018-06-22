@@ -75,7 +75,6 @@ describe("Instagram endpoint", () => {
 	});
 
 	describe("Get /instagram/queries", () => {
-
 		it("should return the right amount of queries", async (done) => {
 			const res = await request(app).get("/instagram/queries")
 				.expect(httpStatus.OK);
@@ -88,7 +87,7 @@ describe("Instagram endpoint", () => {
 
 		it("should return valid properties for the queries", async (done) => {
 			const res = await request(app).get("/instagram/queries")
-				.expect(httpStatus.OK);		
+				.expect(httpStatus.OK);
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn[0]).toHaveProperty("val");
@@ -103,7 +102,7 @@ describe("Instagram endpoint", () => {
 			done();
 		});
 
-		it("should have the right values for the properties", async (done)=> {
+		it("should have the right values for the properties", async (done) => {
 			const res = await request(app).get("/instagram/queries")
 				.expect(httpStatus.OK);
 			const jsonReturn = JSON.parse(res.text);

@@ -73,21 +73,38 @@ describe("Facebook endpoint", () => {
 	});
 
 	describe("Get /facebook/queries", () => {
-		it("should return object with facebook related queries", async (done) => {
+		it("should return the right amount of queries", async (done) => {
 			const res = await request(app).get("/facebook/queries")
 				.expect(httpStatus.OK);
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveLength(2);
 
+			done();
+		});
+
+		it("should return valid properties for the queries", async (done) => {
+			const res = await request(app).get("/facebook/queries")
+				.expect(httpStatus.OK);
+			const jsonReturn = JSON.parse(res.text);
+
 			expect(jsonReturn[0]).toHaveProperty("val");
 			expect(jsonReturn[0]).toHaveProperty("name");
-			expect(jsonReturn[0].val).toBe("likes");
-			expect(jsonReturn[0].name).toBe("curtidas");
-
 
 			expect(jsonReturn[1]).toHaveProperty("val");
 			expect(jsonReturn[1]).toHaveProperty("name");
+
+			done();
+		});
+
+		it("should have the right values for the properties", async (done) => {
+			const res = await request(app).get("/facebook/queries")
+				.expect(httpStatus.OK);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn[0].val).toBe("likes");
+			expect(jsonReturn[0].name).toBe("curtidas");
+
 			expect(jsonReturn[1].val).toBe("followers");
 			expect(jsonReturn[1].name).toBe("seguidores");
 
