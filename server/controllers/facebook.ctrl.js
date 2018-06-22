@@ -111,7 +111,7 @@ const importAccounts = async (req, res) => {
 };
 
 /**
- * Returns a list with all possible queries in the model
+ * Returns an object with Facebook-related queries based on its model
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  */

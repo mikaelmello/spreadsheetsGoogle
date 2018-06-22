@@ -14,6 +14,13 @@ router.route("/")
 	.get(instagramCtrl.listAccounts);
 
 /**
+ * Returns object with Instagram-related queries
+*/
+
+router.route("/queries")
+	.get(instagramCtrl.getQueries);
+
+/**
  * Comparison between actors for data on Instagram
  */
 router.route("/compare/:query")

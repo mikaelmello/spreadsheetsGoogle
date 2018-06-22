@@ -123,6 +123,18 @@ const importData = async (req, res) => {
 };
 
 /**
+ * Returns an object with Instagram-related queries based on its model
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ */
+
+const getQueries = (req, res) => {
+	const queriesList = digitalMediaCtrl.getQueries(req, res, "instagram");
+
+	return queriesList;
+};
+
+/**
  * Data recovery about a given user
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
@@ -252,6 +264,7 @@ module.exports = {
 	listAccounts,
 	importData,
 	getUser,
+	getQueries,
 	getLatest,
 	loadAccount,
 	setHistoryKey,

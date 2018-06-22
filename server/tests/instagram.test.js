@@ -74,6 +74,53 @@ describe("Instagram endpoint", () => {
 		});
 	});
 
+	describe("Get /instagram/queries", () => {
+
+		it("should return the right amount of queries", async (done) => {
+			const res = await request(app).get("/instagram/queries")
+				.expect(httpStatus.OK);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveLength(3);
+
+			done();
+		});
+
+		it("should return valid properties for the queries", async (done) => {
+			const res = await request(app).get("/instagram/queries")
+				.expect(httpStatus.OK);		
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn[0]).toHaveProperty("val");
+			expect(jsonReturn[0]).toHaveProperty("name");
+
+			expect(jsonReturn[1]).toHaveProperty("val");
+			expect(jsonReturn[1]).toHaveProperty("name");
+
+			expect(jsonReturn[2]).toHaveProperty("val");
+			expect(jsonReturn[2]).toHaveProperty("name");
+
+			done();
+		});
+
+		it("should have the right values for the properties", async (done)=> {
+			const res = await request(app).get("/instagram/queries")
+				.expect(httpStatus.OK);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn[0].val).toBe("followers");
+			expect(jsonReturn[0].name).toBe("seguidores");
+
+			expect(jsonReturn[1].val).toBe("following");
+			expect(jsonReturn[1].name).toBe("seguindo");
+
+			expect(jsonReturn[2].val).toBe("num_of_posts");
+			expect(jsonReturn[2].name).toBe("postagens");
+
+			done();
+		});
+	});
+
 	describe("Get /instagram/:id", () => {
 		it("should return a JSON", async (done) => {
 			const res = await request(app).get(`/instagram/${accountId1}`)
