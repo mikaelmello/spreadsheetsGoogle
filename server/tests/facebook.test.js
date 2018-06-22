@@ -72,6 +72,29 @@ describe("Facebook endpoint", () => {
 		});
 	});
 
+	describe("Get /facebook/queries", () => {
+		it("should return object with facebook related queries", async (done) => {
+			const res = await request(app).get("/facebook/queries")
+				.expect(httpStatus.OK);
+			const jsonReturn = JSON.parse(res.text);
+
+			expect(jsonReturn).toHaveLength(2);
+
+			expect(jsonReturn[0]).toHaveProperty("val");
+			expect(jsonReturn[0]).toHaveProperty("name");
+			expect(jsonReturn[0].val).toBe("likes");
+			expect(jsonReturn[0].name).toBe("curtidas");
+
+
+			expect(jsonReturn[1]).toHaveProperty("val");
+			expect(jsonReturn[1]).toHaveProperty("name");
+			expect(jsonReturn[1].val).toBe("followers");
+			expect(jsonReturn[1].name).toBe("seguidores");
+
+			done();
+		});
+	});
+
 	describe("Get /facebook/:id", () => {
 		it("should return a JSON", async (done) => {
 			const res = await request(app).get(`/facebook/${accountId1}`)
@@ -228,8 +251,6 @@ describe("Facebook endpoint", () => {
 		it("should return all correct data", async (done) => {
 			const res = await request(app).get(`/facebook/${accountId3}/likes`);
 			const jsonReturn = JSON.parse(res.text);
-
-			console.log(jsonReturn.config);
 
 			expect(jsonReturn.ContentType).toEqual("image/png");
 

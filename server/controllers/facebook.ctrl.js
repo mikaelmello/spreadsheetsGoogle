@@ -111,6 +111,18 @@ const importAccounts = async (req, res) => {
 };
 
 /**
+ * Returns a list with all possible queries in the model
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ */
+
+const getQueries = (req, res) => {
+	const queriesList = digitalMediaCtrl.getQueries(req, res, "facebook");
+
+	return queriesList;
+};
+
+/**
  * Data recovery about a given user
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
@@ -250,6 +262,7 @@ module.exports = {
 	listAccounts,
 	importAccounts,
 	getUser,
+	getQueries,
 	getLatest,
 	loadAccount,
 	isCellValid,

@@ -255,6 +255,36 @@ const getCommomLink = (req, id, socialMedia) => {
 };
 
 /**
+ * Returns a list with all possible queries in the model
+ * Used to limit possible routes
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @param {object} socialMedia - social media to have its queries retrieved
+ */
+
+const getQueries = (req, res, socialMedia) => {
+	let queryType = `${socialMedia}Queries`;
+	const resocieQueries = ResocieObs.queries;
+	const queriesList = resocieQueries[queryType];
+
+	queryType = `${socialMedia}QueriesPT`;
+
+	const resocieQueriesPT = ResocieObs.queriesPT[queryType];
+	const queries = [];
+
+	/* eslint-disable*/
+	for(query of queriesList) {
+		const aux = {
+			val: query,
+			name: resocieQueriesPT[query],
+		};
+		queries.push(aux);
+	};
+
+	res.send(queries);
+};
+
+/**
  * Acquire the link to a given query for Facebook
  * @param {object} req - standard request object from the Express library
  * @param {object} id - standard identifier of a Facebook account
@@ -351,6 +381,7 @@ module.exports = {
 	listAccounts,
 	getUser,
 	getLatest,
+	getQueries,
 	loadAccount,
 	setHistoryKey,
 	splitActors,
