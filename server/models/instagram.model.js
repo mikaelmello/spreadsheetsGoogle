@@ -34,7 +34,7 @@ const instagramAccountSchema = new mongoose.Schema({
 		type: String,
 		default: null,
 	},
-	type: {
+	category: {
 		type: String,
 		default: null,
 	},

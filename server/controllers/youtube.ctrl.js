@@ -77,7 +77,7 @@ const importData = async (req, res) => {
 			}
 			// Se o canal é válido, cria um novo schema para o canal
 			const channelUrl = getImportChannelURL(cRow[channelRow]);
-			const channel = getImportUsername(channelUrl);
+			const id = getImportID(channelUrl);
 			const name = cRow[nameRow].replace(/\n/g, " ");
 
 			// Caso não exista o usuario atual, cria um novo schema para o usuario
@@ -86,12 +86,12 @@ const importData = async (req, res) => {
 					name: name,
 					category: categories[cCategory],
 					link: channelUrl,
-					ID: channel,
+					ID: id,
 				});
 				actors[cRow[nameRow]] = newAccount;
 			} else if (!actors[cRow[nameRow]].link) {
 				actors[cRow[nameRow]].link = channelUrl;
-				actors[cRow[nameRow]].ID = channel;
+				actors[cRow[nameRow]].ID = id;
 			}
 
 			// Se o canal não for null verifica se os inscritos,
@@ -343,22 +343,22 @@ const getImportChannelURL = (channelLink) => {
 };
 
 /**
- * Acquire the account username from the import base
- * @param {string} usernameRaw - supposed account username
+ * Acquire the account id from the import base
+ * @param {string} idRaw - supposed account id
  */
-const getImportUsername = (usernameRaw) => {
-	if (!(usernameRaw) || !(usernameRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
+const getImportID = (idRaw) => {
+	if (!(idRaw) || !(idRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
 
-	let username = usernameRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
-	username = username.replace(`https://${SOCIAL_MIDIA}.com/`, "");
-	username = username.split("/");
+	let id = idRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
+	id = id.replace(`https://${SOCIAL_MIDIA}.com/`, "");
+	id = id.split("/");
 
-	if (username[0] === "channel"
-		|| username[0] === "user") {
-		username = username[1];
-	} else username = username[0];
+	if (id[0] === "channel"
+		|| id[0] === "user") {
+		id = id[1];
+	} else id = id[0];
 
-	return username;
+	return id;
 };
 
 /**
@@ -398,8 +398,4 @@ module.exports = {
 	setHistoryKey,
 	isCellValid,
 	updateData,
-	getImportChannelURL,
-	getImportUsername,
-	getImportNumber,
-	getImportDate,
 };

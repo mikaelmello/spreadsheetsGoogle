@@ -136,6 +136,7 @@ describe("Instagram endpoint", () => {
 
 			expect(jsonReturn).toHaveProperty("name");
 			expect(jsonReturn).toHaveProperty("ID");
+			expect(jsonReturn).toHaveProperty("category");
 			expect(jsonReturn).toHaveProperty("link");
 			expect(jsonReturn).toHaveProperty("history");
 
@@ -148,6 +149,7 @@ describe("Instagram endpoint", () => {
 
 			expect(jsonReturn.name).toEqual("Jorge da Silva");
 			expect(jsonReturn.ID).toEqual("jorge");
+			expect(jsonReturn.category).toEqual("jorgeClass");
 			expect(jsonReturn.link).toEqual("jorgeLink/jorge/");
 
 			expect(jsonReturn.history).toBeInstanceOf(Array);

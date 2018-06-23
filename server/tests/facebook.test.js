@@ -136,7 +136,7 @@ describe("Facebook endpoint", () => {
 
 			expect(jsonReturn).toHaveProperty("name");
 			expect(jsonReturn).toHaveProperty("ID");
-			expect(jsonReturn).toHaveProperty("class");
+			expect(jsonReturn).toHaveProperty("category");
 			expect(jsonReturn).toHaveProperty("link");
 			expect(jsonReturn).toHaveProperty("history");
 
@@ -149,7 +149,7 @@ describe("Facebook endpoint", () => {
 
 			expect(jsonReturn.name).toEqual("José Maria");
 			expect(jsonReturn.ID).toEqual("jose");
-			expect(jsonReturn.class).toEqual("joseClass");
+			expect(jsonReturn.category).toEqual("joseClass");
 			expect(jsonReturn.link).toEqual("joseLink/jose/");
 
 			expect(jsonReturn.history).toBeInstanceOf(Array);

@@ -56,7 +56,7 @@ const facebookAccountSchema = new mongoose.Schema({
 		type: String,
 		default: null,
 	},
-	class: {
+	category: {
 		type: String,
 		default: null,
 	},

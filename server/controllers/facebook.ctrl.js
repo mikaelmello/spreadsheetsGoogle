@@ -68,9 +68,9 @@ const importAccounts = async (req, res) => {
 			if (actors[cRow[nameRow]] === undefined) {
 				const newAccount = FacebookDB({
 					name: cRow[nameRow].replace(/\n/g, " "),
-					class: categories[cCategory],
+					category: categories[cCategory],
 					link: accountLink,
-					ID: getImportUsername(accountLink),
+					ID: getImportID(accountLink),
 				});
 
 				actors[cRow[nameRow]] = newAccount;
@@ -210,22 +210,22 @@ const getImportAccountLink = (accountLink) => {
 };
 
 /**
- * Acquire the account username from the import base
- * @param {string} usernameRaw - supposed account username
+ * Acquire the account id from the import base
+ * @param {string} idRaw - supposed account id
  */
-const getImportUsername = (usernameRaw) => {
-	if (!(usernameRaw) || !(usernameRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
+const getImportID = (idRaw) => {
+	if (!(idRaw) || !(idRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
 
-	let username = usernameRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
-	username = username.replace(`https://${SOCIAL_MIDIA}.com/`, "");
-	username = username.split("/");
+	let id = idRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
+	id = id.replace(`https://${SOCIAL_MIDIA}.com/`, "");
+	id = id.split("/");
 
-	if (username[0] !== "pg")	username = username[0];
-	else username = username[1];
+	if (id[0] !== "pg")	id = id[0];
+	else id = id[1];
 
-	username = username.split("?");
+	id = id.split("?");
 
-	return username[0];
+	return id[0];
 };
 
 /**

@@ -87,7 +87,7 @@ describe("Twtiiter endpoint", () => {
 
 			expect(jsonReturn).toHaveProperty("name");
 			expect(jsonReturn).toHaveProperty("ID");
-			expect(jsonReturn).toHaveProperty("type");
+			expect(jsonReturn).toHaveProperty("category");
 			expect(jsonReturn).toHaveProperty("link");
 			expect(jsonReturn).toHaveProperty("history");
 
@@ -100,7 +100,7 @@ describe("Twtiiter endpoint", () => {
 
 			expect(jsonReturn.name).toEqual("Joao");
 			expect(jsonReturn.ID).toEqual("john");
-			expect(jsonReturn.type).toEqual("Presidente");
+			expect(jsonReturn.category).toEqual("Presidente");
 			expect(jsonReturn.link).toEqual("joao/john");
 
 			expect(jsonReturn.history).toBeInstanceOf(Array);

@@ -4,6 +4,7 @@
         {
             "name": "Jorge da Silva",
             "ID": "jorge",
+            "category": "jorgeClass",
             "link": "jorgeLink/jorge/",
             "history": [
                 {
@@ -29,6 +30,7 @@
         {
             "name": "Maria da Silva",
             "ID": "marie",
+            "category": "marieClass",
             "link": "mariaLink/maria/",
             "history": [
                 {
@@ -54,6 +56,7 @@
         {
             "name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
             "ID": "princesaIsabel",
+            "category": "isabelClass",
             "link": "isabelLink/cristina/",
             "history": []
         }

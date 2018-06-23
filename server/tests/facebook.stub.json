@@ -3,7 +3,7 @@
 		{
 			"name": "José Maria",
 			"ID": "jose",
-			"class": "joseClass",
+			"category": "joseClass",
 			"link": "joseLink/jose/",
 			"history": [
 				{
@@ -26,7 +26,7 @@
 		{
 			"name": "Ana Francisca",
 			"ID": "ana",
-			"class": "anaClass",
+			"category": "anaClass",
 			"link": "anaLink/ana/",
 			"history": [
 				{
@@ -49,7 +49,7 @@
 		{
 			"name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
 			"ID": "princesaIsabel",
-			"class": "isaClass",
+			"category": "isaClass",
 			"link": "isaLink/princessa/",
 			"history": [
 				{

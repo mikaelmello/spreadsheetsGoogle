@@ -3,7 +3,7 @@
     {
       "name": "Joao",
       "ID": "john",
-      "type": "Presidente",
+      "category": "Presidente",
       "link": "joao/john",
       "history": [
         {
@@ -35,7 +35,7 @@
     {
       "name": "Maria",
       "ID": "marie",
-      "type": "Governador",
+      "category": "Governador",
       "link": "maria/marie",
       "history": [
         {

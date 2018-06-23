@@ -65,25 +65,25 @@ const importData = async (req, res) => {
 				continue; // eslint-disable-line no-continue
 			}
 
-			// validation of username field with regex to capture only the username
+			// validation of id field with regex to capture only the id
 			// and not the whole profile url
-			const username = getImportUsername(row[iRange.profileRow]);
+			const id = getImportID(row[iRange.profileRow]);
 
 			// if current actor hasnt been defined yet, create a new schema
 			if (actors[name] === undefined) {
 				const newAccount = InstagramDB({
 					name: name,
-					ID: username,
+					ID: id,
 					link: row[iRange.profileRow],
-					type: req.sheet.categories[cType],
+					category: req.sheet.categories[cType],
 				});
 				actors[name] = newAccount;
 			} else if (!actors[name].ID) {
-				actors[name].ID = username;
+				actors[name].ID = id;
 			}
 
-			// if current actor does not have a instagram username, continue
-			if (username === null) continue; // eslint-disable-line no-continue
+			// if current actor does not have a instagram id, continue
+			if (id === null) continue; // eslint-disable-line no-continue
 
 			// Defines sample and adds it to the actor document
 			const sample = {
@@ -194,22 +194,22 @@ const setHistoryKey = (req, res, next) => {
 
 /*	Methods of abstraction */
 /**
- * Acquire the account username from the import base
- * @param {string} usernameRaw - supposed account username
+ * Acquire the account id from the import base
+ * @param {string} idRaw - supposed account id
  */
-const getImportUsername = (usernameRaw) => {
-	if (!(usernameRaw) || !(usernameRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
+const getImportID = (idRaw) => {
+	if (!(idRaw) || !(idRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
 
-	let username = usernameRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
-	username = username.replace(`https://${SOCIAL_MIDIA}.com/`, "");
-	username = username.split("/");
+	let id = idRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");
+	id = id.replace(`https://${SOCIAL_MIDIA}.com/`, "");
+	id = id.split("/");
 
-	if (username[0] !== "pg")	username = username[0];
-	else username = username[1];
+	if (id[0] !== "pg")	id = id[0];
+	else id = id[1];
 
-	username = username.split("?");
+	id = id.split("?");
 
-	return username[0];
+	return id[0];
 };
 
 /**
