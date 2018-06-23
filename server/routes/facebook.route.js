@@ -15,8 +15,17 @@ const router = express.Router(); // eslint-disable-line new-cap
 router.route("/")
 	.get(facebookCtrl.listAccounts);
 
+/**
+ * Acquisition of queries available to Facebook
+ */
 router.route("/queries")
 	.get(facebookCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(facebookCtrl.getActors);
 
 /**
  * Comparison between actors for data on Facebook

@@ -36,12 +36,12 @@ const listAccounts = async (req, res, media) => {
  * Used to limit possible routes
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
- * @param {object} socialMedia - social media to have its queries retrieved
+ * @param {object} media - social media to have its queries retrieved
  */
-const getQueries = (req, res, socialMedia) => {
-	let queryType = `${socialMedia}Queries`;
+const getQueries = (req, res, media) => {
+	let queryType = `${media}Queries`;
 	const queriesList = ResocieObs.queries[queryType];
-	queryType = `${socialMedia}QueriesPT`;
+	queryType = `${media}QueriesPT`;
 	const resocieQueriesPT = ResocieObs.queriesPT[queryType];
 	const queries = [];
 
@@ -56,6 +56,28 @@ const getQueries = (req, res, socialMedia) => {
 	/* eslint-enable */
 
 	res.send(queries);
+};
+
+/**
+ * Search for all registered of a particular category in a given digital media.
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @param {object} media - social media to have its queries retrieved
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
+ */
+const getActors = async (req, res, media) => {
+	const category = decodeCat(req);
+
+	try {
+		const accounts = await media.model.find({ category: category }, media.projection);
+
+		res.send(accounts);
+	} catch (error) {
+		const errorMsg = ErrorMsgs.ERROR_CAT_ACTORS + category;
+
+		stdErrorHand(res, HttpStatus.ERROR_CAT_ACTORS, errorMsg, error);
+	}
 };
 
 /**
@@ -317,6 +339,12 @@ const errorHistoryKey = (req, res, query) => {
 	return stdErrorHand(res, HttpStatus.ERROR_QUERY_KEY, errorMsg, error);
 };
 
+const decodeCat = (req) => {
+	const categoryCode = req.params.cat;
+
+	return ResocieObs.categories[categoryCode];
+};
+
 /*	Methods of abstraction upon response */
 /**
  * Standard Error Handling
@@ -377,6 +405,7 @@ const capitalize = (str) => {
 module.exports = {
 	listAccounts,
 	getUser,
+	getActors,
 	getLatest,
 	getQueries,
 	loadAccount,

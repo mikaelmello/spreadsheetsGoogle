@@ -120,6 +120,22 @@ const getQueries = (req, res) => {
 };
 
 /**
+ * Search for all registered Facebook accounts of a particular category.
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
+ */
+const getActors = async (req, res) => {
+	const facebookInfo = {
+		model: FacebookDB,
+		projection: "ID -_id",
+		name: SOCIAL_MIDIA,
+	};
+	await digitalMediaCtrl.getActors(req, res, facebookInfo);
+};
+
+/**
  * Data recovery about a given user
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
@@ -260,6 +276,7 @@ module.exports = {
 	importAccounts,
 	getUser,
 	getQueries,
+	getActors,
 	getLatest,
 	loadAccount,
 	isCellValid,
