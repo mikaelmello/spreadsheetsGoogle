@@ -6,7 +6,7 @@ block content
 			h1.display-3 Observatório das Eleições
 			p Portal de pesquisa exploratória sobre as eleições presidenciais, possibilitando a análise da influência ou não nas mídias digitais referentes às eleições
 			p
-				a.btn.btn-primary.btn-lg(href='/', role='button') Iniciar pesquisa »
+				a.btn.btn-primary.btn-lg(href="/portal/espacoExploratorio", role="button") Iniciar pesquisa »
 
 	.row
 		each option in showcase
@@ -15,6 +15,6 @@ block content
 				p= option.description
 
 	p.text-center
-		a.btn.btn-secondary(href='#', role='button') Veja os detalhes »
+		a.btn.btn-secondary(href="/portal/flexibilidades", role="button") Veja os detalhes »
 		-for (let brCnt = 0; brCnt < 5; brCnt++)
 			br

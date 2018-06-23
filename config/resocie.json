@@ -59,6 +59,11 @@
 			"twitterMidia": "twitter",
 			"youtubeMidia": "youtube"
 		},
+		"categories":{
+			"FC": "FRENTES / COLETIVOS",
+            "OSC": "ORGANIZAÇÕES DA SOCIEDADE CIVIL",
+			"PCP": "PRÉ-CANDIDATURAS À PRESIDÊNCIA"
+		},
 		"queriesRange": {
 			"facebookQueries": 2,
 			"instagramQueries": 3,

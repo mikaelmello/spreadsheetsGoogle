@@ -11,6 +11,19 @@
 	font-weight: 700;
 }
 
+.p-4 .text-left p{
+	text-indent: 2em;
+}
+
+a{
+	color: #c64b2e;
+}
+
+a:hover{
+	text-decoration: none;
+	color: #275c63c8;
+}
+
 /*	Cabeçalho */
 .nav-item{
 	list-style: none;
@@ -80,6 +93,14 @@ footer p{
     color: #c6f6fd;
 }
 
+footer a{
+	color: #ee9784;
+}
+
+footer a:hover{
+	color: #c64b2e;
+}
+
 /*	Botões */
 .btn-primary{
 	background-color: #b93719;
@@ -89,7 +110,6 @@ footer p{
 
 .btn-primary:hover {
 	background-color: #c64b2e;
-	/*border-color: inherit;*/
 	border-color: black;
 }
 
