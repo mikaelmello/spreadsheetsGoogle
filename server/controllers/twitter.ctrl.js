@@ -126,6 +126,15 @@ const importData = async (req, res) => {
 	return res.redirect("/twitter");
 };
 
+/**
+ * Returns an object with Twitter-related queries based on its model
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ */
+const getQueries = (req, res) => {
+	digitalMediaCtrl.getQueries(req, res, SOCIAL_MIDIA);
+};
+
 const updateData = async (req, res) => {
 	const actorsArray = await TwitterDB.find({});
 	const actors = {};
@@ -363,6 +372,7 @@ const getImportNumber = (number) => {
 module.exports = {
 	listAccounts,
 	importData,
+	getQueries,
 	updateData,
 	getHistory,
 	getUser,

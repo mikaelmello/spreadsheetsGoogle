@@ -73,9 +73,17 @@ describe("Facebook endpoint", () => {
 	});
 
 	describe("Get /facebook/queries", () => {
-		it("should return the right amount of queries", async (done) => {
-			const res = await request(app).get("/facebook/queries")
+		it("should return a JSON", async (done) => {
+			const res = await request(app).get("/facebook")
 				.expect(httpStatus.OK);
+
+			expect(res).toHaveProperty("text");
+
+			done();
+		});
+
+		it("should return the right amount of queries", async (done) => {
+			const res = await request(app).get("/facebook/queries");
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn).toHaveLength(2);

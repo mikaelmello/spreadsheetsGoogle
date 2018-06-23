@@ -137,6 +137,15 @@ const importData = async (req, res) => {
 	return res.redirect("/youtube");
 };
 
+/**
+ * Returns an object with Youtube-related queries based on its model
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ */
+const getQueries = (req, res) => {
+	digitalMediaCtrl.getQueries(req, res, SOCIAL_MIDIA);
+};
+
 const updateData = async (req, res) => {
 	const actorsArray = await YoutubeDB.find({});
 	const actors = {};
@@ -382,6 +391,7 @@ const getImportDate = (date, lastDate) => {
 module.exports = {
 	listAccounts,
 	importData,
+	getQueries,
 	getUser,
 	getLatest,
 	loadAccount,

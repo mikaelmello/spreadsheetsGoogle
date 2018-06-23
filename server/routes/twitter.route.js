@@ -14,6 +14,13 @@ router.route("/")
 	.get(twitterCtrl.listAccounts);
 
 /**
+ * Returns object with Twiiter-related queries
+*/
+
+router.route("/queries")
+	.get(twitterCtrl.getQueries);
+
+/**
  * Comparison between actors for data on Twitter
  */
 router.route("/compare/:query")

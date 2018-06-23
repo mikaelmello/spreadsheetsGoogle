@@ -115,11 +115,8 @@ const importAccounts = async (req, res) => {
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
  */
-
 const getQueries = (req, res) => {
-	const queriesList = digitalMediaCtrl.getQueries(req, res, "facebook");
-
-	return queriesList;
+	digitalMediaCtrl.getQueries(req, res, SOCIAL_MIDIA);
 };
 
 /**

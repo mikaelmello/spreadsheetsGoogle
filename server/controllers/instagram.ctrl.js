@@ -129,9 +129,7 @@ const importData = async (req, res) => {
  */
 
 const getQueries = (req, res) => {
-	const queriesList = digitalMediaCtrl.getQueries(req, res, "instagram");
-
-	return queriesList;
+	digitalMediaCtrl.getQueries(req, res, SOCIAL_MIDIA);
 };
 
 /**

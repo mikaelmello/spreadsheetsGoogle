@@ -16,6 +16,13 @@ router.route("/")
 	.get(youtubeCtrl.listAccounts);
 
 /**
+ * Returns object with Youtube-related queries
+*/
+
+router.route("/queries")
+	.get(youtubeCtrl.getQueries);
+
+/**
  * Comparison between actors for data on Youtube
  */
 router.route("/compare/:query")
