@@ -1,0 +1,49 @@
+extends layout
+
+block content
+	.jumbotron
+		.container
+			h1.display-3 Observatório das Eleições
+			p Ativismo, voto e usos das tecnologias digitais
+
+	.p-4.text-left.bg-light
+		section#porque.py-4
+			h3 Por que?
+			p Foi criado no âmbito do grupo de pesquisa 
+				+insertLink("https://resocie.org", "Resocie")
+				|  (“Repensando as Relações Sociedade-Estado”) do 
+				+insertLink("http://ipol.unb.br/", "Instituto de Ciência Política - IPOL")
+				|  da 
+				+insertLink("https://www.unb.br/", "Universidade de Brasília - UnB")
+				|  , e conta com o apoio técnico da Professora 
+				+insertLink("http://claudiamelo.org/", "Cláudia Melo")
+				|  , do 
+				+insertLink("http://www.cic.unb.br/", "Departamento de Computação - CIC")
+				|  , e da turma da disciplina Engenharia de Software. 
+				| O Observatório abriga uma série de iniciativas de pesquisa, que têm como objetivo geral 
+				| analisar os usos e impactos das novas tecnologias digitais nas eleições brasileiras de 2018.
+
+			p Mais especificamente, queremos compreender como os atores políticos (candidatos, organizações da 
+				| sociedade civil, movimentos sociais, coletivos) usarão mídias sociais para tentar influenciar 
+				| o processo eleitoral. Em particular, focaremos no estudo dos usos de quatro dessas mídias: 
+				| Facebook, YouTube, Instagram e Twitter. Essas plataformas têm sido utilizadas em eleições para
+				| atingir audiências diferentes e com estratégias distintas. É importante, portanto, estudar cada 
+				| uma separamente e poder comparar seus usos.
+
+			p Além disso, estamos interessados em compreender melhor os impactos da chamada “governança de algoritmos” 
+				| na difusão de informações e propaganda eleitoral. Em especial, queremos analisar os possíveis impactos 
+				| dos algoritmos de serviços de busca como o Google.
+
+			p É importante compreender como esses usos e impactos mudam, à medida que os atores se adaptam às mudanças de 
+				| contexto prévias ao momento eleitoral. Por isso, precisamos de estratégias e ferramentas que permitam fazer 
+				| a coleta sistemática de dados ao longo do tempo.
+
+			a.btn.btn-secondary(href="https://www.resocie.org/observatorio-eleicoes", role="button", target='_blank') Veja os detalhes »
+
+		section#dataviz
+			h3 Por quem?
+			p Como já dito, é um trabalho de uma disciplina e, dessa forma, foi desenvolvido por um time de estudantes 
+				| empenhados em trazer o máximo de valor possível a este observatório. Conheça os responsáveis:
+			.row.justify-content-center
+				each developer in developers
+					+insertDeveloper(developer)

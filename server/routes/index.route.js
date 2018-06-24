@@ -4,10 +4,9 @@ const instagramRoute = require("./instagram.route");
 const twitterRoute = require("./twitter.route");
 const facebookRoute = require("./facebook.route");
 const youtubeRoute = require("./youtube.route");
-const httpStatus = require("../../config/resocie.json").httpStatus;
+const portalRoute = require("./portal.route");
 
 const router = express.Router();
-
 // router.use("/", spreadsheetsRoute);
 
 router.get("/", (req, res) => {
@@ -53,33 +52,12 @@ router.get("/", (req, res) => {
 	});
 });
 
-router.get("/qualquer", (req, res) => {
-	const data = {
-		texto: "testandi",
-		extra: "qualquer coisa",
-		statusCod: httpStatus.ERROR_SPLIT_ACTORS,
-	};
-	// res.render("qualquer");
-	console.log("Passou por aqui");
-	console.log(`Status enviado = ${httpStatus.ERROR_SPLIT_ACTORS}`);
-	res.send(data);
-});
+router.use("/portal", portalRoute);
 
-router.get("/espacoExploratorio", (req, res) => {
-	res.render("plot");
-});
-
-router.get("/espacoExploratorio2", (req, res) => {
-	res.render("plot2");
-});
-
-// mount facebook routes at /facebook
 router.use("/facebook", facebookRoute);
 
-// mount twitter routes at /twitter
 router.use("/twitter", twitterRoute);
 
-// mount youtube routes at /youtube
 router.use("/youtube", youtubeRoute);
 
 router.use("/instagram", instagramRoute);
