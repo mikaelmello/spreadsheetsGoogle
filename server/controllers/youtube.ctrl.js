@@ -166,6 +166,7 @@ const getActors = async (req, res) => {
 const updateData = async (req, res) => {
 	const actorsArray = await YoutubeDB.find({});
 	const actors = {};
+	const promises = [];
 	let newActors;
 	let dates;
 
@@ -197,71 +198,77 @@ const updateData = async (req, res) => {
 		});
 	}
 
-	let ans = "";
-
 	for (let i = 0; i < lenActorsNew; i += 1) {
 		if (actors[newActors[i]] === undefined) {
-			const newActor = YoutubeDB({
+			const newActor = new YoutubeDB({
 				name: newActors[i],
-				channelUrl: `https://youtube.com/channel/${newActors[i]}`,
+				link: `https://youtube.com/channel/${newActors[i]}`,
 				history: [],
 			});
 			actors[newActors[i]] = newActor;
 		}
-		const name = actors[newActors[i]].name;
-		if (actors[name].link !== null) {
-			const dateMap = {};
-			const history = actors[name].history;
-			if (history !== undefined) {
-				const length = history.length;
-				for (let j = 0; j < length; j += 1) {
-					dateMap[history[j].date] = 1;
-				}
-			}
-			const lenDates = dates.length;
-			for (let j = 0; j < lenDates; j += 1) {
-				const newHistory = {};
-				let rawHistory = {};
-				const date = dates[j].substring(0, 10);
-				const dateArray = date.split("-");
-				const dateDate = new Date(`${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`);
-				if (dateMap[dateDate] === 1) continue; // eslint-disable-line
+		promises.push(updateActor(actors, actors[newActors[i]], dates));
+	}
+	await Promise.all(promises);
+	return res.redirect("/youtube");
+};
 
-				const linkName = name.replace(/ /g, "_");
-				const adr = `https://youtube-data-monitor.herokuapp.com/${date}/canal/${linkName}`;
-
-				try {
-					// melhorar esse await depois para agilizar o processo
-					rawHistory = await getHistory(adr); // eslint-disable-line
-					newHistory.date = dateDate;
-					newHistory.subscribers = rawHistory.subscribers;
-					newHistory.videos = rawHistory.video_count;
-					newHistory.views = rawHistory.view_count;
-					console.log(name);
-					console.log(date);
-					console.log(newHistory);
-					actors[newActors[i]].history.push(newHistory);
-				} catch (e) {
-					ans += `Houve um erro ao fazer o pedido de dados no link ${adr} no Monitor de Dados do Youtube: ${e}\n\n`;
-				}
+const updateActor = async (actors, actor, dates) => {
+	const name = actor.name;
+	if (actors[name].link !== null) {
+		const dateMap = {};
+		const history = actors[name].history;
+		if (history !== undefined) {
+			const length = history.length;
+			for (let j = 0; j < length; j += 1) {
+				dateMap[history[j].date] = 1;
 			}
 		}
+		const lenDates = dates.length;
+		const datePromises = [];
+		for (let j = 0; j < lenDates; j += 1) {
+			const date = dates[j].substring(0, 10);
+			const dateArray = date.split("-");
+			const dateDate = new Date(`${dateArray[1]}-${dateArray[2]}-${dateArray[0]}`);
+
+			if (dateMap[dateDate] === 1) continue; // eslint-disable-line
+
+			const linkName = name.replace(/ /g, "_");
+			const adr = `https://youtube-data-monitor.herokuapp.com/${date}/canal/${linkName}`;
+			console.log(linkName);
+			console.log(date);
+
+			datePromises.push(callUpdateDate(adr, dateDate).then((newHistory) => {
+				if (newHistory) actor.history.push(newHistory);
+			}).catch(() => { /* console.log(err); */ }));
+		}
+		await Promise.all(datePromises);
 	}
+	return actorSavePromise(actor);
+};
 
-	console.log("terminou");
-
-	const savePromises = [];
-	Object.entries(actors).forEach(([cActor]) => {
-		savePromises.push(actors[cActor].save());
-	});
-	await Promise.all(savePromises);
-	if (ans) {
-		return res.status(400).json({
-			error: true,
-			description: ans,
+const actorSavePromise = (actor) => {
+	const promise = new Promise((resolve, reject) => {
+		actor.save((err) => {
+			if (err) reject(err);
+			resolve(err);
 		});
+	});
+	return promise;
+};
+
+const callUpdateDate = async (url, dateDate) => {
+	try {
+		const rawHistory = await getHistory(url); // eslint-disable-line
+		const newHistory = {};
+		newHistory.date = dateDate;
+		newHistory.subscribers = rawHistory.subscribers;
+		newHistory.videos = rawHistory.video_count;
+		newHistory.views = rawHistory.view_count;
+		return newHistory;
+	} catch (err) {
+		return undefined;
 	}
-	return res.redirect("/youtube");
 };
 
 const getHistory = async (adr) => {
