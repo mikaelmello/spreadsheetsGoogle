@@ -1,7 +1,9 @@
 /*	Required modules */
 const express = require("express");
-const facebookCtrl = require("../controllers/facebook.controller");
+const facebookCtrl = require("../controllers/facebook.ctrl");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
+const digitalMediaCtrl = require("../controllers/digitalMedia.ctrl");
+const viewCtrl = require("../controllers/view.ctrl");
 
 /*	Global constants */
 const router = express.Router(); // eslint-disable-line new-cap
@@ -14,22 +16,30 @@ router.route("/")
 	.get(facebookCtrl.listAccounts);
 
 /**
- * Access to the Facebook help page
+ * Acquisition of queries available to Facebook
  */
-router.route("/help")
-	.get(facebookCtrl.help);
+router.route("/queries")
+	.get(facebookCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(facebookCtrl.getActors);
+
 /**
  * Comparison between actors for data on Facebook
  */
 router.route("/compare/:query")
 	.get(
-		facebookCtrl.splitActors,
+		digitalMediaCtrl.splitActors,
 		facebookCtrl.loadAccount,
-		facebookCtrl.getDataset,
-		facebookCtrl.getChartLimits,
-		facebookCtrl.getConfigLineChart,
-		facebookCtrl.plotLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
+
 /**
  *  Inserting all records, redirecting to Facebook main page
  */
@@ -59,16 +69,17 @@ router.route("/latest/:id")
  */
 router.route("/:id/:query")
 	.get(
-		facebookCtrl.getDataset,
-		facebookCtrl.getChartLimits,
-		facebookCtrl.getConfigLineChart,
-		facebookCtrl.plotLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
 /**
  * Search for a user in the database
  */
 router.param("id", facebookCtrl.loadAccount);
+
 /**
  * Sets the requested query
  */

@@ -68,7 +68,7 @@
 			"facebookQueries": 2,
 			"instagramQueries": 3,
 			"twitterQueries": 5,
-			"youtubeTypes": 3
+			"youtubeQueries": 3
 		},
 		"queries": {
 			"commonQuery": "latest",
@@ -126,6 +126,17 @@
 		"ERROR_LATEST": 514,
 		"ERROR_LOAD_ACCOUNT": 515,
 		"ERROR_QUERY_KEY": 400,
-		"ERROR_SPLIT_ACTORS": 517
+		"ERROR_SPLIT_ACTORS": 517,
+		"ERROR_CAT_ACTORS": 518,
+		"INTERNAL_SERVER_ERROR": 500
+	},
+	"errorMessages": {
+		"ERROR_LIST_ACCOUNTS": "Erro ao carregar usuários nos registros do: ",
+		"ERROR_GET_USER": "Erro enquanto configura-se o usuário",
+		"ERROR_LATEST": "Error enquanto se recuperava os últimos dados válidos para o usuário: ",
+		"ERROR_LOAD_ACCOUNT": "Error ao buscar, nos registros, o(s) usuário(s): ",
+		"ERROR_QUERY_KEY": "Para tal mídia digital, não existe a característica: ",
+		"ERROR_SPLIT_ACTORS": "Erro ao criar o ambiente para a comparação",
+		"ERROR_CAT_ACTORS": "Erro ao carregar usuários da categoria: "
 	}
 }

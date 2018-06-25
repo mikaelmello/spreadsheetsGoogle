@@ -1,22 +1,48 @@
+/*	Required modules */
 const express = require("express");
-const youtubeCtrl = require("../controllers/youtube.controller");
+const youtubeCtrl = require("../controllers/youtube.ctrl");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
+const digitalMediaCtrl = require("../controllers/digitalMedia.ctrl");
+const viewCtrl = require("../controllers/view.ctrl");
 
+/*	Global constants */
 const router = express.Router(); // eslint-disable-line new-cap
 
-// Lista todas as contas de user youtube
+/**
+ * Access to the Youtube data home page.
+ * Presentation of all user registered, identified by name.
+*/
 router.route("/")
 	.get(youtubeCtrl.listAccounts);
 
+/**
+ * Returns object with Youtube-related queries
+*/
+router.route("/queries")
+	.get(youtubeCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(youtubeCtrl.getActors);
+
+/**
+ * Comparison between actors for data on Youtube
+ */
 router.route("/compare/:query")
 	.get(
-		youtubeCtrl.splitActors,
+		digitalMediaCtrl.splitActors,
 		youtubeCtrl.loadAccount,
-		youtubeCtrl.getDataset,
-		youtubeCtrl.getChartLimits,
-		youtubeCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
-// Importa os dados da tabela para o banco de dados -> youtube/import
+
+/**
+ *  Inserting all records, redirecting to Youtube main page
+ */
 router.route("/import")
 	.get(
 		spreadsheetsCtrl.authenticate,
@@ -28,7 +54,10 @@ router.route("/import")
 router.route("/update")
 	.get(youtubeCtrl.updateData);
 
-// Lista os dados de um usuario especifico
+/**
+ * Access to the data home page of a given user.
+ * Presentation of all the data registered.
+ */
 router.route("/:id")
 	.get(youtubeCtrl.getUser);
 
@@ -38,16 +67,25 @@ router.route("/:id")
 router.route("/latest/:id")
 	.get(youtubeCtrl.getLatest);
 
-// Mostra o gráfico de um atributo especifico de um usuario Ex. /youtube/Joao/videos
+/**
+ * Presentation of the temporal evolution of a given query for a given user.
+ */
 router.route("/:id/:query")
 	.get(
-		youtubeCtrl.getDataset,
-		youtubeCtrl.getChartLimits,
-		youtubeCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
+/**
+ * Search for a user in the database
+ */
 router.param("id", youtubeCtrl.loadAccount);
 
+/**
+ * Sets the requested query
+ */
 router.param("query", youtubeCtrl.setHistoryKey);
 
 module.exports = router;

@@ -3,7 +3,9 @@
     [
         {
             "name": "Jorge da Silva",
-            "username": "foo",
+            "ID": "jorge",
+            "category": "jorgeClass",
+            "link": "jorgeLink/jorge/",
             "history": [
                 {
                 "date": "2018-04-01T12:30:00.500Z",
@@ -27,7 +29,9 @@
         },
         {
             "name": "Maria da Silva",
-            "username": "bar",
+            "ID": "marie",
+            "category": "marieClass",
+            "link": "mariaLink/maria/",
             "history": [
                 {
                 "date": "2017-02-15T12:30:00.500Z",
@@ -51,7 +55,10 @@
         },
         {
             "name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
-            "username": "princesaIsabel"
+            "ID": "princesaIsabel",
+            "category": "isabelClass",
+            "link": "isabelLink/cristina/",
+            "history": []
         }
     ]
 }

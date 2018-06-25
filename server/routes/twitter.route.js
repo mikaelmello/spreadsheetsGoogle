@@ -1,28 +1,46 @@
 const express = require("express");
-const twitterCtrl = require("../controllers/twitter.controller");
+const twitterCtrl = require("../controllers/twitter.ctrl");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
+const digitalMediaCtrl = require("../controllers/digitalMedia.ctrl");
+const viewCtrl = require("../controllers/view.ctrl");
 
 const router = express.Router(); // eslint-disable-line new-cap
 
-// / listar todas as contas na db
-// /compare-all/likes ou outras paradas pra gerar um grafico comparando todos os atores
-// /:username
-// /:username/likes ou outras para analisar todas as amostras de um dado
-
-// /import-data
-
+/**
+ * Access to the Twitter data home page.
+ * Presentation of all user registered, identified by name.
+*/
 router.route("/")
 	.get(twitterCtrl.listAccounts);
 
+/**
+ * Returns object with Twiiter-related queries
+*/
+router.route("/queries")
+	.get(twitterCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(twitterCtrl.getActors);
+
+/**
+ * Comparison between actors for data on Twitter
+ */
 router.route("/compare/:query")
 	.get(
-		twitterCtrl.splitActors,
+		digitalMediaCtrl.splitActors,
 		twitterCtrl.loadAccount,
-		twitterCtrl.createDataset,
-		twitterCtrl.getChartLimits,
-		twitterCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
+/**
+ *  Inserting all records, redirecting to Twitter main page
+ */
 router.route("/import")
 	.get(
 		spreadsheetsCtrl.authenticate,
@@ -34,20 +52,38 @@ router.route("/import")
 router.route("/update")
 	.get(twitterCtrl.updateData);
 
-router.route("/:username")
+/**
+ * Access to the data home page of a given user.
+ * Presentation of all the data registered.
+ */
+router.route("/:id")
 	.get(twitterCtrl.getUser);
 
-router.route("/latest/:username")
-	.get(twitterCtrl.userLastSample);
+/**
+ * Access to the latest valid data of a given user.
+ */
+router.route("/latest/:id")
+	.get(twitterCtrl.getLatest);
 
-router.route("/:username/:query")
+/**
+ * Presentation of the temporal evolution of a given query for a given user.
+ */
+router.route("/:id/:query")
 	.get(
-		twitterCtrl.createDataset,
-		twitterCtrl.getChartLimits,
-		twitterCtrl.drawLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
-router.param("username", twitterCtrl.loadAccount);
-router.param("query", twitterCtrl.setSampleKey);
+/**
+ * Search for a user in the database
+ */
+router.param("id", twitterCtrl.loadAccount);
+
+/**
+ * Sets the requested query
+ */
+router.param("query", twitterCtrl.setHistoryKey);
 
 module.exports = router;

@@ -2,9 +2,10 @@
   "accounts": [
     {
       "name": "Joao",
-      "username": "john",
-      "type": "Presidente",
-      "samples": [
+      "ID": "john",
+      "category": "Presidente",
+      "link": "joao/john",
+      "history": [
         {
           "date": "2012-04-23T18:25:43.511Z",
           "tweets": 123,
@@ -33,9 +34,10 @@
     },
     {
       "name": "Maria",
-      "username": "marie",
-      "type": "Governador",
-      "samples": [
+      "ID": "marie",
+      "category": "Governador",
+      "link": "maria/marie",
+      "history": [
         {
           "date": "2012-04-23T18:25:43.511Z",
           "tweets": 400,
@@ -64,7 +66,7 @@
     },
     {
         "name": "Isabel Cristina Leopoldina Augusta Micaela Gabriela Rafaela Gonzaga",
-        "username": "princesaIsabel"
+        "ID": "princesaIsabel"
     }
   ]
 }

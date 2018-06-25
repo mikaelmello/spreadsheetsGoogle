@@ -30,12 +30,17 @@ const instagramAccountSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	username: {
+	ID: {
 		type: String,
 		default: null,
 	},
-	type: {
+	category: {
 		type: String,
+		default: null,
+	},
+	link: {
+		type: String,
+		trim: true,
 		default: null,
 	},
 	history: {

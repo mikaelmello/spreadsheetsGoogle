@@ -1,45 +1,86 @@
 const express = require("express");
-const instagramControl = require("../controllers/instagram.controller");
+const instagramCtrl = require("../controllers/instagram.ctrl");
 const spreadsheetsCtrl = require("../controllers/spreadsheets.controller");
+const digitalMediaCtrl = require("../controllers/digitalMedia.ctrl");
+const viewCtrl = require("../controllers/view.ctrl");
 
 const router = express.Router(); // eslint-disable-line new-cap
 
+/**
+ * Access to the Instagram data home page.
+ * Presentation of all user registered, identified by name.
+*/
 router.route("/")
-	.get(instagramControl.listAccounts);
+	.get(instagramCtrl.listAccounts);
 
+/**
+ * Returns object with Instagram-related queries
+*/
+router.route("/queries")
+	.get(instagramCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(instagramCtrl.getActors);
+
+/**
+ * Comparison between actors for data on Instagram
+ */
 router.route("/compare/:query")
 	.get(
-		instagramControl.splitActors,
-		instagramControl.loadAccount,
-		instagramControl.getDataset,
-		instagramControl.getChartLimits,
-		instagramControl.getConfigLineChart,
-		instagramControl.plotLineChart,
+		digitalMediaCtrl.splitActors,
+		instagramCtrl.loadAccount,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
+/**
+ *  Inserting all records, redirecting to Instagram main page
+ */
 router.route("/import")
 	.get(
 		spreadsheetsCtrl.authenticate,
 		spreadsheetsCtrl.setResocieSheet,
 		spreadsheetsCtrl.listCollectives,
-		instagramControl.importData,
+		instagramCtrl.importData,
 	);
 
-router.route("/:username")
-	.get(instagramControl.getUser);
+/**
+ * Access to the data home page of a given user.
+ * Presentation of all the data registered.
+ */
+router.route("/:id")
+	.get(instagramCtrl.getUser);
 
-router.route("/latest/:username")
-	.get(instagramControl.getLatest);
+/**
+ * Access to the latest valid data of a given user.
+ */
+router.route("/latest/:id")
+	.get(instagramCtrl.getLatest);
 
-router.route("/:username/:query")
+/**
+ * Presentation of the temporal evolution of a given query for a given user.
+ */
+router.route("/:id/:query")
 	.get(
-		instagramControl.getDataset,
-		instagramControl.getChartLimits,
-		instagramControl.getConfigLineChart,
-		instagramControl.plotLineChart,
+		viewCtrl.getDataset,
+		viewCtrl.getChartLimits,
+		viewCtrl.getConfigLineChart,
+		viewCtrl.plotLineChart,
 	);
 
-router.param("username", instagramControl.loadAccount);
-router.param("query", instagramControl.setHistoryKey);
+/**
+ * Search for a user in the database
+ */
+router.param("id", instagramCtrl.loadAccount);
+
+/**
+ * Sets the requested query
+ */
+router.param("query", instagramCtrl.setHistoryKey);
 
 module.exports = router;
