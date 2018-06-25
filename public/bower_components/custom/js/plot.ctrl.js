@@ -8,6 +8,7 @@ $(document).ready(() => {
 		restart("queries");
 
 		if(media) {
+			restart("actors");
 			$("#queries").attr("disabled", false);
 			$("#categories").attr("disabled", false);
 			getQueries(media);
@@ -29,7 +30,6 @@ $(document).ready(() => {
 		}else{
 			$("#actors").append("<p class='text-center'>Não há categoria selecionada</p>");
 		}
-
     });
 });
 
