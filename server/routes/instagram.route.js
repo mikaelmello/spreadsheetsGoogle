@@ -16,9 +16,14 @@ router.route("/")
 /**
  * Returns object with Instagram-related queries
 */
-
 router.route("/queries")
 	.get(instagramCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(instagramCtrl.getActors);
 
 /**
  * Comparison between actors for data on Instagram

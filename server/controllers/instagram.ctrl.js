@@ -134,6 +134,22 @@ const getQueries = (req, res) => {
 };
 
 /**
+ * Search for all registered Instagram accounts of a particular category.
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
+ */
+const getActors = async (req, res) => {
+	const instagramInfo = {
+		model: InstagramDB,
+		projection: "ID name -_id",
+		name: SOCIAL_MIDIA,
+	};
+	await digitalMediaCtrl.getActors(req, res, instagramInfo);
+};
+
+/**
  * Data recovery about a given user
  * @param {object} req - standard request object from the Express library
  * @param {object} res - standard response object from the Express library
@@ -264,6 +280,7 @@ module.exports = {
 	importData,
 	getUser,
 	getQueries,
+	getActors,
 	getLatest,
 	loadAccount,
 	setHistoryKey,

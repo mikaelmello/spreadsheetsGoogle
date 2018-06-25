@@ -129,7 +129,7 @@ const getQueries = (req, res) => {
 const getActors = async (req, res) => {
 	const facebookInfo = {
 		model: FacebookDB,
-		projection: "ID -_id",
+		projection: "ID name -_id",
 		name: SOCIAL_MIDIA,
 	};
 	await digitalMediaCtrl.getActors(req, res, facebookInfo);
