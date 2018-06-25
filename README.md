@@ -1,7 +1,19 @@
 
 [![npm](https://img.shields.io/npm/v/npm.svg?style=flat-square)](https://www.npmjs.com/package/npm) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your/your-project/blob/master/LICENSE)
 
-![observatorio](./public/imagens/Logo.png)
+<p align="center">
+  <a href="https://github.com/unb-cic-esw/data-viz/wiki">
+    <img src="https://github.com/unb-cic-esw/data-viz/blob/master/public/imagens/Logo.png" width=500 >
+  </a>
+
+  <p align="center">
+    <br><strong>
+    <a href="https://github.com/unb-cic-esw/data-viz/wik">Acesse a nossa Wik</a>
+    &middot;
+    <a href="https://dataviz-resocie.herokuapp.com/">Acesse o Observatório das Eleições</a>
+  </strong>
+  </p>
+</p>
 
 Este repositório compõe projeto de pesquisa com foco empírico nas eleições brasileiras de 2018 do grupo de pesquisa [Resocie](http://resocie.org) do [Instituto de Ciência Política - IPOL](http://ipol.unb.br/) com o apoio técnico do [Departamento de Computação - CIC](http://www.cic.unb.br/) da [Universidade de Brasília - UnB](http://unb.br).
 
