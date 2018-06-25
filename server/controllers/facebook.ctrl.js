@@ -76,7 +76,7 @@ const importAccounts = async (req, res) => {
 				actors[cRow[nameRow]] = newAccount;
 			} else if (!actors[cRow[nameRow]].ID) {
 				actors[cRow[nameRow]].link = accountLink;
-				actors[cRow[nameRow]].ID = accountLink;
+				actors[cRow[nameRow]].ID = getImportID(accountLink);
 			}
 
 			if (accountLink) {
@@ -230,6 +230,8 @@ const getImportAccountLink = (accountLink) => {
  * @param {string} idRaw - supposed account id
  */
 const getImportID = (idRaw) => {
+	if (idRaw === "https://www.facebook.com/hmeirellesoficial/") console.log("chegou");
+
 	if (!(idRaw) || !(idRaw.includes(`${SOCIAL_MIDIA}.com`))) return null;
 
 	let id = idRaw.replace(`https://www.${SOCIAL_MIDIA}.com/`, "");

@@ -79,6 +79,7 @@ const importData = async (req, res) => {
 				});
 				actors[name] = newAccount;
 			} else if (!actors[name].ID) {
+				actors[name].link = row[iRange.profileRow];
 				actors[name].ID = id;
 			}
 

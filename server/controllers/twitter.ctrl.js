@@ -80,6 +80,7 @@ const importData = async (req, res) => {
 				});
 				actors[name] = newAccount;
 			} else if (!actors[name].ID) {
+				actors[name].link = row[tRange.profileRow];
 				actors[name].ID = id;
 			}
 
@@ -175,15 +176,15 @@ const updateData = async (req, res) => {
 		if (actors[newActors[i]] === undefined) {
 			const newActor = TwitterDB({
 				name: newActors[i],
-				username: newActors[i],
-				samples: [],
+				ID: newActors[i],
+				history: [],
 			});
 			actors[newActors[i]] = newActor;
 			console.log("new actor");
 		}
-		const username = actors[newActors[i]].ID;
+		const id = actors[newActors[i]].ID;
 		const dateMap = {};
-		const history = actors[username].history;
+		const history = actors[id].history;
 		if (history !== undefined) {
 			const length = history.length;
 			for (let j = 0; j < length; j += 1) {
@@ -199,7 +200,7 @@ const updateData = async (req, res) => {
 			const dateDate = new Date(`${dateArray[1]}-${dateArray[2]}-${dateArray[0]}`);
 			if (dateMap[dateDate] === 1) continue; // eslint-disable-line
 
-			const linkName = username.replace(/ /g, "_");
+			const linkName = id.replace(/ /g, "_");
 			let rawHistory = {};
 
 			try {
@@ -216,7 +217,7 @@ const updateData = async (req, res) => {
 				newHistory.followers = rawHistory[keys[0]].followers_count;
 				newHistory.following = rawHistory[keys[0]].following_count;
 				newHistory.likes = rawHistory[keys[0]].likes_count;
-				actors[newActors[i]].samples.push(newHistory);
+				actors[newActors[i]].history.push(newHistory);
 			} catch (e) {
 				ans += `Houve um erro ao fazer o pedido de dados no Monitor de Dados do Twitter: ${e}\n\n`;
 			}
