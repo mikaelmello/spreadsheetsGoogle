@@ -146,6 +146,23 @@ const getQueries = (req, res) => {
 	digitalMediaCtrl.getQueries(req, res, SOCIAL_MIDIA);
 };
 
+/**
+ * Search for all registered Youtube accounts of a particular category.
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
+ */
+const getActors = async (req, res) => {
+	const youtubeInfo = {
+		model: YoutubeDB,
+		projection: "ID name -_id",
+		name: SOCIAL_MIDIA,
+	};
+	await digitalMediaCtrl.getActors(req, res, youtubeInfo);
+};
+
+
 const updateData = async (req, res) => {
 	const actorsArray = await YoutubeDB.find({});
 	const actors = {};
@@ -392,6 +409,7 @@ module.exports = {
 	listAccounts,
 	importData,
 	getQueries,
+	getActors,
 	getUser,
 	getLatest,
 	loadAccount,

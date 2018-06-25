@@ -16,9 +16,14 @@ router.route("/")
 /**
  * Returns object with Twiiter-related queries
 */
-
 router.route("/queries")
 	.get(twitterCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(twitterCtrl.getActors);
 
 /**
  * Comparison between actors for data on Twitter

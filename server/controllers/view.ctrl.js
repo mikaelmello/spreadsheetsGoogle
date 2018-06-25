@@ -1,12 +1,5 @@
-/*	Required modules *
-const ChartNode = require("chartjs-node");
-// const httpStatus = require("http-status");
-*/
+/*	Required modules */
 const Color = require("./color.ctrl");
-
-/*	Global constants */
-// const CHART_SIZE = 700;
-const MAX_LEN_LABEL = 80;
 
 /**
  * Generating and plotting the generated chart on the page
@@ -16,13 +9,7 @@ const MAX_LEN_LABEL = 80;
 const plotLineChart = async (req, res) => {
 	const config = req.chart.config;
 
-	res.send({
-		ContentType: "image/png",
-		config: config,
-	});
-	/** Usar como sendo
-	 * var myChart = new Chart((#ID_CHART), chart.config);
-	 */
+	res.send(config);
 };
 
 /**
@@ -47,7 +34,6 @@ const getDataset = async (req, res, next) => {
 		const dataUser = [];
 		const history = account.history;
 		const length = history.length;
-		// const labels = [];
 
 		for (let ind = 0; ind < length; ind += 1) {
 			if (history[ind][historyKey] !== undefined
@@ -58,16 +44,10 @@ const getDataset = async (req, res, next) => {
 					x: date,
 					y: history[ind][historyKey],
 				});
-				// labels.push(date);
 			}
 		}
 
-		let label;
-		if ((account.name.length + account.link.length) > MAX_LEN_LABEL) {
-			label = `${account.name}\n(${account.link})`;
-		} else {
-			label = `${account.name} (${account.link})`;
-		}
+		const label = account.name;
 
 		const color = Color.getColor();
 		const dataSet = {
@@ -173,7 +153,7 @@ const getConfigLineChart = (req, res, next) => {
 			response: true,
 			title: {
 				display: true,
-				text: evolutionMsg(req.chart.hisoptiontoryKeyPT),
+				text: evolutionMsg(req.chart.historyKeyPT),
 			},
 			legend: {
 				display: true,

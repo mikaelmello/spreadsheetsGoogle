@@ -18,9 +18,14 @@ router.route("/")
 /**
  * Returns object with Youtube-related queries
 */
-
 router.route("/queries")
 	.get(youtubeCtrl.getQueries);
+
+/**
+ * Acquisition of registered actors of a particular category
+ */
+router.route("/actors/:cat")
+	.get(youtubeCtrl.getActors);
 
 /**
  * Comparison between actors for data on Youtube

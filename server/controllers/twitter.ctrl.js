@@ -136,6 +136,22 @@ const getQueries = (req, res) => {
 	digitalMediaCtrl.getQueries(req, res, SOCIAL_MIDIA);
 };
 
+/**
+ * Search for all registered Twitter accounts of a particular category.
+ * @param {object} req - standard request object from the Express library
+ * @param {object} res - standard response object from the Express library
+ * @return Successfully returns the list with all registered actors;
+ * in case of error, inform what happened
+ */
+const getActors = async (req, res) => {
+	const twitterInfo = {
+		model: TwitterDB,
+		projection: "ID name -_id",
+		name: SOCIAL_MIDIA,
+	};
+	await digitalMediaCtrl.getActors(req, res, twitterInfo);
+};
+
 const updateData = async (req, res) => {
 	const actorsArray = await TwitterDB.find({});
 	const actors = {};
@@ -374,6 +390,7 @@ module.exports = {
 	listAccounts,
 	importData,
 	getQueries,
+	getActors,
 	updateData,
 	getHistory,
 	getUser,

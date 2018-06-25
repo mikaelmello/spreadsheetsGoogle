@@ -49,7 +49,7 @@ const getQueries = (req, res, media) => {
 	for(query of queriesList) {
 		const aux = {
 			val: query,
-			name: resocieQueriesPT[query],
+			name: capitalize(resocieQueriesPT[query]),
 		};
 		queries.push(aux);
 	};
@@ -340,7 +340,7 @@ const errorHistoryKey = (req, res, query) => {
 };
 
 const decodeCat = (req) => {
-	const categoryCode = req.params.cat;
+	const categoryCode = req.params.cat.toUpperCase();
 
 	return ResocieObs.categories[categoryCode];
 };

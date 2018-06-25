@@ -111,10 +111,10 @@ describe("Facebook endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn[0].val).toBe("likes");
-			expect(jsonReturn[0].name).toBe("curtidas");
+			expect(jsonReturn[0].name).toBe("Curtidas");
 
 			expect(jsonReturn[1].val).toBe("followers");
-			expect(jsonReturn[1].name).toBe("seguidores");
+			expect(jsonReturn[1].name).toBe("Seguidores");
 
 			done();
 		});
@@ -262,13 +262,10 @@ describe("Facebook endpoint", () => {
 			const res = await request(app).get(`/facebook/${accountId3}/likes`);
 			const jsonReturn = JSON.parse(res.text);
 
-			expect(jsonReturn).toHaveProperty("ContentType");
-			expect(jsonReturn).toHaveProperty("config");
-
-			expect(jsonReturn.config).toBeInstanceOf(Object);
-			expect(jsonReturn.config).toHaveProperty("type");
-			expect(jsonReturn.config).toHaveProperty("data");
-			expect(jsonReturn.config).toHaveProperty("options");
+			expect(jsonReturn).toBeInstanceOf(Object);
+			expect(jsonReturn).toHaveProperty("type");
+			expect(jsonReturn).toHaveProperty("data");
+			expect(jsonReturn).toHaveProperty("options");
 
 			done();
 		});
@@ -277,11 +274,10 @@ describe("Facebook endpoint", () => {
 			const res = await request(app).get(`/facebook/${accountId3}/likes`);
 			const jsonReturn = JSON.parse(res.text);
 
-			expect(jsonReturn.ContentType).toEqual("image/png");
 
-			expect(jsonReturn.config.type).toEqual("line");
-			expect(jsonReturn.config.data).toBeInstanceOf(Object);
-			expect(jsonReturn.config.options).toBeInstanceOf(Object);
+			expect(jsonReturn.type).toEqual("line");
+			expect(jsonReturn.data).toBeInstanceOf(Object);
+			expect(jsonReturn.options).toBeInstanceOf(Object);
 
 			done();
 		});
@@ -301,13 +297,10 @@ describe("Facebook endpoint", () => {
 			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},${accountId2}`);
 			const jsonReturn = JSON.parse(res.text);
 
-			expect(jsonReturn).toHaveProperty("ContentType");
-			expect(jsonReturn).toHaveProperty("config");
-
-			expect(jsonReturn.config).toBeInstanceOf(Object);
-			expect(jsonReturn.config).toHaveProperty("type");
-			expect(jsonReturn.config).toHaveProperty("data");
-			expect(jsonReturn.config).toHaveProperty("options");
+			expect(jsonReturn).toBeInstanceOf(Object);
+			expect(jsonReturn).toHaveProperty("type");
+			expect(jsonReturn).toHaveProperty("data");
+			expect(jsonReturn).toHaveProperty("options");
 
 			done();
 		});
@@ -316,11 +309,9 @@ describe("Facebook endpoint", () => {
 			const res = await request(app).get(`/facebook/compare/likes?actors=${accountId1},${accountId2}`);
 			const jsonReturn = JSON.parse(res.text);
 
-			expect(jsonReturn.ContentType).toEqual("image/png");
-
-			expect(jsonReturn.config.type).toEqual("line");
-			expect(jsonReturn.config.data).toBeInstanceOf(Object);
-			expect(jsonReturn.config.options).toBeInstanceOf(Object);
+			expect(jsonReturn.type).toEqual("line");
+			expect(jsonReturn.data).toBeInstanceOf(Object);
+			expect(jsonReturn.options).toBeInstanceOf(Object);
 
 			done();
 		});

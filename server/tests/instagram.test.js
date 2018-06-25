@@ -108,13 +108,13 @@ describe("Instagram endpoint", () => {
 			const jsonReturn = JSON.parse(res.text);
 
 			expect(jsonReturn[0].val).toBe("followers");
-			expect(jsonReturn[0].name).toBe("seguidores");
+			expect(jsonReturn[0].name).toBe("Seguidores");
 
 			expect(jsonReturn[1].val).toBe("following");
-			expect(jsonReturn[1].name).toBe("seguindo");
+			expect(jsonReturn[1].name).toBe("Seguindo");
 
 			expect(jsonReturn[2].val).toBe("num_of_posts");
-			expect(jsonReturn[2].name).toBe("postagens");
+			expect(jsonReturn[2].name).toBe("Postagens");
 
 			done();
 		});

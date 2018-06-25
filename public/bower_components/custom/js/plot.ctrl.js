@@ -4,26 +4,14 @@
 $(document).ready(() => {
 	$("#digitalMedia").on("change", () => {
 		let media = $("#digitalMedia").val();
-		//*
-		switch(media){
-        	case "facebook": facebookQueries(); break;
-            case "instagram": instagramQueries(); break;
-            case "twitter": twitterQueries(); break;
-            case "youtube": youtubeQueries(); break;
-            default: restart("queries");
-		}
-		//*/
 
-		/*
 		restart("queries");
 
 		if(media) {
-			$("body").append("Leu: " + media + "<br>");
 			$("#queries").attr("disabled", false);
 			$("#categories").attr("disabled", false);
 			getQueries(media);
 		}
-		*/
 	});
 });
 
@@ -34,25 +22,14 @@ $(document).ready(() => {
 	$("#categories").on("change", () => {
 		let category = $("#categories").val();
 		let media = $("#digitalMedia").val();
-		
-		//*
-        switch(category){
-        	case "FC": getActorsFC(); break;
-            case "OSC": getActorsOSC(); break;
-			case "PCP": getActorsCP(); break;
-			default: restart("actors"); $("#actors").append("<p class='text-center'>Não há categoria selecionada</p>");
-		}
-		//*/
 
-		/*
 		restart("actors");
 		if(category) {
-			$("body").append("Leu: " + category + "<br>");
 			getActors(media, category);
 		}else{
 			$("#actors").append("<p class='text-center'>Não há categoria selecionada</p>");
 		}
-		//*/
+
     });
 });
 
@@ -73,24 +50,15 @@ $(document).ready(() => {
 		let media = $("#digitalMedia").val();
 		let query = $("#queries").val();
 		const actors = getMarkedActors();
-		
-		/*
-		$("body").append("Media: " + media + "<br>");
-		$("body").append("Query: " + query + "<br>");
-		$("body").append("Actors: " + actors + "<br><br>");
-		//*/
 
 		if(!media || !query || !actors.length)	
 			alert("Deve ter selecionado todos os campos!");
 		else {
 			let URL = getURL (media, query, actors);
-			const chartArea = $("#chartArea");
-			//$("body").append("Requisitando: " + URL + "<br>");
-			/*
-			$.get(URL, (chart, status) => {
-				let myChart = new Chart (chartArea, chart.config);
+			const chartArea = document.getElementById("chartArea");// $("#chartArea");
+			$.get(URL, (chart) => {
+				const myChart = new Chart (chartArea, chart);
 			});
-	// */
 		}
 	});
 });
@@ -102,17 +70,13 @@ $(document).ready(() => {
 let getQueries = (media) => {
 	let URL = "/" + media + "/queries";
 
-	// $("body").append("Indo buscar em: " + URL + "<br>");
-
-	/*
 	$.get(URL, (queries, status) => {
 		queries.forEach((query) => {
-			let cmd = "<option value='" + query.name +  "'>";
-			cmd += query.namePT + "</option>";
+			let cmd = "<option value='" + query.val +  "'>";
+			cmd += query.name + "</option>";
 			$("#queries").append(cmd);
 		});
 	});
-	// */
 };
 
 /**
@@ -120,20 +84,18 @@ let getQueries = (media) => {
  * @param {string} category - Selected actors' category
  */
 let getActors = (media, category) => {
-	let URL = "/" + media + "/cat/" + category;
+	let URL = "/" + media + "/actors/" + category;
 
-	//$("body").append("Indo buscar em: " + URL + "<br>");
-
-	/*
 	$.get(URL, (actors, status) => {
 		actors.forEach((actor) => {
-			let cmd = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
-			$("#actors").append(cmd);
-			cmd = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
-			$("#actors").append(cmd);
+			if (actor.ID){
+				let cmd = "<input class='form-check-input' type='checkbox' value='" + actor.ID + "'/>";
+				$("#actors").append(cmd);
+				cmd = "<label class='form-check-label' for='" + actor.ID + "'>" + actor.name + "</label><br>";
+				$("#actors").append(cmd);
+			}
 		});
 	});
-	// */
 };
 
 /**
@@ -203,119 +165,3 @@ let restartQueries = () => {
 let restartActors = () => {
 	$("#actors").empty();
 };
-
-/*	Stub methods */
-let getActorsFC = () => {
-	restart("actors");
-
-	let actors = [
-		{
-			name: "Ator 0",
-			id: "id_0",
-		},
-		{
-			name: "Ator 1",
-			id: "id_1",
-		},
-		{
-			name: "Ator 2",
-			id: "id_2",
-		},
-	];
-
-	actors.forEach((actor) => {
-		let check = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
-		$("#actors").append(check);
-		check = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
-		$("#actors").append(check);
-	});
-};
-
-let getActorsOSC = () => {
-	restart("actors");
-
-	let actors = [
-		{
-			name: "Ator 3",
-			id: "id_3",
-		},
-		{
-			name: "Ator 4",
-			id: "id_4",
-		},
-		{
-			name: "Ator 5",
-			id: "id_5",
-		},
-	];
-
-	actors.forEach((actor) => {
-		let check = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
-		$("#actors").append(check);
-		check = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
-		$("#actors").append(check);
-	});
-};
-
-let getActorsCP = () => {
-	restart("actors");
-
-	let actors = [
-		{
-			name: "Ator 6",
-			id: "id_6",
-		},
-		{
-			name: "Ator 7",
-			id: "id_7",
-		},
-		{
-			name: "Ator 8",
-			id: "id_8",
-		},
-	];
-
-	actors.forEach((actor) => {
-		let check = "<input class='form-check-input' type='checkbox' value='" + actor.id + "'/>";
-		$("#actors").append(check);
-		check = "<label class='form-check-label' for='" + actor.id + "'>" + actor.name + "</label><br>";
-		$("#actors").append(check);
-	});
-};
-
-let facebookQueries = () => {
-	restart("queries");
-	$("#queries").attr("disabled", false);
-	$("#categories").attr("disabled", false);
-	$("#queries").append("<option value='likes'>Curtidas</option>");
-    $("#queries").append("<option value='followers'>Seguidores</option>");
-}
-
-let instagramQueries = () => {
-	restart("queries");
-	$("#queries").attr("disabled", false);
-	$("#categories").attr("disabled", false);
-	$("#queries").append("<option value='followers'>Seguidores</option>"); 
-    $("#queries").append("<option value='following'>Seguindo</option>");
-    $("#queries").append("<option value='num_of_posts'>Postagens</option>");
-}
-
-let twitterQueries = () => {
-	restart("queries");
-	$("#queries").attr("disabled", false);
-	$("#categories").attr("disabled", false);
-	$("#queries").append("<option value='tweets'>Tweets</option>");
-    $("#queries").append("<option value='followers'>Seguidores</option>");
-    $("#queries").append("<option value='following'>Seguindo</option>");
-    $("#queries").append("<option value='likes'>Curtidas</option>");
-    $("#queries").append("<option value='moments'>Momentos</option>");
-}
-
-let youtubeQueries = () => {
-	restart("queries");
-	$("#queries").attr("disabled", false);
-	$("#categories").attr("disabled", false);
-	$("#queries").append("<option value='videos'>Vídeos</option>");
-    $("#queries").append("<option value='views'>Visualizações</option>");
-    $("#queries").append("<option value='subscribers'>Inscritos</option>");
-}
