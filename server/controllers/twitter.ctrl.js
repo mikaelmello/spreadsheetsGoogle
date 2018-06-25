@@ -155,6 +155,7 @@ const getActors = async (req, res) => {
 const updateData = async (req, res) => {
 	const actorsArray = await TwitterDB.find({});
 	const actors = {};
+	const promises = [];
 	let newActors;
 	let dates;
 
@@ -164,16 +165,16 @@ const updateData = async (req, res) => {
 	} catch (e) {
 		return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
 			error: true,
-			description: `Houve um erro ao fazer o pedido de atores no servidor do Monitor de Dados do Youtube: ${e}`,
+			description: `Houve um erro ao fazer o pedido de atores no servidor do Monitor de Dados do Twitter: ${e}`,
 		});
 	}
 
 	const lengthActors = actorsArray.length;
 	for (let i = 0; i < lengthActors; i += 1) {
-		actors[actorsArray[i].ID] = actorsArray[i];
+		actors[actorsArray[i].name] = actorsArray[i];
 	}
 
-	// const lenActorsNew = newActors.length;
+	const lenActorsNew = newActors.length;
 
 	try {
 		const response = await request({	uri: "https://twitter-data-monitor-unb.herokuapp.com/api/actors/datetime", json: true });
@@ -182,78 +183,86 @@ const updateData = async (req, res) => {
 	} catch (e) {
 		return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
 			error: true,
-			description: `Houve um erro ao fazer o pedido de datas no servidor do Monitor de Dados do Youtube: ${e}`,
+			description: `Houve um erro ao fazer o pedido de datas no servidor do Monitor de Dados do Twitter: ${e}`,
 		});
 	}
 
-	let ans = "";
-
-	for (let i = 0; i < newActors.length; i += 1) {
+	for (let i = 0; i < lenActorsNew; i += 1) {
 		if (actors[newActors[i]] === undefined) {
-			const newActor = TwitterDB({
+			const newActor = new TwitterDB({
 				name: newActors[i],
 				ID: newActors[i],
 				history: [],
 			});
 			actors[newActors[i]] = newActor;
-			console.log("new actor");
 		}
-		const id = actors[newActors[i]].ID;
+		promises.push(updateActor(actors, actors[newActors[i]], dates));
+	}
+	await Promise.all(promises);
+	return res.redirect("/twitter");
+};
+
+const updateActor = async (actors, actor, dates) => {
+	const name = actor.name;
+	if (actors[name].name !== null) {
 		const dateMap = {};
-		const history = actors[id].history;
+		const history = actors[name].history;
 		if (history !== undefined) {
 			const length = history.length;
 			for (let j = 0; j < length; j += 1) {
 				dateMap[history[j].date] = 1;
 			}
 		}
-		console.log(newActors[i]);
 		const lenDates = dates.length;
+		const datePromises = [];
 		for (let j = 0; j < lenDates; j += 1) {
-			const newHistory = {};
 			const date = dates[j].substring(0, 10);
 			const dateArray = date.split("-");
 			const dateDate = new Date(`${dateArray[1]}-${dateArray[2]}-${dateArray[0]}`);
+
 			if (dateMap[dateDate] === 1) continue; // eslint-disable-line
 
-			const linkName = id.replace(/ /g, "_");
-			let rawHistory = {};
+			const linkName = name.replace(/ /g, "_");
+			const adr = `https://twitter-data-monitor-unb.herokuapp.com/api/actor/${linkName}/${date}`;
+			console.log(linkName);
+			console.log(date);
 
-			try {
-				// melhorar esse await depois para agilizar o processo
-				newHistory.date = dateDate;
-				console.log(date);
-				console.log(linkName);
-				rawHistory = await getHistory(`https://twitter-data-monitor-unb.herokuapp.com/api/actor/${linkName}/${date}`); // eslint-disable-line
-				const keys = [];
-				for (key in rawHistory) { // eslint-disable-line
-					keys.push(key); // eslint-disable-line
-				}
-				newHistory.tweets = rawHistory[keys[0]].tweets_count;
-				newHistory.followers = rawHistory[keys[0]].followers_count;
-				newHistory.following = rawHistory[keys[0]].following_count;
-				newHistory.likes = rawHistory[keys[0]].likes_count;
-				actors[newActors[i]].history.push(newHistory);
-			} catch (e) {
-				ans += `Houve um erro ao fazer o pedido de dados no Monitor de Dados do Twitter: ${e}\n\n`;
-			}
+			datePromises.push(callUpdateDate(adr, dateDate).then((newHistory) => {
+				if (newHistory) actor.history.push(newHistory);
+			}).catch(() => { /* console.log(err); */ }));
 		}
+		await Promise.all(datePromises);
 	}
+	return actorSavePromise(actor);
+};
 
-	console.log("terminou");
-
-	const savePromises = [];
-	Object.entries(actors).forEach(([cActor]) => {
-		savePromises.push(actors[cActor].save());
-	});
-	await Promise.all(savePromises);
-	if (ans) {
-		return res.status(400).json({
-			error: true,
-			description: ans,
+const actorSavePromise = (actor) => {
+	const promise = new Promise((resolve, reject) => {
+		actor.save((err) => {
+			if (err) reject(err);
+			resolve(err);
 		});
+	});
+	return promise;
+};
+
+const callUpdateDate = async (url, dateDate) => {
+	try {
+		const rawHistory = await getHistory(url); // eslint-disable-line
+		const keys = [];
+		for (key in rawHistory) { // eslint-disable-line
+			keys.push(key); // eslint-disable-line
+		}
+		const newHistory = {};
+		newHistory.date = dateDate;
+		newHistory.tweets = rawHistory[keys[0]].tweets_count;
+		newHistory.followers = rawHistory[keys[0]].followers_count;
+		newHistory.following = rawHistory[keys[0]].following_count;
+		newHistory.likes = rawHistory[keys[0]].likes_count;
+		return newHistory;
+	} catch (err) {
+		return undefined;
 	}
-	return res.redirect("/twitter");
 };
 
 const getHistory = async (adr) => {
