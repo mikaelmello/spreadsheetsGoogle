@@ -8,7 +8,7 @@
 
   <p align="center">
     <br><strong>
-    <a href="https://github.com/unb-cic-esw/data-viz/wiki">Acesse a nossa Wik</a>
+    <a href="https://github.com/unb-cic-esw/data-viz/wiki">Acesse a nossa Wiki</a>
     &middot;
     <a href="https://dataviz-resocie.herokuapp.com/">Acesse o Observatório das Eleições</a>
   </strong>
