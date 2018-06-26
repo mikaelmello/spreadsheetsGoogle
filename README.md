@@ -1,5 +1,5 @@
 
-[![npm](https://img.shields.io/npm/v/npm.svg?style=flat-square)](https://www.npmjs.com/package/npm) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your/your-project/blob/master/LICENSE)
+[![npm](https://img.shields.io/npm/v/npm.svg?style=flat-square)](https://www.npmjs.com/package/npm) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/unb-cic-esw/data-viz/LICENSE)
 
 <p align="center">
   <a href="https://github.com/unb-cic-esw/data-viz/wiki">
@@ -33,4 +33,4 @@ A documentação completa deste projeto, se encontra disponível em nossa [Wiki]
 
 ## Licença
 
-Código disponível sob [Licença MIT](https://github.com/your/your-project/blob/master/LICENSE)
+Código disponível sob [Licença MIT](https://github.com/unb-cic-esw/data-viz/LICENSE)
