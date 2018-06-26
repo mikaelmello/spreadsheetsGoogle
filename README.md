@@ -30,6 +30,9 @@ Para a correta instalação do ambiente observar os [pré-requisitos](https://gi
 
 A documentação completa deste projeto, se encontra disponível em nossa [Wiki](https://github.com/unb-cic-esw/data-viz/wiki)
 
+## Como Contribuir
+
+Para contribuir com o portal do Observatório das Eleições, seguir os passos para a correta [instalação](https://github.com/unb-cic-esw/data-viz/wiki/Instala%C3%A7%C3%A3o) do ambiente, criar seu próprio Fork e enviar um pull request com a contribuição para a branch 'master' do projeto. O código enviado será submetido a uma avaliação por um dos administradores do repositório e, se aprovado, incluído ao core da aplicação.
 
 ## Licença
 
