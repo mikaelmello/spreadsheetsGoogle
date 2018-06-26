@@ -33,4 +33,4 @@ A documentação completa deste projeto, se encontra disponível em nossa [Wiki]
 
 ## Licença
 
-Código disponível sob [Licença MIT](LICENSE)
+Código disponível sob [Licença MIT](https://github.com/your/your-project/blob/master/LICENSE)
